@@ -2,10 +2,6 @@ import React from "react";
 
 const documents = [
   { name: "THE-ADTECH-BOOK.pdf", path: "/THE-ADTECH-BOOK.pdf" },
-  { name: "CONTENT-COMPARISON.md", path: "/CONTENT-COMPARISON.md" },
-  { name: "README-VERIFICATION.md", path: "/README-VERIFICATION.md" },
-  { name: "extract-pdf.js", path: "/extract-pdf.js" },
-  { name: "extract-pdf-python.py", path: "/extract-pdf-python.py" },
 ];
 
 export function DocumentsModule() {
