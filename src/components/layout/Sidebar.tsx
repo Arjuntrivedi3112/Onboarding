@@ -37,6 +37,7 @@ const topics: Topic[] = [
   { id: "identity", label: "User Identity", icon: <Users className="w-4 h-4" />, description: "Privacy & tracking" },
   { id: "data", label: "Data & DMP", icon: <Database className="w-4 h-4" />, description: "Audience segments" },
   { id: "ai", label: "AI in AdTech", icon: <Brain className="w-4 h-4" />, description: "Smart optimization" },
+  { id: "documents", label: "Documents", icon: <BookOpen className="w-4 h-4" />, description: "PDFs & resources" },
 ];
 
 interface SidebarProps {
