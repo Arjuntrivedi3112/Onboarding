@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Bot, User, Sparkles, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Message {
   id: string;
@@ -12,6 +13,7 @@ interface Message {
 interface AIChatPanelProps {
   isOpen: boolean;
   onClose: () => void;
+  context?: string;
 }
 
 const quickPrompts = [
@@ -21,7 +23,7 @@ const quickPrompts = [
   "How does cookie-less targeting work?",
 ];
 
-export function AIChatPanel({ isOpen, onClose }: AIChatPanelProps) {
+export function AIChatPanel({ isOpen, onClose, context }: AIChatPanelProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
@@ -31,6 +33,11 @@ export function AIChatPanel({ isOpen, onClose }: AIChatPanelProps) {
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -41,37 +48,96 @@ export function AIChatPanel({ isOpen, onClose }: AIChatPanelProps) {
       content: input,
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    const allMessages = [...messages, userMessage];
+    setMessages(allMessages);
     setInput("");
     setIsLoading(true);
 
-    // Simulate AI response (will be replaced with real AI when Cloud is enabled)
-    setTimeout(() => {
-      const responses: Record<string, string> = {
-        dsp: "A **DSP (Demand-Side Platform)** is like a smart shopping assistant for advertisers. Instead of manually calling publishers to buy ads, advertisers use a DSP to automatically bid on ad space across thousands of websites in milliseconds. Think of it as automated media buying on steroids! 🚀",
-        ssp: "An **SSP (Supply-Side Platform)** is the publisher's best friend. It helps websites and apps sell their ad space to the highest bidder automatically. Imagine a super-fast auctioneer working 24/7 to get publishers the best price for every ad slot.",
-        rtb: "**RTB (Real-Time Bidding)** is like a lightning-fast auction that happens every time you load a webpage. In under 100 milliseconds, dozens of advertisers bid for the chance to show you an ad. The highest bidder wins, and their ad appears. This happens billions of times per day!",
-        cookie: "**Cookie-less targeting** is the future of digital advertising. As browsers block third-party cookies, advertisers are shifting to: \n\n1. **First-party data** - info collected directly from users\n2. **Contextual targeting** - matching ads to page content\n3. **Universal IDs** - privacy-safe user identifiers\n4. **Clean rooms** - secure data collaboration",
-      };
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/adtech-chat`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            messages: allMessages
+              .filter((m) => m.id !== "welcome")
+              .map((m) => ({ role: m.role, content: m.content })),
+            context,
+          }),
+        }
+      );
 
-      const inputLower = input.toLowerCase();
-      let response = "That's a great question! I'd explain this concept by breaking it down into simple parts. Connect to Lovable Cloud to enable AI-powered explanations that adapt to your learning style.";
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to get response");
+      }
 
-      if (inputLower.includes("dsp")) response = responses.dsp;
-      else if (inputLower.includes("ssp")) response = responses.ssp;
-      else if (inputLower.includes("rtb") || inputLower.includes("bidding")) response = responses.rtb;
-      else if (inputLower.includes("cookie") || inputLower.includes("cookieless")) response = responses.cookie;
+      if (!response.body) throw new Error("No response body");
 
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let assistantContent = "";
+      let textBuffer = "";
+
+      // Add initial assistant message
+      setMessages((prev) => [
+        ...prev,
+        { id: Date.now().toString(), role: "assistant", content: "" },
+      ]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        textBuffer += decoder.decode(value, { stream: true });
+
+        let newlineIndex: number;
+        while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+          let line = textBuffer.slice(0, newlineIndex);
+          textBuffer = textBuffer.slice(newlineIndex + 1);
+
+          if (line.endsWith("\r")) line = line.slice(0, -1);
+          if (line.startsWith(":") || line.trim() === "") continue;
+          if (!line.startsWith("data: ")) continue;
+
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === "[DONE]") break;
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content;
+            if (content) {
+              assistantContent += content;
+              setMessages((prev) =>
+                prev.map((m, i) =>
+                  i === prev.length - 1 ? { ...m, content: assistantContent } : m
+                )
+              );
+            }
+          } catch {
+            // Incomplete JSON, put it back
+            textBuffer = line + "\n" + textBuffer;
+            break;
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Chat error:", error);
       setMessages((prev) => [
         ...prev,
         {
           id: Date.now().toString(),
           role: "assistant",
-          content: response,
+          content: `Sorry, I encountered an error: ${error instanceof Error ? error.message : "Please try again."}`,
         },
       ]);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -102,7 +168,7 @@ export function AIChatPanel({ isOpen, onClose }: AIChatPanelProps) {
                 </div>
                 <div>
                   <h2 className="font-display font-semibold">AI Explainer</h2>
-                  <p className="text-xs text-muted-foreground">Ask anything about AdTech</p>
+                  <p className="text-xs text-muted-foreground">Powered by Lovable AI</p>
                 </div>
               </div>
               <button
@@ -125,32 +191,43 @@ export function AIChatPanel({ isOpen, onClose }: AIChatPanelProps) {
                     msg.role === "user" && "flex-row-reverse"
                   )}
                 >
-                  <div className={cn(
-                    "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
-                    msg.role === "assistant"
-                      ? "bg-gradient-to-br from-primary to-accent"
-                      : "bg-muted"
-                  )}>
+                  <div
+                    className={cn(
+                      "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
+                      msg.role === "assistant"
+                        ? "bg-gradient-to-br from-primary to-accent"
+                        : "bg-muted"
+                    )}
+                  >
                     {msg.role === "assistant" ? (
                       <Bot className="w-4 h-4 text-white" />
                     ) : (
                       <User className="w-4 h-4 text-muted-foreground" />
                     )}
                   </div>
-                  <div className={cn(
-                    "max-w-[80%] rounded-2xl px-4 py-3",
-                    msg.role === "assistant"
-                      ? "bg-muted text-foreground"
-                      : "bg-primary text-primary-foreground"
-                  )}>
+                  <div
+                    className={cn(
+                      "max-w-[80%] rounded-2xl px-4 py-3",
+                      msg.role === "assistant"
+                        ? "bg-muted text-foreground"
+                        : "bg-primary text-primary-foreground"
+                    )}
+                  >
                     <p className="text-sm leading-relaxed whitespace-pre-line">
-                      {msg.content}
+                      {msg.content || (
+                        <span className="flex gap-1">
+                          <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" />
+                          <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "150ms" }} />
+                          <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "300ms" }} />
+                        </span>
+                      )}
                     </p>
                   </div>
                 </motion.div>
               ))}
+              <div ref={messagesEndRef} />
 
-              {isLoading && (
+              {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -161,7 +238,7 @@ export function AIChatPanel({ isOpen, onClose }: AIChatPanelProps) {
                   </div>
                   <div className="bg-muted rounded-2xl px-4 py-3">
                     <div className="flex gap-1">
-                      <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "0ms" }} />
+                      <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" />
                       <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "150ms" }} />
                       <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "300ms" }} />
                     </div>
@@ -200,15 +277,12 @@ export function AIChatPanel({ isOpen, onClose }: AIChatPanelProps) {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={handleSend}
-                  disabled={isLoading}
+                  disabled={isLoading || !input.trim()}
                   className="px-4 rounded-xl bg-primary text-primary-foreground disabled:opacity-50"
                 >
                   <Send className="w-5 h-5" />
                 </motion.button>
               </div>
-              <p className="text-xs text-muted-foreground text-center mt-2">
-                Connect Lovable Cloud for AI-powered explanations
-              </p>
             </div>
           </motion.div>
         </>
