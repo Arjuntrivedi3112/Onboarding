@@ -1,6 +1,5 @@
 
 import React, { useState, useCallback } from "react";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Upload, FileText, Loader2, CheckCircle, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -8,23 +7,13 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 // import { extractDocxText } from "@/lib/extractDocxText";
 
-// Role options for summary filtering
-const ROLES = [
-	{ value: "general", label: "General" },
-	{ value: "qa", label: "QA" },
-	{ value: "backend", label: "Backend" },
-	{ value: "frontend", label: "Frontend" },
-	{ value: "security", label: "Security" },
-	{ value: "product", label: "Product" },
-];
-
 	type UploadedFile = {
 	  id: string;
 	  name: string;
 	  size: number;
 	  file: File;
 	  status: "uploading" | "processing" | "done" | "error";
-	  summaryByRole: Record<string, string>;
+	  summary: string;
 	  error?: string;
 	};
 
@@ -63,13 +52,13 @@ export function FileUploadPanel({ isOpen, onClose }: { isOpen: boolean, onClose:
 		}
 	}
 
-	const getSummaryForRole = async (file: File, role: string) => {
+	const getSummary = async (file: File) => {
 		const fileContent = await readFileContent(file);
 		if (!fileContent || fileContent.startsWith('Unable') || fileContent.startsWith('Unsupported')) {
 			return fileContent;
 		}
 		const { data, error } = await supabase.functions.invoke("summarize-doc", {
-			body: { fileName: file.name, fileContent, role },
+			body: { fileName: file.name, fileContent },
 		});
 		if (error) throw new Error(error.message || "Failed to summarize document");
 		return data.summary;
@@ -87,7 +76,7 @@ export function FileUploadPanel({ isOpen, onClose }: { isOpen: boolean, onClose:
 					size: file.size,
 					file,
 					status: "uploading",
-					summaryByRole: {},
+					summary: "",
 				},
 			]);
 			try {
@@ -96,14 +85,14 @@ export function FileUploadPanel({ isOpen, onClose }: { isOpen: boolean, onClose:
 						f.id === fileId ? { ...f, status: "processing" } : f
 					)
 				);
-				const summary = await getSummaryForRole(file, selectedRole);
+				const summary = await getSummary(file);
 				setFiles((prev) =>
 					prev.map((f) =>
 						f.id === fileId
 							? {
 									...f,
 									status: "done",
-									summaryByRole: { ...f.summaryByRole, [selectedRole]: summary },
+									summary,
 								}
 							: f
 					)
@@ -219,25 +208,9 @@ export function FileUploadPanel({ isOpen, onClose }: { isOpen: boolean, onClose:
 						<div className="text-xs text-muted-foreground mb-2">
 							Powered by <span className="font-medium">Google Gemini 2.5 Flash</span> (via Lovable AI Gateway)
 						</div>
-						{/* Role Filter (single native select for reliability) */}
+						{/* Single plain-language summary output (no role selection) */}
 						<div className="flex items-center gap-3 mb-4">
-							<label htmlFor="role-native-select" className="text-sm font-medium">Summary for:</label>
-							<select
-								id="role-native-select"
-								className="border rounded px-2 py-1 text-sm bg-background text-foreground"
-								value={selectedRole}
-								onChange={async (e) => {
-									const role = e.target.value;
-									setSelectedRole(role);
-									await handleRoleChange(role);
-								}}
-								aria-label="Role Filter"
-								style={{ minWidth: 140 }}
-							>
-								{ROLES.map((role) => (
-									<option key={role.value} value={role.value}>{role.label}</option>
-								))}
-							</select>
+							<p className="text-sm text-muted-foreground">Summary: plain-language, easy-to-read</p>
 						</div>
 						{/* Upload Dropzone */}
 						<div
@@ -300,9 +273,9 @@ export function FileUploadPanel({ isOpen, onClose }: { isOpen: boolean, onClose:
 												<p className="text-xs text-muted-foreground">
 													{(file.size / 1024).toFixed(1)} KB
 												</p>
-												{file.summaryByRole[selectedRole] && (
+												{file.summary && (
 													<div className="text-sm text-foreground mt-3 leading-relaxed whitespace-pre-wrap prose prose-sm prose-invert max-w-none">
-														{file.summaryByRole[selectedRole]}
+														{file.summary}
 													</div>
 												)}
 												{file.error && (
