@@ -12,17 +12,17 @@ interface NodeData {
   color: string;
 }
 
-// Better spaced layout to prevent overlapping
+// Well-spaced layout - all nodes within visible bounds with more right padding
 const nodes: NodeData[] = [
-  { id: "advertiser", label: "Advertiser", description: "Brands wanting ads", x: 8, y: 18, color: "advertiser" },
-  { id: "agency", label: "Agency / ATD", description: "Media buying experts", x: 8, y: 42, color: "advertiser" },
-  { id: "dsp", label: "DSP", description: "Demand-Side Platform", x: 28, y: 30, color: "dsp" },
-  { id: "dmp", label: "DMP / CDP", description: "Data Management", x: 28, y: 58, color: "dsp" },
-  { id: "exchange", label: "Ad Exchange", description: "RTB Marketplace", x: 50, y: 30, color: "exchange" },
-  { id: "ssp", label: "SSP", description: "Supply-Side Platform", x: 72, y: 30, color: "ssp" },
-  { id: "adserver", label: "Ad Server", description: "Creative delivery", x: 72, y: 58, color: "ssp" },
-  { id: "publisher", label: "Publisher", description: "Website/App", x: 92, y: 18, color: "publisher" },
-  { id: "user", label: "User", description: "Person viewing ads", x: 92, y: 42, color: "user" },
+  { id: "advertiser", label: "Advertiser", description: "Brands", x: 18, y: 22, color: "advertiser" },
+  { id: "agency", label: "Agency", description: "Media buyers", x: 18, y: 52, color: "advertiser" },
+  { id: "dsp", label: "DSP", description: "Demand-Side", x: 35, y: 37, color: "dsp" },
+  { id: "dmp", label: "DMP", description: "Data Mgmt", x: 35, y: 72, color: "dsp" },
+  { id: "exchange", label: "Exchange", description: "RTB Market", x: 50, y: 37, color: "exchange" },
+  { id: "ssp", label: "SSP", description: "Supply-Side", x: 62, y: 37, color: "ssp" },
+  { id: "adserver", label: "Ad Server", description: "Delivery", x: 62, y: 72, color: "ssp" },
+  { id: "publisher", label: "Publisher", description: "Site/App", x: 73, y: 22, color: "publisher" },
+  { id: "user", label: "User", description: "Viewer", x: 73, y: 52, color: "user" },
 ];
 
 const connections = [
@@ -50,7 +50,7 @@ export function EcosystemMap({ onNodeClick }: EcosystemMapProps) {
   };
 
   return (
-    <div className="relative w-full h-full min-h-[550px] bg-grid-pattern bg-grid rounded-2xl overflow-hidden">
+    <div className="relative w-full h-[500px] bg-card/50 border border-border rounded-2xl overflow-hidden px-10">
       {/* Background glow */}
       <div className="absolute inset-0 bg-gradient-radial from-primary/5 via-transparent to-transparent pointer-events-none" />
       
