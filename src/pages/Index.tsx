@@ -13,6 +13,7 @@ import { IdentityModule } from "@/components/modules/IdentityModule";
 import { DataModule } from "@/components/modules/DataModule";
 import { AIModule } from "@/components/modules/AIModule";
 import { DocumentsModule } from "@/components/modules/DocumentsModule";
+import { KeywordsModule } from "@/components/modules/KeywordsModule";
 import { AIChatPanel } from "@/components/ai/AIChatPanel";
 import { FileUploadPanel } from "@/components/ai/FileUploadPanel";
 import { Rocket, BookOpen, Zap } from "lucide-react";
@@ -50,6 +51,7 @@ const Index = () => {
       case "data": return <DataModule />;
       case "ai": return <AIModule />;
       case "documents": return <DocumentsModule />;
+      case "glossary": return <KeywordsModule />;
       default: return null;
     }
   };
