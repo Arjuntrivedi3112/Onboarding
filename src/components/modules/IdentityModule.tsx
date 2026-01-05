@@ -314,6 +314,86 @@ export function IdentityModule() {
           ))}
         </div>
       </motion.div>
+
+      {/* Privacy Sandbox Details */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+        className="glass rounded-xl p-6"
+      >
+        <h2 className="font-display text-xl font-semibold mb-4">Google Privacy Sandbox</h2>
+        <p className="text-muted-foreground mb-6">
+          Google's initiative to replace third-party cookies with privacy-preserving APIs that support advertising use cases while minimizing user-level tracking.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="p-4 rounded-lg bg-card border border-border">
+            <h3 className="font-semibold text-foreground mb-2">Topics API</h3>
+            <p className="text-sm text-muted-foreground mb-3">
+              Assigns users general interest categories (like "Fitness" or "Technology") based on recent browsing behavior. Instead of tracking individuals, it shares a small, rotating selection of topics with advertisers.
+            </p>
+            <ul className="text-xs text-muted-foreground space-y-1">
+              <li>• Interest-based advertising without individual tracking</li>
+              <li>• Topics rotate weekly for privacy</li>
+              <li>• Browser shares 3 topics per site visit</li>
+            </ul>
+          </div>
+
+          <div className="p-4 rounded-lg bg-card border border-border">
+            <h3 className="font-semibold text-foreground mb-2">Attribution Reporting API</h3>
+            <p className="text-sm text-muted-foreground mb-3">
+              Enables conversion measurement without cross-site tracking. Uses aggregated, anonymized data with differential privacy to protect user identity.
+            </p>
+            <ul className="text-xs text-muted-foreground space-y-1">
+              <li>• Measures ad effectiveness</li>
+              <li>• No individual user tracking</li>
+              <li>• Aggregated reporting with noise</li>
+            </ul>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Clean Rooms Expanded */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+        className="glass rounded-xl p-6"
+      >
+        <h2 className="font-display text-xl font-semibold mb-4">Data Clean Rooms</h2>
+        <p className="text-muted-foreground mb-6">
+          Secure environments where multiple parties can match and analyze data without exposing raw user information. All user-level data stays within the clean room and isn't shared externally.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-4 rounded-lg bg-card border border-border">
+            <h3 className="font-semibold text-foreground mb-2 text-sm">How It Works</h3>
+            <p className="text-xs text-muted-foreground">
+              Companies upload first-party data and compare it against aggregated datasets from other participating organizations. Matching happens without exposing PII.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-lg bg-card border border-border">
+            <h3 className="font-semibold text-foreground mb-2 text-sm">Use Cases</h3>
+            <ul className="text-xs text-muted-foreground space-y-1">
+              <li>• Targeted advertising</li>
+              <li>• Frequency capping</li>
+              <li>• Campaign measurement</li>
+              <li>• Attribution analysis</li>
+            </ul>
+          </div>
+
+          <div className="p-4 rounded-lg bg-card border border-border">
+            <h3 className="font-semibold text-foreground mb-2 text-sm">Examples</h3>
+            <ul className="text-xs text-muted-foreground space-y-1">
+              <li>• Google Ads Data Hub</li>
+              <li>• Amazon Marketing Cloud</li>
+              <li>• Snowflake Clean Room</li>
+            </ul>
+          </div>
+        </div>
+      </motion.div>
     </div>
   );
 }

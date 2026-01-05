@@ -8,7 +8,10 @@ import {
   Monitor,
   Layers,
   Image,
-  ChevronRight
+  ChevronRight,
+  CheckCircle,
+  Globe,
+  Database
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -69,6 +72,30 @@ const concepts: Concept[] = [
     shortDesc: "Ad formats",
     fullDesc: "Creatives are the actual ad content shown to users. Types include: Static images (banners), HTML5 (interactive), Video (pre-roll, mid-roll), Native (matches content), Rich Media (expandable, interactive).",
     visual: <CreativeVisual />,
+  },
+  {
+    id: "viewable",
+    title: "Viewable Impression",
+    icon: <CheckCircle className="w-5 h-5" />,
+    shortDesc: "Actually seen by user",
+    fullDesc: "A viewable impression is a metric used to determine whether an impression was actually seen by a real human or whether it was 'seen' by a bot or hidden from the user's view (e.g., at the bottom of the page where the user doesn't scroll). IAB standard: Display ads require 50% visible for 1+ second; Video requires 50% visible for 2+ seconds.",
+    visual: <ViewableVisual />,
+  },
+  {
+    id: "landing",
+    title: "Landing Page",
+    icon: <Globe className="w-5 h-5" />,
+    shortDesc: "Conversion-focused page",
+    fullDesc: "A landing page is a web page where an online user 'lands on' after clicking on an ad or link. Unlike regular pages, landing pages are built with a single objective: driving conversions. Their purpose is to get users to complete a specific goal, such as making a purchase, signing up, or filling out a form.",
+    visual: <LandingVisual />,
+  },
+  {
+    id: "inventory",
+    title: "Ad Inventory",
+    icon: <Database className="w-5 h-5" />,
+    shortDesc: "Available ad space",
+    fullDesc: "Inventory, aka ad inventory, is the name given to all the ad space available on a website. There are three main types: Premium (most valuable space on high-traffic pages), Remnant (unsold inventory sold for less than standard price), and Long-tail (small sites/blogs often sold via Google AdSense).",
+    visual: <InventoryVisual />,
   },
 ];
 
@@ -371,6 +398,110 @@ function CreativeVisual() {
           <span className="font-medium text-white">{type.name}</span>
         </motion.div>
       ))}
+    </div>
+  );
+}
+
+function ViewableVisual() {
+  return (
+    <div className="w-full max-w-md">
+      <div className="bg-muted/30 rounded-lg p-4 border border-border">
+        <div className="h-4 w-32 bg-muted rounded mb-3" />
+        <div className="flex gap-4">
+          <div className="flex-1 space-y-2">
+            <div className="h-3 w-full bg-muted rounded" />
+            <div className="h-3 w-3/4 bg-muted rounded" />
+          </div>
+          <motion.div
+            initial={{ opacity: 0.5 }}
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="w-32 h-24 rounded-lg border-2 border-green-500 flex items-center justify-center bg-green-500/10"
+          >
+            <div className="text-center">
+              <CheckCircle className="w-6 h-6 text-green-500 mx-auto mb-1" />
+              <span className="text-xs text-green-500 font-medium">Viewable</span>
+            </div>
+          </motion.div>
+        </div>
+        <div className="mt-3 h-32 bg-muted/50 rounded border border-dashed border-muted-foreground/30 flex items-center justify-center">
+          <span className="text-xs text-muted-foreground">Below fold (not viewable)</span>
+        </div>
+      </div>
+      <p className="text-center text-xs text-muted-foreground mt-3">
+        IAB Standard: 50% visible for 1+ second
+      </p>
+    </div>
+  );
+}
+
+function LandingVisual() {
+  return (
+    <div className="w-full max-w-md">
+      <div className="bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg p-6 border border-primary/20">
+        <div className="flex items-center gap-2 mb-4">
+          <Globe className="w-5 h-5 text-primary" />
+          <h4 className="font-semibold text-foreground">Landing Page</h4>
+        </div>
+        <div className="space-y-3">
+          <div className="h-4 w-3/4 bg-primary/20 rounded" />
+          <div className="h-3 w-full bg-muted rounded" />
+          <div className="h-3 w-5/6 bg-muted rounded" />
+          <div className="flex gap-2 mt-4">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium"
+            >
+              Sign Up Now
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              className="px-4 py-2 rounded-lg bg-muted text-foreground text-sm font-medium"
+            >
+              Learn More
+            </motion.button>
+          </div>
+        </div>
+      </div>
+      <p className="text-center text-xs text-muted-foreground mt-3">
+        Single objective: Drive conversions
+      </p>
+    </div>
+  );
+}
+
+function InventoryVisual() {
+  const inventoryTypes = [
+    { name: "Premium", color: "from-yellow-500 to-amber-500", desc: "High-traffic pages" },
+    { name: "Remnant", color: "from-blue-500 to-cyan-500", desc: "Unsold inventory" },
+    { name: "Long-tail", color: "from-green-500 to-emerald-500", desc: "Small sites/blogs" },
+  ];
+
+  return (
+    <div className="w-full max-w-md">
+      <div className="space-y-3">
+        {inventoryTypes.map((type, i) => (
+          <motion.div
+            key={type.name}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: i * 0.1 }}
+            className={cn(
+              "p-4 rounded-lg bg-gradient-to-r flex items-center justify-between",
+              type.color
+            )}
+          >
+            <div>
+              <p className="font-semibold text-white">{type.name}</p>
+              <p className="text-xs text-white/80">{type.desc}</p>
+            </div>
+            <Database className="w-6 h-6 text-white/80" />
+          </motion.div>
+        ))}
+      </div>
+      <p className="text-center text-xs text-muted-foreground mt-3">
+        Total available ad space on a website
+      </p>
     </div>
   );
 }
