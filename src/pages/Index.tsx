@@ -5,6 +5,13 @@ import { EcosystemMap } from "@/components/ecosystem/EcosystemMap";
 import { BasicsModule } from "@/components/modules/BasicsModule";
 import { TechnologyModule } from "@/components/modules/TechnologyModule";
 import { RTBModule } from "@/components/modules/RTBModule";
+import { AdServingModule } from "@/components/modules/AdServingModule";
+import { TargetingModule } from "@/components/modules/TargetingModule";
+import { ChannelsModule } from "@/components/modules/ChannelsModule";
+import { TrackingModule } from "@/components/modules/TrackingModule";
+import { IdentityModule } from "@/components/modules/IdentityModule";
+import { DataModule } from "@/components/modules/DataModule";
+import { AIModule } from "@/components/modules/AIModule";
 import { AIChatPanel } from "@/components/ai/AIChatPanel";
 import { FileUploadPanel } from "@/components/ai/FileUploadPanel";
 import { Rocket, BookOpen, Zap } from "lucide-react";
@@ -15,7 +22,6 @@ const Index = () => {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
 
   const handleNodeClick = (nodeId: string) => {
-    // Map node IDs to module IDs
     const nodeToModule: Record<string, string> = {
       advertiser: "basics",
       agency: "basics",
@@ -30,9 +36,24 @@ const Index = () => {
     setActiveModule(nodeToModule[nodeId] || "technology");
   };
 
+  const renderModule = () => {
+    switch (activeModule) {
+      case "basics": return <BasicsModule />;
+      case "technology": return <TechnologyModule />;
+      case "mediabuying": return <RTBModule />;
+      case "adserving": return <AdServingModule />;
+      case "targeting": return <TargetingModule />;
+      case "channels": return <ChannelsModule />;
+      case "tracking": return <TrackingModule />;
+      case "identity": return <IdentityModule />;
+      case "data": return <DataModule />;
+      case "ai": return <AIModule />;
+      default: return null;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Sidebar */}
       <Sidebar
         activeModule={activeModule}
         onModuleChange={setActiveModule}
@@ -40,23 +61,16 @@ const Index = () => {
         onOpenUpload={() => setIsUploadOpen(true)}
       />
 
-      {/* Main Content */}
       <main className="ml-[280px] min-h-screen">
         {activeModule === "home" ? (
           <HomeView onNodeClick={handleNodeClick} />
         ) : (
           <div className="p-8 max-w-7xl mx-auto">
-            {activeModule === "basics" && <BasicsModule />}
-            {activeModule === "technology" && <TechnologyModule />}
-            {activeModule === "mediabuying" && <RTBModule />}
-            {!["basics", "technology", "mediabuying"].includes(activeModule) && (
-              <ComingSoonModule moduleId={activeModule} />
-            )}
+            {renderModule()}
           </div>
         )}
       </main>
 
-      {/* AI Panels */}
       <AIChatPanel isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
       <FileUploadPanel isOpen={isUploadOpen} onClose={() => setIsUploadOpen(false)} />
     </div>
@@ -66,7 +80,6 @@ const Index = () => {
 function HomeView({ onNodeClick }: { onNodeClick: (nodeId: string) => void }) {
   return (
     <div className="p-8">
-      {/* Hero */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -83,21 +96,18 @@ function HomeView({ onNodeClick }: { onNodeClick: (nodeId: string) => void }) {
           </span>
         </h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Explore how digital advertising works end-to-end. Click any component to dive deep into its workings.
+          Explore how digital advertising works end-to-end. Click any component to dive deep.
         </p>
       </motion.div>
 
-      {/* Ecosystem Map */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.2 }}
-        className="relative"
       >
         <EcosystemMap onNodeClick={onNodeClick} />
       </motion.div>
 
-      {/* Quick Stats */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -121,36 +131,6 @@ function HomeView({ onNodeClick }: { onNodeClick: (nodeId: string) => void }) {
         </div>
       </motion.div>
     </div>
-  );
-}
-
-function ComingSoonModule({ moduleId }: { moduleId: string }) {
-  const titles: Record<string, string> = {
-    adserving: "Ad Serving",
-    targeting: "Targeting & Budget Control",
-    identity: "User Identity & Privacy",
-    data: "Data & DMP",
-    attribution: "Attribution Models",
-    channels: "Channels & Formats",
-    ai: "AI in AdTech",
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="h-[60vh] flex flex-col items-center justify-center text-center"
-    >
-      <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-6">
-        <BookOpen className="w-10 h-10 text-primary" />
-      </div>
-      <h2 className="font-display text-3xl font-bold text-foreground mb-2">
-        {titles[moduleId] || moduleId}
-      </h2>
-      <p className="text-muted-foreground max-w-md">
-        This interactive learning module is being built. Check out AdTech Basics, Technology Stack, or Media Buying & RTB for now!
-      </p>
-    </motion.div>
   );
 }
 

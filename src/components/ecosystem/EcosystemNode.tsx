@@ -64,7 +64,7 @@ export function EcosystemNode({
       {isActive && (
         <motion.div
           className={cn(
-            "absolute inset-0 rounded-2xl bg-gradient-to-br",
+            "absolute inset-0 rounded-xl bg-gradient-to-br",
             colorMap[color]
           )}
           initial={{ opacity: 0.5, scale: 1 }}
@@ -73,41 +73,41 @@ export function EcosystemNode({
         />
       )}
 
-      {/* Main node */}
+      {/* Main node - more compact design */}
       <motion.div
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         className={cn(
-          "relative px-4 py-3 rounded-2xl bg-card border transition-all duration-300",
+          "relative px-3 py-2 rounded-xl bg-card border transition-all duration-300",
           isActive
-            ? `border-transparent shadow-lg shadow-lg ${glowMap[color]}`
+            ? `border-transparent shadow-lg ${glowMap[color]}`
             : "border-border hover:border-muted-foreground/30"
         )}
       >
         {/* Gradient overlay */}
         <div
           className={cn(
-            "absolute inset-0 rounded-2xl bg-gradient-to-br opacity-10 group-hover:opacity-20 transition-opacity",
+            "absolute inset-0 rounded-xl bg-gradient-to-br opacity-10 group-hover:opacity-20 transition-opacity",
             colorMap[color]
           )}
         />
 
-        {/* Content */}
-        <div className="relative z-10 text-center">
+        {/* Content - compact */}
+        <div className="relative z-10 text-center whitespace-nowrap">
           <div
             className={cn(
-              "w-10 h-10 mx-auto mb-2 rounded-xl bg-gradient-to-br flex items-center justify-center",
+              "w-8 h-8 mx-auto mb-1 rounded-lg bg-gradient-to-br flex items-center justify-center",
               colorMap[color]
             )}
           >
-            <span className="text-lg font-bold text-white">
+            <span className="text-sm font-bold text-white">
               {label.charAt(0)}
             </span>
           </div>
-          <h3 className="font-display font-semibold text-sm text-foreground">
+          <h3 className="font-display font-semibold text-xs text-foreground">
             {label}
           </h3>
-          <p className="text-xs text-muted-foreground mt-0.5 max-w-[100px]">
+          <p className="text-[10px] text-muted-foreground mt-0.5">
             {description}
           </p>
         </div>
@@ -118,9 +118,9 @@ export function EcosystemNode({
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="absolute top-full mt-2 left-1/2 -translate-x-1/2 glass rounded-lg px-3 py-2 whitespace-nowrap z-20"
+          className="absolute top-full mt-2 left-1/2 -translate-x-1/2 glass rounded-lg px-2 py-1 whitespace-nowrap z-20"
         >
-          <p className="text-xs text-primary">Click to explore →</p>
+          <p className="text-[10px] text-primary">Click to explore →</p>
         </motion.div>
       )}
     </motion.div>

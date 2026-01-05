@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Upload, FileText, Loader2, CheckCircle, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 interface FileUploadPanelProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ interface UploadedFile {
   size: number;
   status: "uploading" | "processing" | "done" | "error";
   summary?: string;
+  error?: string;
 }
 
 export function FileUploadPanel({ isOpen, onClose }: FileUploadPanelProps) {
@@ -34,40 +36,80 @@ export function FileUploadPanel({ isOpen, onClose }: FileUploadPanelProps) {
     }
   };
 
-  const processFiles = (fileList: File[]) => {
-    const newFiles: UploadedFile[] = fileList.map((file) => ({
-      id: Date.now().toString() + file.name,
-      name: file.name,
-      size: file.size,
-      status: "uploading",
-    }));
+  const readFileContent = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target?.result as string || "");
+      reader.onerror = reject;
+      
+      // Read as text for text files
+      if (file.type.includes("text") || file.name.endsWith(".txt") || file.name.endsWith(".md")) {
+        reader.readAsText(file);
+      } else {
+        // For PDFs and other files, we'll send filename only
+        resolve(`[Binary file: ${file.name}, Size: ${(file.size / 1024).toFixed(1)}KB]`);
+      }
+    });
+  };
 
-    setFiles((prev) => [...prev, ...newFiles]);
+  const processFiles = async (fileList: File[]) => {
+    for (const file of fileList) {
+      const fileId = Date.now().toString() + file.name;
+      
+      // Add file to state
+      setFiles((prev) => [...prev, {
+        id: fileId,
+        name: file.name,
+        size: file.size,
+        status: "uploading",
+      }]);
 
-    // Simulate processing
-    newFiles.forEach((file) => {
-      setTimeout(() => {
+      try {
+        // Update to processing
         setFiles((prev) =>
           prev.map((f) =>
-            f.id === file.id ? { ...f, status: "processing" } : f
+            f.id === fileId ? { ...f, status: "processing" } : f
           )
         );
-      }, 1000);
 
-      setTimeout(() => {
+        // Read file content
+        const fileContent = await readFileContent(file);
+
+        // Call AI summarization
+        const { data, error } = await supabase.functions.invoke("summarize-doc", {
+          body: { fileName: file.name, fileContent },
+        });
+
+        if (error) {
+          throw new Error(error.message || "Failed to summarize document");
+        }
+
         setFiles((prev) =>
           prev.map((f) =>
-            f.id === file.id
-              ? {
-                  ...f,
-                  status: "done",
-                  summary: `This document appears to be a ${file.name.includes("PRD") ? "Product Requirements Document" : file.name.includes("SRS") ? "Software Requirements Specification" : "technical document"} related to AdTech. Connect Lovable Cloud to get AI-powered summaries that explain what this document covers, where it fits in the AdTech ecosystem, and your potential role.`,
+            f.id === fileId
+              ? { ...f, status: "done", summary: data.summary }
+              : f
+          )
+        );
+      } catch (error) {
+        console.error("File processing error:", error);
+        setFiles((prev) =>
+          prev.map((f) =>
+            f.id === fileId
+              ? { 
+                  ...f, 
+                  status: "error", 
+                  error: error instanceof Error ? error.message : "Failed to process file" 
                 }
               : f
           )
         );
-      }, 3000);
-    });
+      }
+    }
+  };
+
+  const removeFile = (fileId: string) => {
+    setFiles((prev) => prev.filter((f) => f.id !== fileId));
   };
 
   return (
@@ -88,17 +130,17 @@ export function FileUploadPanel({ isOpen, onClose }: FileUploadPanelProps) {
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
-            className="fixed inset-x-4 bottom-4 top-auto md:inset-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 w-auto md:w-full md:max-w-2xl bg-card border border-border rounded-2xl z-50 overflow-hidden"
+            className="fixed inset-x-4 bottom-4 top-auto md:inset-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 w-auto md:w-full md:max-w-2xl max-h-[80vh] bg-card border border-border rounded-2xl z-50 overflow-hidden flex flex-col"
           >
             {/* Header */}
-            <div className="p-4 border-b border-border flex items-center justify-between">
+            <div className="p-4 border-b border-border flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center">
                   <Upload className="w-5 h-5 text-secondary-foreground" />
                 </div>
                 <div>
                   <h2 className="font-display font-semibold">Upload Documents</h2>
-                  <p className="text-xs text-muted-foreground">PRD, SRS, or any AdTech docs</p>
+                  <p className="text-xs text-muted-foreground">Get AI-powered AdTech analysis</p>
                 </div>
               </div>
               <button
@@ -109,8 +151,9 @@ export function FileUploadPanel({ isOpen, onClose }: FileUploadPanelProps) {
               </button>
             </div>
 
-            {/* Drop Zone */}
-            <div className="p-6">
+            {/* Content - Scrollable */}
+            <div className="p-6 overflow-y-auto flex-1">
+              {/* Drop Zone */}
               <div
                 onDrop={handleDrop}
                 onDragOver={(e) => {
@@ -160,17 +203,30 @@ export function FileUploadPanel({ isOpen, onClose }: FileUploadPanelProps) {
                           <FileText className="w-5 h-5 text-primary" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm truncate">{file.name}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium text-sm truncate">{file.name}</p>
+                            <button
+                              onClick={() => removeFile(file.id)}
+                              className="text-muted-foreground hover:text-foreground p-1"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
                           <p className="text-xs text-muted-foreground">
                             {(file.size / 1024).toFixed(1)} KB
                           </p>
                           {file.summary && (
-                            <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+                            <div className="text-sm text-foreground mt-3 leading-relaxed whitespace-pre-wrap prose prose-sm prose-invert max-w-none">
                               {file.summary}
+                            </div>
+                          )}
+                          {file.error && (
+                            <p className="text-sm text-destructive mt-2">
+                              {file.error}
                             </p>
                           )}
                         </div>
-                        <div>
+                        <div className="shrink-0">
                           {file.status === "uploading" && (
                             <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
                           )}
@@ -192,10 +248,6 @@ export function FileUploadPanel({ isOpen, onClose }: FileUploadPanelProps) {
                   ))}
                 </div>
               )}
-
-              <p className="text-xs text-muted-foreground text-center mt-6">
-                Connect Lovable Cloud for AI-powered document analysis
-              </p>
             </div>
           </motion.div>
         </>

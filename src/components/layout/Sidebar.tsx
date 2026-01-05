@@ -32,10 +32,10 @@ const topics: Topic[] = [
   { id: "adserving", label: "Ad Serving", icon: <Zap className="w-4 h-4" />, description: "Step-by-step flow" },
   { id: "targeting", label: "Targeting & Budget", icon: <Target className="w-4 h-4" />, description: "Precision delivery" },
   { id: "mediabuying", label: "Media Buying & RTB", icon: <DollarSign className="w-4 h-4" />, description: "Real-time bidding" },
+  { id: "tracking", label: "Tracking & Attribution", icon: <BarChart3 className="w-4 h-4" />, description: "Measuring success" },
+  { id: "channels", label: "Channels & Formats", icon: <Tv className="w-4 h-4" />, description: "Display, video, CTV" },
   { id: "identity", label: "User Identity", icon: <Users className="w-4 h-4" />, description: "Privacy & tracking" },
   { id: "data", label: "Data & DMP", icon: <Database className="w-4 h-4" />, description: "Audience segments" },
-  { id: "attribution", label: "Attribution", icon: <BarChart3 className="w-4 h-4" />, description: "Measuring success" },
-  { id: "channels", label: "Channels & Formats", icon: <Tv className="w-4 h-4" />, description: "Display, video, CTV" },
   { id: "ai", label: "AI in AdTech", icon: <Brain className="w-4 h-4" />, description: "Smart optimization" },
 ];
 
