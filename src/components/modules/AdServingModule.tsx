@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Globe, Server, Zap, Send, Eye, BarChart3, 
-  ChevronRight, Play, RotateCcw, Clock
+  ChevronRight, Play, RotateCcw, Clock, Code, FileCode
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -381,6 +381,57 @@ export function AdServingModule() {
               <span>Verifies publisher-reported data for billing</span>
             </li>
           </ul>
+        </div>
+      </motion.div>
+
+      {/* Ad Tags and Ad Markup */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="glass rounded-xl p-6"
+      >
+        <h2 className="font-display text-xl font-semibold mb-4">Ad Tags and Ad Markup</h2>
+        <p className="text-muted-foreground mb-6">
+          Understanding the technical components that enable ad delivery and tracking.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="p-4 rounded-lg bg-card border border-border">
+            <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+              <Code className="w-5 h-5 text-primary" />
+              Ad Tags
+            </h3>
+            <p className="text-sm text-muted-foreground mb-3">
+              A piece of code inserted into an ad slot to display an ad. Ad tags act as placeholders and instructions for the browser to fetch ad content from an ad server.
+            </p>
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-foreground">Types of Ad Tags:</p>
+              <ul className="text-xs text-muted-foreground space-y-1">
+                <li>• JavaScript ad tags</li>
+                <li>• iframe ad tags</li>
+                <li>• SafeFrame ad tags</li>
+                <li>• img ad tags (1×1 pixels)</li>
+                <li>• Video ad tags (VAST)</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="p-4 rounded-lg bg-card border border-border">
+            <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+              <FileCode className="w-5 h-5 text-accent" />
+              Ad Markup
+            </h3>
+            <p className="text-sm text-muted-foreground mb-3">
+              Code retrieved from an ad server or AdTech platform via an ad tag and rendered in an ad slot. Ad markup is responsible for two main activities:
+            </p>
+            <div className="space-y-2">
+              <ul className="text-xs text-muted-foreground space-y-1">
+                <li>1. Loading the actual creative file into the ad slot</li>
+                <li>2. Tracking the impression by loading tracking pixels for measurement, ad verification, viewability, etc.</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </motion.div>
     </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Pause, RotateCcw, Zap } from "lucide-react";
+import { Play, Pause, RotateCcw, Zap, Lock, Users, TrendingUp, Globe, Code, Settings, ArrowDown, Server } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AuctionStep {
@@ -319,6 +319,266 @@ export function RTBModule() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Additional RTB Topics */}
+      <div className="mt-8 space-y-6">
+        {/* Header Bidding */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="glass rounded-xl p-6"
+        >
+          <div className="flex items-start gap-4 mb-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white">
+              <Code className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="font-display text-xl font-semibold mb-2">Header Bidding</h3>
+              <p className="text-muted-foreground text-sm">
+                Header bidding allows publishers to simultaneously solicit bids from multiple demand sources before their ad server calls other tags, maximizing competition and revenue.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div className="p-4 rounded-lg bg-card border border-border">
+              <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+                <Globe className="w-4 h-4 text-primary" />
+                Client-Side Header Bidding
+              </h4>
+              <p className="text-sm text-muted-foreground mb-2">
+                JavaScript code executes in the browser, collecting bids directly from multiple SSPs and exchanges.
+              </p>
+              <ul className="text-xs text-muted-foreground space-y-1">
+                <li>✓ Higher cookie-matching rates</li>
+                <li>✓ More transparency into pricing</li>
+                <li>⚠ Slower page load times</li>
+                <li>⚠ Limited browser requests</li>
+              </ul>
+            </div>
+
+            <div className="p-4 rounded-lg bg-card border border-border">
+              <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+                <Server className="w-4 h-4 text-accent" />
+                Server-Side Header Bidding
+              </h4>
+              <p className="text-sm text-muted-foreground mb-2">
+                Bid requests are sent to a dedicated server, which handles the auction externally before returning results.
+              </p>
+              <ul className="text-xs text-muted-foreground space-y-1">
+                <li>✓ Reduced page-load latency</li>
+                <li>✓ More bids due to fewer limits</li>
+                <li>⚠ Less control and transparency</li>
+                <li>⚠ Harder cookie matching</li>
+              </ul>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Programmatic Buying Models */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="glass rounded-xl p-6"
+        >
+          <h3 className="font-display text-xl font-semibold mb-4">Programmatic Buying Models</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 rounded-lg bg-card border border-border">
+              <div className="flex items-center gap-2 mb-2">
+                <Globe className="w-5 h-5 text-primary" />
+                <h4 className="font-semibold text-foreground">Open Auction</h4>
+              </div>
+              <p className="text-sm text-muted-foreground mb-2">
+                Public RTB auctions where any advertiser can bid on available inventory.
+              </p>
+              <ul className="text-xs text-muted-foreground space-y-1">
+                <li>• Maximum scale and reach</li>
+                <li>• Competitive pricing</li>
+                <li>• Less control over placement</li>
+              </ul>
+            </div>
+
+            <div className="p-4 rounded-lg bg-card border border-border">
+              <div className="flex items-center gap-2 mb-2">
+                <Lock className="w-5 h-5 text-accent" />
+                <h4 className="font-semibold text-foreground">Private Marketplace (PMP)</h4>
+              </div>
+              <p className="text-sm text-muted-foreground mb-2">
+                Invite-only RTB environments where premium publishers offer exclusive access to top-tier inventory.
+              </p>
+              <ul className="text-xs text-muted-foreground space-y-1">
+                <li>• Early access to premium inventory</li>
+                <li>• Higher CPMs for publishers</li>
+                <li>• Better brand safety</li>
+              </ul>
+            </div>
+
+            <div className="p-4 rounded-lg bg-card border border-border">
+              <div className="flex items-center gap-2 mb-2">
+                <Users className="w-5 h-5 text-green-500" />
+                <h4 className="font-semibold text-foreground">Programmatic Direct</h4>
+              </div>
+              <p className="text-sm text-muted-foreground mb-2">
+                Fixed-price, guaranteed deals negotiated directly but executed programmatically.
+              </p>
+              <ul className="text-xs text-muted-foreground space-y-1">
+                <li>• Guaranteed inventory</li>
+                <li>• Predictable pricing</li>
+                <li>• Limited targeting flexibility</li>
+              </ul>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Auction Dynamics */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="glass rounded-xl p-6"
+        >
+          <h3 className="font-display text-xl font-semibold mb-4">Auction Dynamics</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h4 className="font-semibold text-foreground mb-3">Second-Price Auctions (2PA)</h4>
+              <p className="text-sm text-muted-foreground mb-3">
+                The highest bidder wins but pays $0.01 more than the second-highest bid. This was the original RTB standard, offering predictability and fairness.
+              </p>
+              <div className="p-3 rounded-lg bg-muted/50">
+                <p className="text-xs text-muted-foreground mb-1">Example:</p>
+                <p className="text-sm font-medium">Bidder A: $5.00 | Bidder B: $4.00</p>
+                <p className="text-xs text-primary mt-1">→ Winner pays $4.01</p>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="font-semibold text-foreground mb-3">First-Price Auctions (1PA)</h4>
+              <p className="text-sm text-muted-foreground mb-3">
+                The winning advertiser pays exactly what they bid. Many exchanges transitioned to first-price around 2017-2018 for increased transparency.
+              </p>
+              <div className="p-3 rounded-lg bg-muted/50">
+                <p className="text-xs text-muted-foreground mb-1">Example:</p>
+                <p className="text-sm font-medium">Bidder A: $6.00 CPM</p>
+                <p className="text-xs text-primary mt-1">→ Winner pays $6.00</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="p-4 rounded-lg bg-card border border-border">
+              <h4 className="font-semibold text-foreground mb-2">Bid Shading</h4>
+              <p className="text-sm text-muted-foreground">
+                Algorithms estimate optimal bid prices close to what advertisers would pay in second-price auctions, helping control costs in first-price environments.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-lg bg-card border border-border">
+              <h4 className="font-semibold text-foreground mb-2">Floor Prices</h4>
+              <p className="text-sm text-muted-foreground">
+                Minimum CPMs publishers accept. Hard floors reject bids below threshold; soft floors allow competition with different auction models.
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Publisher Waterfall */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="glass rounded-xl p-6"
+        >
+          <h3 className="font-display text-xl font-semibold mb-4">Publisher's Waterfall</h3>
+          <p className="text-muted-foreground mb-4 text-sm">
+            Before header bidding, publishers used waterfalling—a sequential process where demand sources are called one after another until inventory is sold.
+          </p>
+          
+          <div className="flex items-center justify-center gap-2 py-6">
+            {["Direct Deals", "RTB Exchange #1", "RTB Exchange #2", "Remnant Network"].map((source, i) => (
+              <div key={source} className="flex items-center">
+                <div className="px-4 py-2 rounded-lg bg-card border border-border text-sm font-medium">
+                  {source}
+                </div>
+                {i < 3 && (
+                  <>
+                    <ArrowDown className="w-4 h-4 mx-2 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground">or</span>
+                    <ArrowDown className="w-4 h-4 mx-2 text-muted-foreground" />
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div className="p-4 rounded-lg bg-card border border-border">
+              <h4 className="font-semibold text-foreground mb-2">Waterfall Benefits</h4>
+              <ul className="text-sm text-muted-foreground space-y-1">
+                <li>✓ Monetizes remnant inventory</li>
+                <li>✓ Simple to implement</li>
+                <li>✓ Easy AdOps management</li>
+              </ul>
+            </div>
+
+            <div className="p-4 rounded-lg bg-card border border-border">
+              <h4 className="font-semibold text-foreground mb-2">Waterfall Drawbacks</h4>
+              <ul className="text-sm text-muted-foreground space-y-1">
+                <li>⚠ Lower yield potential</li>
+                <li>⚠ Latency from sequential calls</li>
+                <li>⚠ Revenue loss from timeouts</li>
+              </ul>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Manual vs Automated Optimization */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="glass rounded-xl p-6"
+        >
+          <h3 className="font-display text-xl font-semibold mb-4">Campaign Optimization</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="p-4 rounded-lg bg-card border border-border">
+              <div className="flex items-center gap-2 mb-3">
+                <Settings className="w-5 h-5 text-primary" />
+                <h4 className="font-semibold text-foreground">Manual Optimization</h4>
+              </div>
+              <p className="text-sm text-muted-foreground mb-3">
+                Team members review campaign data and make strategic adjustments to improve performance.
+              </p>
+              <ul className="text-xs text-muted-foreground space-y-1">
+                <li>• Full control over changes</li>
+                <li>• Strategic and nuanced decisions</li>
+                <li>• Best for small or sensitive campaigns</li>
+                <li>• Requires daily monitoring</li>
+              </ul>
+            </div>
+
+            <div className="p-4 rounded-lg bg-card border border-border">
+              <div className="flex items-center gap-2 mb-3">
+                <TrendingUp className="w-5 h-5 text-accent" />
+                <h4 className="font-semibold text-foreground">Automated Optimization</h4>
+              </div>
+              <p className="text-sm text-muted-foreground mb-3">
+                Systems use algorithms to make performance-based decisions automatically in real-time.
+              </p>
+              <ul className="text-xs text-muted-foreground space-y-1">
+                <li>• Real-time adjustments</li>
+                <li>• Easy to scale across campaigns</li>
+                <li>• Best for large-scale campaigns</li>
+                <li>• Requires quality data to train</li>
+              </ul>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </div>
   );

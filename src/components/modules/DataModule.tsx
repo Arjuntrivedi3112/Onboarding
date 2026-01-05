@@ -314,6 +314,77 @@ export function DataModule() {
           </ul>
         </div>
       </motion.div>
+
+      {/* Data Taxonomies */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+        className="glass rounded-xl p-6"
+      >
+        <h2 className="font-display text-xl font-semibold mb-4">Data Taxonomies</h2>
+        <p className="text-muted-foreground mb-6">
+          Taxonomies are naming conventions used for various pieces of data in a DMP. They standardize how data is categorized and organized, ensuring consistency across the platform.
+        </p>
+
+        <div className="p-4 rounded-lg bg-card border border-border">
+          <p className="text-sm text-muted-foreground mb-3">
+            For example, instead of having two taxonomies like "user" and "visitor", you could create one taxonomy (e.g., "user") that represents both terms. This prevents data fragmentation and improves segmentation accuracy.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {["User", "Visitor", "Customer", "Subscriber", "Lead"].map((term) => (
+              <span key={term} className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                {term}
+              </span>
+            ))}
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Data Onboarding */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.7 }}
+        className="glass rounded-xl p-6"
+      >
+        <h2 className="font-display text-xl font-semibold mb-4">First-Party Data Onboarding</h2>
+        <p className="text-muted-foreground mb-6">
+          The process of integrating a company's offline customer data with its online customer data to create a unified customer profile.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-4 rounded-lg bg-card border border-border">
+            <h3 className="font-semibold text-foreground mb-2 text-sm">Offline Data Sources</h3>
+            <ul className="text-xs text-muted-foreground space-y-1">
+              <li>• Point of sale (POS)</li>
+              <li>• CRM systems</li>
+              <li>• Transactional data</li>
+              <li>• Customer names, addresses</li>
+            </ul>
+          </div>
+
+          <div className="p-4 rounded-lg bg-card border border-border">
+            <h3 className="font-semibold text-foreground mb-2 text-sm">Onboarding Process</h3>
+            <ul className="text-xs text-muted-foreground space-y-1">
+              <li>1. Upload offline data</li>
+              <li>2. Anonymize PII (hash emails)</li>
+              <li>3. Match with online data</li>
+              <li>4. Create unified profiles</li>
+            </ul>
+          </div>
+
+          <div className="p-4 rounded-lg bg-card border border-border">
+            <h3 className="font-semibold text-foreground mb-2 text-sm">Benefits</h3>
+            <ul className="text-xs text-muted-foreground space-y-1">
+              <li>• Unified customer view</li>
+              <li>• Cross-channel targeting</li>
+              <li>• Better attribution</li>
+              <li>• Improved personalization</li>
+            </ul>
+          </div>
+        </div>
+      </motion.div>
     </div>
   );
 }

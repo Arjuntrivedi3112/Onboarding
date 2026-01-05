@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Eye, MousePointer, Target, BarChart3, 
-  Shield, Clock, Database, Zap
+  Shield, Clock, Database, Zap, Link, MapPin, QrCode
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -79,10 +79,12 @@ const trackingMethods: TrackingMethod[] = [
 
 const attributionModels = [
   { name: "Last Click", description: "100% credit to final touchpoint", visual: [0, 0, 0, 100] },
+  { name: "Last Non-Direct", description: "100% credit to last non-direct touchpoint", visual: [0, 0, 0, 100] },
   { name: "First Click", description: "100% credit to first touchpoint", visual: [100, 0, 0, 0] },
   { name: "Linear", description: "Equal credit to all touchpoints", visual: [25, 25, 25, 25] },
   { name: "Time Decay", description: "More credit to recent touches", visual: [10, 20, 30, 40] },
   { name: "Position-Based", description: "40% first, 40% last, 20% middle", visual: [40, 10, 10, 40] },
+  { name: "Custom", description: "Advertiser-defined rules for attribution", visual: [30, 20, 20, 30] },
 ];
 
 const reportingMetrics = [
@@ -341,6 +343,61 @@ export function TrackingModule() {
               <span className="text-muted-foreground">Requires more technical setup</span>
             </li>
           </ul>
+        </div>
+      </motion.div>
+
+      {/* Offline-Online Attribution */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+        className="glass rounded-xl p-6"
+      >
+        <h2 className="font-display text-xl font-semibold mb-4">Offline-Online Attribution</h2>
+        <p className="text-muted-foreground mb-6">
+          Connecting offline ad exposure (TV, radio, billboards) with online conversions and web traffic.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="p-4 rounded-xl bg-card border border-border">
+            <div className="flex items-center gap-2 mb-2">
+              <Link className="w-5 h-5 text-primary" />
+              <h3 className="font-semibold text-foreground">Vanity URLs</h3>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Easy-to-remember domain names created for specific campaigns (e.g., newproduct.com). Users type these URLs after seeing offline ads, linking offline exposure to online visits.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-xl bg-card border border-border">
+            <div className="flex items-center gap-2 mb-2">
+              <Clock className="w-5 h-5 text-accent" />
+              <h3 className="font-semibold text-foreground">Time-Limited Windows</h3>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Analyzes web traffic and conversions within a specific timeframe (e.g., 30 minutes) after a TV or radio ad airs, looking for increases that can be attributed to the offline campaign.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-xl bg-card border border-border">
+            <div className="flex items-center gap-2 mb-2">
+              <QrCode className="w-5 h-5 text-green-500" />
+              <h3 className="font-semibold text-foreground">Coupons</h3>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Unique coupon codes issued per campaign allow advertisers to attribute conversions to specific offline channels like direct mail or printed materials.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-xl bg-card border border-border">
+            <div className="flex items-center gap-2 mb-2">
+              <MapPin className="w-5 h-5 text-purple-500" />
+              <h3 className="font-semibold text-foreground">Zip/Postal Codes</h3>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Collecting ZIP codes from online customers can help measure offline campaigns like direct mail. More valuable when combined with other attribution methods.
+            </p>
+          </div>
         </div>
       </motion.div>
     </div>
