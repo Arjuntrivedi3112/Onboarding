@@ -6,6 +6,7 @@ import { X, Upload, FileText, Loader2, CheckCircle, AlertCircle } from "lucide-r
 import { cn } from "@/lib/utils";
 
 import { supabase } from "@/integrations/supabase/client";
+// import { extractDocxText } from "@/lib/extractDocxText";
 
 // Role options for summary filtering
 const ROLES = [
@@ -21,6 +22,7 @@ const ROLES = [
 	  id: string;
 	  name: string;
 	  size: number;
+	  file: File;
 	  status: "uploading" | "processing" | "done" | "error";
 	  summaryByRole: Record<string, string>;
 	  error?: string;
@@ -31,17 +33,41 @@ export function FileUploadPanel({ isOpen, onClose }: { isOpen: boolean, onClose:
 	const [isDragging, setIsDragging] = useState(false);
 	const [selectedRole, setSelectedRole] = useState("general");
 
-	const readFileContent = (file: File): Promise<string> => {
-		return new Promise((resolve, reject) => {
-			const reader = new FileReader();
-			reader.onload = () => resolve(reader.result as string);
-			reader.onerror = reject;
-			reader.readAsText(file);
-		});
-	};
+
+	async function readFileContent(file: File): Promise<string> {
+		const ext = file.name.split('.').pop()?.toLowerCase();
+		if (ext === 'docx') {
+			// Upload to backend for extraction
+			const formData = new FormData();
+			formData.append('file', file);
+			try {
+				const res = await fetch('http://localhost:4001/extract-docx', {
+					method: 'POST',
+					body: formData,
+				});
+				const data = await res.json();
+				if (data.text) return data.text;
+				return 'Unable to extract text from DOCX file.';
+			} catch (err) {
+				return 'Unable to extract text from DOCX file.';
+			}
+		} else if (ext === 'txt' || ext === 'md') {
+			return new Promise((resolve, reject) => {
+				const reader = new FileReader();
+				reader.onload = () => resolve(reader.result as string);
+				reader.onerror = reject;
+				reader.readAsText(file);
+			});
+		} else {
+			return 'Unsupported file type for extraction.';
+		}
+	}
 
 	const getSummaryForRole = async (file: File, role: string) => {
 		const fileContent = await readFileContent(file);
+		if (!fileContent || fileContent.startsWith('Unable') || fileContent.startsWith('Unsupported')) {
+			return fileContent;
+		}
 		const { data, error } = await supabase.functions.invoke("summarize-doc", {
 			body: { fileName: file.name, fileContent, role },
 		});
@@ -59,6 +85,7 @@ export function FileUploadPanel({ isOpen, onClose }: { isOpen: boolean, onClose:
 					id: fileId,
 					name: file.name,
 					size: file.size,
+					file,
 					status: "uploading",
 					summaryByRole: {},
 				},
@@ -105,8 +132,7 @@ export function FileUploadPanel({ isOpen, onClose }: { isOpen: boolean, onClose:
 			)
 		);
 		try {
-			const fileObj = new File([file.name], file.name); // dummy file for name
-			const summary = await getSummaryForRole(fileObj, role);
+			const summary = await getSummaryForRole(file.file, role);
 			setFiles((prev) =>
 				prev.map((f) =>
 					f.id === file.id
@@ -193,21 +219,25 @@ export function FileUploadPanel({ isOpen, onClose }: { isOpen: boolean, onClose:
 						<div className="text-xs text-muted-foreground mb-2">
 							Powered by <span className="font-medium">Google Gemini 2.5 Flash</span> (via Lovable AI Gateway)
 						</div>
-						{/* Role Filter (single custom Select) */}
+						{/* Role Filter (single native select for reliability) */}
 						<div className="flex items-center gap-3 mb-4">
-							<span className="text-sm font-medium">Summary for:</span>
-							<Select value={selectedRole} onValueChange={handleRoleChange}>
-								<SelectTrigger className="w-[140px]">
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									{ROLES.map((role) => (
-										<SelectItem key={role.value} value={role.value}>
-											{role.label}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
+							<label htmlFor="role-native-select" className="text-sm font-medium">Summary for:</label>
+							<select
+								id="role-native-select"
+								className="border rounded px-2 py-1 text-sm bg-background text-foreground"
+								value={selectedRole}
+								onChange={async (e) => {
+									const role = e.target.value;
+									setSelectedRole(role);
+									await handleRoleChange(role);
+								}}
+								aria-label="Role Filter"
+								style={{ minWidth: 140 }}
+							>
+								{ROLES.map((role) => (
+									<option key={role.value} value={role.value}>{role.label}</option>
+								))}
+							</select>
 						</div>
 						{/* Upload Dropzone */}
 						<div
