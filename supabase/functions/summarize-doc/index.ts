@@ -11,14 +11,14 @@ serve(async (req) => {
   }
 
   try {
-    const { fileName, fileContent } = await req.json();
+    const { fileName, fileContent, role } = await req.json();
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const systemPrompt = `You are an AdTech document analyst. Analyze uploaded documents and provide structured summaries specifically for someone learning AdTech.
+    let systemPrompt = `You are an AdTech document analyst. Analyze uploaded documents and provide structured summaries specifically for someone learning AdTech.
 
 For each document, provide:
 1. **Document Type**: What kind of document is this? (PRD, SRS, Technical Spec, Marketing Doc, etc.)
@@ -29,6 +29,9 @@ For each document, provide:
 6. **Key Takeaways**: 2-3 bullet points of the most important things to understand
 
 Keep explanations simple and accessible for someone learning AdTech. Use the terminology from the AdTech ecosystem.`;
+    if (role && role !== "general") {
+      systemPrompt += `\n\nIMPORTANT: Tailor your summary and explanations for the perspective of a ${role.toUpperCase()} professional. Highlight what matters most for someone in this role.`;
+    }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
