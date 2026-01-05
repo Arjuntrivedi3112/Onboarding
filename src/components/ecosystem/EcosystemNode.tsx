@@ -73,41 +73,31 @@ export function EcosystemNode({
         />
       )}
 
-      {/* Main node - more compact design */}
+      {/* Main node - compact pill design */}
       <motion.div
-        whileHover={{ scale: 1.05 }}
+        whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.95 }}
         className={cn(
-          "relative px-3 py-2 rounded-xl bg-card border transition-all duration-300",
+          "relative px-2 py-1.5 rounded-lg bg-card border transition-all duration-300 min-w-[60px]",
           isActive
             ? `border-transparent shadow-lg ${glowMap[color]}`
-            : "border-border hover:border-muted-foreground/30"
+            : "border-border hover:border-muted-foreground/50"
         )}
       >
         {/* Gradient overlay */}
         <div
           className={cn(
-            "absolute inset-0 rounded-xl bg-gradient-to-br opacity-10 group-hover:opacity-20 transition-opacity",
+            "absolute inset-0 rounded-lg bg-gradient-to-br opacity-15 group-hover:opacity-25 transition-opacity",
             colorMap[color]
           )}
         />
 
-        {/* Content - compact */}
-        <div className="relative z-10 text-center whitespace-nowrap">
-          <div
-            className={cn(
-              "w-8 h-8 mx-auto mb-1 rounded-lg bg-gradient-to-br flex items-center justify-center",
-              colorMap[color]
-            )}
-          >
-            <span className="text-sm font-bold text-white">
-              {label.charAt(0)}
-            </span>
-          </div>
-          <h3 className="font-display font-semibold text-xs text-foreground">
+        {/* Content - ultra compact */}
+        <div className="relative z-10 text-center">
+          <h3 className="font-display font-bold text-[11px] text-foreground leading-tight">
             {label}
           </h3>
-          <p className="text-[10px] text-muted-foreground mt-0.5">
+          <p className="text-[9px] text-muted-foreground leading-tight">
             {description}
           </p>
         </div>
