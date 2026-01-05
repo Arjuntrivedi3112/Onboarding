@@ -6,24 +6,16 @@ import { X, Upload, FileText, Loader2, CheckCircle, AlertCircle } from "lucide-r
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 
-type UploadedFile = {
-	id: string;
-	name: string;
-	size: number;
-	status: "uploading" | "processing" | "done" | "error";
-	summaryByRole: Record<string, string>;
-	error?: string;
-};
+	type UploadedFile = {
+	  id: string;
+	  name: string;
+	  size: number;
+	  status: "uploading" | "processing" | "done" | "error";
+	  summaryByRole: Record<string, string>;
+	  error?: string;
+	};
 
-const ROLES = [
-	{ value: "general", label: "General" },
-	{ value: "qa", label: "QA" },
-	{ value: "backend", label: "Backend" },
-	{ value: "frontend", label: "Frontend" },
-	{ value: "security", label: "Security" },
-];
-
-export function FileUploadPanel() {
+export function FileUploadPanel({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
 	const [files, setFiles] = useState<UploadedFile[]>([]);
 	const [isDragging, setIsDragging] = useState(false);
 	const [selectedRole, setSelectedRole] = useState("general");
@@ -166,117 +158,141 @@ export function FileUploadPanel() {
 		}
 	};
 
+	if (!isOpen) return null;
+
 	return (
-		<div>
-			<div className="flex items-center gap-4 mb-4">
-				<h2 className="text-lg font-semibold">Document Upload & Summary</h2>
-				<Select value={selectedRole} onValueChange={handleRoleChange}>
-					<SelectTrigger className="w-[160px]">
-						<SelectValue />
-					</SelectTrigger>
-					<SelectContent>
-						{ROLES.map((role) => (
-							<SelectItem key={role.value} value={role.value}>
-								{role.label}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-			</div>
-			<div
-				onDrop={handleDrop}
-				onDragOver={(e) => {
-					e.preventDefault();
-					setIsDragging(true);
-				}}
-				onDragLeave={() => setIsDragging(false)}
-				className={cn(
-					"relative border-2 border-dashed rounded-xl p-8 text-center transition-all",
-					isDragging
-						? "border-primary bg-primary/5"
-						: "border-border hover:border-muted-foreground/50"
-				)}
-			>
-				<input
-					type="file"
-					onChange={handleFileSelect}
-					accept=".pdf,.doc,.docx,.txt,.md"
-					multiple
-					className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-				/>
-				<Upload className={cn(
-					"w-12 h-12 mx-auto mb-4 transition-colors",
-					isDragging ? "text-primary" : "text-muted-foreground"
-				)} />
-				<p className="font-medium text-foreground mb-1">
-					Drop files here or click to upload
-				</p>
-				<p className="text-sm text-muted-foreground">
-					Supports PDF, DOC, DOCX, TXT, MD
-				</p>
-			</div>
-			{/* Uploaded Files */}
-			{files.length > 0 && (
-				<div className="mt-6 space-y-3">
-					<h3 className="text-sm font-medium text-foreground">Uploaded Files</h3>
-					{files.map((file) => (
-						<motion.div
-							key={file.id}
-							initial={{ opacity: 0, y: 10 }}
-							animate={{ opacity: 1, y: 0 }}
-							className="bg-muted rounded-xl p-4"
+		<>
+			{/* Backdrop */}
+			<div className="fixed inset-0 z-[99] bg-background/80 backdrop-blur-sm" onClick={onClose} />
+			{/* Modal Panel */}
+			<div className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none">
+				<div className="relative w-full max-w-lg mx-auto pointer-events-auto">
+					<div className="rounded-2xl border bg-card text-card-foreground shadow-2xl p-6 animate-in fade-in zoom-in">
+						{/* Header */}
+						<div className="flex items-center justify-between mb-4">
+							<h2 className="text-lg font-semibold">Document Upload & Summary</h2>
+							<button onClick={onClose} className="p-2 rounded-full hover:bg-muted transition-colors">
+								<X className="w-5 h-5" />
+							</button>
+						</div>
+						{/* AI Model Note */}
+						<div className="text-xs text-muted-foreground mb-2">
+							Powered by <span className="font-medium">Google Gemini 2.5 Flash</span> (via Lovable AI Gateway)
+						</div>
+						{/* Role Filter */}
+						<div className="flex items-center gap-3 mb-4">
+							<span className="text-sm font-medium">Summary for:</span>
+							<Select value={selectedRole} onValueChange={handleRoleChange}>
+								<SelectTrigger className="w-[140px]">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									{ROLES.map((role) => (
+										<SelectItem key={role.value} value={role.value}>
+											{role.label}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+						{/* Upload Dropzone */}
+						<div
+							onDrop={handleDrop}
+							onDragOver={(e) => {
+								e.preventDefault();
+								setIsDragging(true);
+							}}
+							onDragLeave={() => setIsDragging(false)}
+							className={cn(
+								"relative border-2 border-dashed rounded-xl p-8 text-center transition-all",
+								isDragging
+									? "border-primary bg-primary/5"
+									: "border-border hover:border-muted-foreground/50"
+							)}
 						>
-							<div className="flex items-start gap-3">
-								<div className="w-10 h-10 rounded-lg bg-card flex items-center justify-center shrink-0">
-									<FileText className="w-5 h-5 text-primary" />
-								</div>
-								<div className="flex-1 min-w-0">
-									<div className="flex items-center gap-2">
-										<p className="font-medium text-sm truncate">{file.name}</p>
-										<button
-											onClick={() => removeFile(file.id)}
-											className="text-muted-foreground hover:text-foreground p-1"
-										>
-											<X className="w-3 h-3" />
-										</button>
-									</div>
-									<p className="text-xs text-muted-foreground">
-										{(file.size / 1024).toFixed(1)} KB
-									</p>
-									{file.summaryByRole[selectedRole] && (
-										<div className="text-sm text-foreground mt-3 leading-relaxed whitespace-pre-wrap prose prose-sm prose-invert max-w-none">
-											{file.summaryByRole[selectedRole]}
+							<input
+								type="file"
+								onChange={handleFileSelect}
+								accept=".pdf,.doc,.docx,.txt,.md"
+								multiple
+								className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+							/>
+							<Upload className={cn(
+								"w-12 h-12 mx-auto mb-4 transition-colors",
+								isDragging ? "text-primary" : "text-muted-foreground"
+							)} />
+							<p className="font-medium text-foreground mb-1">
+								Drop files here or click to upload
+							</p>
+							<p className="text-sm text-muted-foreground">
+								Supports PDF, DOC, DOCX, TXT, MD
+							</p>
+						</div>
+						{/* Uploaded Files */}
+						{files.length > 0 && (
+							<div className="mt-6 space-y-3 max-h-64 overflow-y-auto pr-2">
+								<h3 className="text-sm font-medium text-foreground">Uploaded Files</h3>
+								{files.map((file) => (
+									<motion.div
+										key={file.id}
+										initial={{ opacity: 0, y: 10 }}
+										animate={{ opacity: 1, y: 0 }}
+										className="bg-muted rounded-xl p-4"
+									>
+										<div className="flex items-start gap-3">
+											<div className="w-10 h-10 rounded-lg bg-card flex items-center justify-center shrink-0">
+												<FileText className="w-5 h-5 text-primary" />
+											</div>
+											<div className="flex-1 min-w-0">
+												<div className="flex items-center gap-2">
+													<p className="font-medium text-sm truncate">{file.name}</p>
+													<button
+														onClick={() => removeFile(file.id)}
+														className="text-muted-foreground hover:text-foreground p-1"
+													>
+														<X className="w-3 h-3" />
+													</button>
+												</div>
+												<p className="text-xs text-muted-foreground">
+													{(file.size / 1024).toFixed(1)} KB
+												</p>
+												{file.summaryByRole[selectedRole] && (
+													<div className="text-sm text-foreground mt-3 leading-relaxed whitespace-pre-wrap prose prose-sm prose-invert max-w-none">
+														{file.summaryByRole[selectedRole]}
+													</div>
+												)}
+												{file.error && (
+													<p className="text-sm text-destructive mt-2">
+														{file.error}
+													</p>
+												)}
+											</div>
+											<div className="shrink-0">
+												{file.status === "uploading" && (
+													<Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
+												)}
+												{file.status === "processing" && (
+													<div className="flex items-center gap-1 text-xs text-primary">
+														<Loader2 className="w-4 h-4 animate-spin" />
+														<span>Analyzing...</span>
+													</div>
+												)}
+												{file.status === "done" && (
+													<CheckCircle className="w-5 h-5 text-green-500" />
+												)}
+												{file.status === "error" && (
+													<AlertCircle className="w-5 h-5 text-destructive" />
+												)}
+											</div>
 										</div>
-									)}
-									{file.error && (
-										<p className="text-sm text-destructive mt-2">
-											{file.error}
-										</p>
-									)}
-								</div>
-								<div className="shrink-0">
-									{file.status === "uploading" && (
-										<Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
-									)}
-									{file.status === "processing" && (
-										<div className="flex items-center gap-1 text-xs text-primary">
-											<Loader2 className="w-4 h-4 animate-spin" />
-											<span>Analyzing...</span>
-										</div>
-									)}
-									{file.status === "done" && (
-										<CheckCircle className="w-5 h-5 text-green-500" />
-									)}
-									{file.status === "error" && (
-										<AlertCircle className="w-5 h-5 text-destructive" />
-									)}
-								</div>
+									</motion.div>
+								))}
 							</div>
-						</motion.div>
-					))}
+						)}
+					</div>
 				</div>
-			)}
-		</div>
+			</div>
+		</>
 	);
 }
 
