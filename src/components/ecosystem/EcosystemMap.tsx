@@ -12,16 +12,17 @@ interface NodeData {
   color: string;
 }
 
+// Better spaced layout to prevent overlapping
 const nodes: NodeData[] = [
-  { id: "advertiser", label: "Advertiser", description: "Brands wanting to show ads", x: 10, y: 30, color: "advertiser" },
-  { id: "agency", label: "Agency / ATD", description: "Media buying experts", x: 10, y: 55, color: "advertiser" },
-  { id: "dsp", label: "DSP", description: "Demand-Side Platform", x: 30, y: 42, color: "dsp" },
-  { id: "dmp", label: "DMP / CDP", description: "Data Management Platform", x: 30, y: 70, color: "dsp" },
-  { id: "exchange", label: "Ad Exchange", description: "RTB Auction Marketplace", x: 50, y: 42, color: "exchange" },
-  { id: "ssp", label: "SSP", description: "Supply-Side Platform", x: 70, y: 42, color: "ssp" },
-  { id: "adserver", label: "Ad Server", description: "Creative delivery engine", x: 70, y: 70, color: "ssp" },
-  { id: "publisher", label: "Publisher", description: "Website/App with ad slots", x: 90, y: 30, color: "publisher" },
-  { id: "user", label: "User", description: "Person viewing ads", x: 90, y: 55, color: "user" },
+  { id: "advertiser", label: "Advertiser", description: "Brands wanting ads", x: 8, y: 18, color: "advertiser" },
+  { id: "agency", label: "Agency / ATD", description: "Media buying experts", x: 8, y: 42, color: "advertiser" },
+  { id: "dsp", label: "DSP", description: "Demand-Side Platform", x: 28, y: 30, color: "dsp" },
+  { id: "dmp", label: "DMP / CDP", description: "Data Management", x: 28, y: 58, color: "dsp" },
+  { id: "exchange", label: "Ad Exchange", description: "RTB Marketplace", x: 50, y: 30, color: "exchange" },
+  { id: "ssp", label: "SSP", description: "Supply-Side Platform", x: 72, y: 30, color: "ssp" },
+  { id: "adserver", label: "Ad Server", description: "Creative delivery", x: 72, y: 58, color: "ssp" },
+  { id: "publisher", label: "Publisher", description: "Website/App", x: 92, y: 18, color: "publisher" },
+  { id: "user", label: "User", description: "Person viewing ads", x: 92, y: 42, color: "user" },
 ];
 
 const connections = [
@@ -42,7 +43,6 @@ interface EcosystemMapProps {
 
 export function EcosystemMap({ onNodeClick }: EcosystemMapProps) {
   const [activeNode, setActiveNode] = useState<string | null>(null);
-  const [hoveredConnection, setHoveredConnection] = useState<string | null>(null);
 
   const getNodePosition = (nodeId: string) => {
     const node = nodes.find(n => n.id === nodeId);
@@ -50,7 +50,7 @@ export function EcosystemMap({ onNodeClick }: EcosystemMapProps) {
   };
 
   return (
-    <div className="relative w-full h-full min-h-[600px] bg-grid-pattern bg-grid rounded-2xl overflow-hidden">
+    <div className="relative w-full h-full min-h-[550px] bg-grid-pattern bg-grid rounded-2xl overflow-hidden">
       {/* Background glow */}
       <div className="absolute inset-0 bg-gradient-radial from-primary/5 via-transparent to-transparent pointer-events-none" />
       
@@ -74,9 +74,7 @@ export function EcosystemMap({ onNodeClick }: EcosystemMapProps) {
         {connections.map((conn, i) => {
           const from = getNodePosition(conn.from);
           const to = getNodePosition(conn.to);
-          const isActive = hoveredConnection === `${conn.from}-${conn.to}` || 
-                          activeNode === conn.from || 
-                          activeNode === conn.to;
+          const isActive = activeNode === conn.from || activeNode === conn.to;
           
           return (
             <DataFlowLine
@@ -113,7 +111,7 @@ export function EcosystemMap({ onNodeClick }: EcosystemMapProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1 }}
-        className="absolute bottom-6 left-6 glass rounded-xl p-4"
+        className="absolute bottom-4 left-4 glass rounded-xl p-3"
       >
         <p className="text-xs text-muted-foreground mb-2">Click any component to learn more</p>
         <div className="flex flex-wrap gap-3">
