@@ -39,6 +39,13 @@ export function AIChatPanel({ isOpen, onClose, context }: AIChatPanelProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Prefill input when context is provided and panel opens
+  useEffect(() => {
+    if (isOpen && context) {
+      setInput(context);
+    }
+  }, [isOpen, context]);
+
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
