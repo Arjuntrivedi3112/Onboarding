@@ -4,7 +4,18 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Upload, FileText, Loader2, CheckCircle, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+
 import { supabase } from "@/integrations/supabase/client";
+
+// Role options for summary filtering
+const ROLES = [
+	{ value: "general", label: "General" },
+	{ value: "qa", label: "QA" },
+	{ value: "backend", label: "Backend" },
+	{ value: "frontend", label: "Frontend" },
+	{ value: "security", label: "Security" },
+	{ value: "product", label: "Product" },
+];
 
 	type UploadedFile = {
 	  id: string;
@@ -151,11 +162,14 @@ export function FileUploadPanel({ isOpen, onClose }: { isOpen: boolean, onClose:
 	// Regenerate summaries for all files when role changes
 	const handleRoleChange = async (role: string) => {
 		setSelectedRole(role);
-		for (const file of files) {
-			if (!file.summaryByRole[role]) {
-				await regenerateSummaryForRole(file, role);
-			}
-		}
+		// Regenerate summaries for all files for the new role
+		await Promise.all(
+			files.map(async (file) => {
+				if (!file.summaryByRole[role]) {
+					await regenerateSummaryForRole(file, role);
+				}
+			})
+		);
 	};
 
 	if (!isOpen) return null;
@@ -164,9 +178,9 @@ export function FileUploadPanel({ isOpen, onClose }: { isOpen: boolean, onClose:
 		<>
 			{/* Backdrop */}
 			<div className="fixed inset-0 z-[99] bg-background/80 backdrop-blur-sm" onClick={onClose} />
-			{/* Modal Panel */}
-			<div className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none">
-				<div className="relative w-full max-w-lg mx-auto pointer-events-auto">
+			{/* Modal Panel (pointer-events enabled) */}
+			<div className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-auto">
+				<div className="relative w-full max-w-lg mx-auto pointer-events-auto" tabIndex={-1} aria-modal="true" role="dialog">
 					<div className="rounded-2xl border bg-card text-card-foreground shadow-2xl p-6 animate-in fade-in zoom-in">
 						{/* Header */}
 						<div className="flex items-center justify-between mb-4">
@@ -179,7 +193,7 @@ export function FileUploadPanel({ isOpen, onClose }: { isOpen: boolean, onClose:
 						<div className="text-xs text-muted-foreground mb-2">
 							Powered by <span className="font-medium">Google Gemini 2.5 Flash</span> (via Lovable AI Gateway)
 						</div>
-						{/* Role Filter */}
+						{/* Role Filter (single custom Select) */}
 						<div className="flex items-center gap-3 mb-4">
 							<span className="text-sm font-medium">Summary for:</span>
 							<Select value={selectedRole} onValueChange={handleRoleChange}>
