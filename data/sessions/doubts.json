@@ -1,16 +1,9 @@
 [
   {
-    "id": "d1767779793468",
+    "id": "d1767779843685",
     "sessionId": "s1767779350840",
-    "text": "why",
-    "createdAt": "2026-01-07T09:56:33.468Z",
-    "status": "resolved"
-  },
-  {
-    "id": "d1767779785451",
-    "sessionId": "s1767779350840",
-    "text": "lalalalaal",
-    "createdAt": "2026-01-07T09:56:25.451Z",
+    "text": "lalala",
+    "createdAt": "2026-01-07T09:57:23.685Z",
     "status": "open"
   },
   {
@@ -18,7 +11,7 @@
     "sessionId": "s1767779350840",
     "text": "eceacaecadcadc",
     "createdAt": "2026-01-07T09:56:22.186Z",
-    "status": "resolved"
+    "status": "open"
   },
   {
     "id": "d1767779675168",
