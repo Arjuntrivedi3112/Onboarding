@@ -31,7 +31,7 @@ const Index = () => {
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [sessions, setSessions] = useState<Session[]>(sessionsData as Session[]);
   const [doubts, setDoubts] = useState<Doubt[]>(doubtsData as Doubt[]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Reset detail view if the selected session is removed
   useEffect(() => {
@@ -44,9 +44,10 @@ const Index = () => {
   useEffect(() => {
     const loadFromGitHub = async () => {
       if (!isGitHubConfigured()) {
-        setIsLoading(false);
         return;
       }
+      
+      setIsLoading(true);
 
       try {
         const token = import.meta.env.VITE_GITHUB_TOKEN;
