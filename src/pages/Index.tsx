@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { EcosystemMap } from "@/components/ecosystem/EcosystemMap";
@@ -14,14 +14,88 @@ import { DataModule } from "@/components/modules/DataModule";
 import { AIModule } from "@/components/modules/AIModule";
 import { DocumentsModule } from "@/components/modules/DocumentsModule";
 import { KeywordsModule } from "@/components/modules/KeywordsModule";
+import { SessionNotesModule } from "@/components/modules/SessionNotesModule";
+import { SessionDetailView } from "@/components/modules/SessionDetailView";
 import { AIChatPanel } from "@/components/ai/AIChatPanel";
 import { FileUploadPanel } from "@/components/ai/FileUploadPanel";
 import { Rocket, BookOpen, Zap } from "lucide-react";
+import sessionsData from "../../data/sessions/sessions.json";
+import doubtsData from "../../data/sessions/doubts.json";
+import type { Session, Doubt } from "@/components/modules/SessionNotesModule";
+import { isGitHubConfigured } from "@/lib/githubStorage";
 
 const Index = () => {
   const [activeModule, setActiveModule] = useState("home");
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+  const [sessions, setSessions] = useState<Session[]>(sessionsData as Session[]);
+  const [doubts, setDoubts] = useState<Doubt[]>(doubtsData as Doubt[]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Reset detail view if the selected session is removed
+  useEffect(() => {
+    if (selectedSessionId && !sessions.find((session) => session.id === selectedSessionId)) {
+      setSelectedSessionId(null);
+    }
+  }, [selectedSessionId, sessions]);
+
+  // Load sessions and doubts from GitHub on mount if configured
+  useEffect(() => {
+    const loadFromGitHub = async () => {
+      if (!isGitHubConfigured()) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const token = import.meta.env.VITE_GITHUB_TOKEN;
+        const owner = import.meta.env.VITE_GITHUB_OWNER;
+        const repo = import.meta.env.VITE_GITHUB_REPO;
+        const branch = import.meta.env.VITE_GITHUB_BRANCH || "main";
+
+        // Fetch sessions
+        const sessionsResponse = await fetch(
+          `https://api.github.com/repos/${owner}/${repo}/contents/data/sessions/sessions.json?ref=${branch}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: "application/vnd.github.v3+json",
+            },
+          }
+        );
+
+        if (sessionsResponse.ok) {
+          const sessionsData = await sessionsResponse.json();
+          const sessionsContent = JSON.parse(atob(sessionsData.content));
+          setSessions(sessionsContent);
+        }
+
+        // Fetch doubts
+        const doubtsResponse = await fetch(
+          `https://api.github.com/repos/${owner}/${repo}/contents/data/sessions/doubts.json?ref=${branch}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: "application/vnd.github.v3+json",
+            },
+          }
+        );
+
+        if (doubtsResponse.ok) {
+          const doubtsData = await doubtsResponse.json();
+          const doubtsContent = JSON.parse(atob(doubtsData.content));
+          setDoubts(doubtsContent);
+        }
+      } catch (error) {
+        console.error("Error loading from GitHub:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadFromGitHub();
+  }, []);
 
   const handleNodeClick = (nodeId: string) => {
     const nodeToModule: Record<string, string> = {
@@ -52,6 +126,23 @@ const Index = () => {
       case "ai": return <AIModule />;
       case "documents": return <DocumentsModule />;
       case "glossary": return <KeywordsModule />;
+      case "sessions": 
+        return selectedSessionId 
+            ? <SessionDetailView 
+              sessionId={selectedSessionId} 
+              onBack={() => setSelectedSessionId(null)}
+              sessions={sessions}
+              doubts={doubts}
+              onDoubtsChange={setDoubts}
+              onSessionsChange={setSessions}
+            />
+          : <SessionNotesModule 
+              onSelectSession={setSelectedSessionId}
+              sessions={sessions}
+              doubts={doubts}
+              onSessionsChange={setSessions}
+              onDoubtsChange={setDoubts}
+            />;
       default: return null;
     }
   };
@@ -66,7 +157,11 @@ const Index = () => {
       />
 
       <main className="ml-[280px] min-h-screen">
-        {activeModule === "home" ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center h-screen">
+            <div className="text-muted-foreground">Loading sessions...</div>
+          </div>
+        ) : activeModule === "home" ? (
           <HomeView onNodeClick={handleNodeClick} />
         ) : (
           <div className="p-8 max-w-7xl mx-auto">

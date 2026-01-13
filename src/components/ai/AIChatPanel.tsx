@@ -61,13 +61,18 @@ export function AIChatPanel({ isOpen, onClose, context }: AIChatPanelProps) {
     setIsLoading(true);
 
     try {
+      const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      if (!anonKey) {
+        throw new Error("Supabase anon key is missing (VITE_SUPABASE_ANON_KEY)");
+      }
+
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/adtech-chat`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            Authorization: `Bearer ${anonKey}`,
           },
           body: JSON.stringify({
             messages: allMessages
@@ -175,7 +180,6 @@ export function AIChatPanel({ isOpen, onClose, context }: AIChatPanelProps) {
                 </div>
                 <div>
                   <h2 className="font-display font-semibold">AI Explainer</h2>
-                  <p className="text-xs text-muted-foreground">Powered by Lovable AI</p>
                 </div>
               </div>
               <button

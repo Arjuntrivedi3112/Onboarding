@@ -13,11 +13,10 @@ serve(async (req) => {
   try {
     const { fileName, fileContent, role } = await req.json();
     
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    const GOOGLE_API_KEY = Deno.env.get("GOOGLE_API_KEY");
+    if (!GOOGLE_API_KEY) {
+      throw new Error("GOOGLE_API_KEY is not configured. Get it free at https://aistudio.google.com");
     }
-
 
     // New simple system prompt: always return a plain-language formatted summary suitable for end users
     let systemPrompt = `You are an AdTech document analyst. Provide a single, plain-language, easy-to-read summary of the uploaded document. Format the output in Markdown for display, with the following sections:
@@ -29,31 +28,24 @@ serve(async (req) => {
 
   Keep language simple and non-technical unless the document requires otherwise. Use short sentences and clear bullets. Do not include role-based greetings or role-specific sections—this endpoint returns a single plain-language summary for the uploaded file.`;
 
-    // Log the prompt and role for debugging
-    console.log("\n--- AI PROMPT DEBUG ---");
-    console.log("Role:", role);
-    console.log("Prompt:\n" + systemPrompt);
-    console.log("FileName:", fileName);
-    console.log("--- END PROMPT DEBUG ---\n");
-
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { 
-            role: "user", 
-            content: `Analyze this document named "${fileName}":\n\n${fileContent.substring(0, 15000)}` 
-          },
-        ],
-        stream: false,
-      }),
-    });
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GOOGLE_API_KEY}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: systemPrompt }] },
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: `Analyze this document named "${fileName}":\n\n${fileContent.substring(0, 15000)}` }],
+            },
+          ],
+        }),
+      }
+    );
 
     if (!response.ok) {
       if (response.status === 429) {
@@ -69,12 +61,12 @@ serve(async (req) => {
         });
       }
       const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      throw new Error("AI gateway error");
+      console.error("Google AI error:", response.status, errorText);
+      throw new Error("Google AI error");
     }
 
     const data = await response.json();
-    const summary = data.choices?.[0]?.message?.content || "Unable to generate summary.";
+    const summary = data.candidates?.[0]?.content?.parts?.[0]?.text || "Unable to generate summary.";
 
     return new Response(JSON.stringify({ summary }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

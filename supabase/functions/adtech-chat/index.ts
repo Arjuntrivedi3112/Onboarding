@@ -36,12 +36,26 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, context } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const { messages = [], context } = await req.json();
+    const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
     
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    if (!GROQ_API_KEY) {
+      throw new Error("GROQ_API_KEY is not configured. Get it free at https://console.groq.com/keys");
     }
+
+    const sseMessage = (content: string, status = 200) => {
+      const stream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ choices: [{ delta: { content } }] })}\n\n`));
+          controller.enqueue(new TextEncoder().encode("data: [DONE]\n\n"));
+          controller.close();
+        },
+      });
+      return new Response(stream, {
+        status,
+        headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+      });
+    };
 
     // Build context-aware system prompt
     let systemPrompt = SYSTEM_PROMPT;
@@ -49,48 +63,67 @@ serve(async (req) => {
       systemPrompt += `\n\nCurrent context: The user is viewing the "${context}" module in the AdTech Visual Explorer.`;
     }
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...messages,
-        ],
-        stream: true,
-      }),
-    });
+    // Use Groq (fast, free, OpenAI-compatible)
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+
+    let response: Response;
+    try {
+      response = await fetch(
+        "https://api.groq.com/openai/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${GROQ_API_KEY}`,
+          },
+          body: JSON.stringify({
+            model: "llama-3.3-70b-versatile",
+            messages: [
+              { role: "system", content: systemPrompt },
+              ...messages,
+            ],
+            temperature: 0.7,
+            max_tokens: 800,
+          }),
+          signal: controller.signal,
+        }
+      );
+      clearTimeout(timeout);
+    } catch (err) {
+      clearTimeout(timeout);
+      console.error("Groq fetch error:", err);
+      return sseMessage("⏳ AI service is slow to respond right now. Please retry in a moment.");
+    }
 
     if (!response.ok) {
       if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return sseMessage("⏳ Rate limit exceeded. Groq free tier: 30 req/min, 14,400/day. Please wait a moment.");
       }
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: "AI credits exhausted. Please add credits to continue." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+      if (response.status === 401) {
+        return sseMessage("🔑 Invalid API key. Please check your Groq API key.");
       }
       const errorText = await response.text();
       console.error("AI gateway error:", response.status, errorText);
-      throw new Error("AI gateway error");
+      return sseMessage(`AI error (${response.status}). Please retry in a moment.`);
     }
 
-    return new Response(response.body, {
-      headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
-    });
+    // OpenAI-compatible response format
+    const data = await response.json();
+    const text = data.choices?.[0]?.message?.content || "No response from AI.";
+    
+    return sseMessage(text);
   } catch (error) {
     console.error("adtech-chat error:", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    const message = error instanceof Error ? error.message : "Unknown error";
+    const { readable, writable } = new TransformStream();
+    const writer = writable.getWriter();
+    await writer.write(new TextEncoder().encode(`data: ${JSON.stringify({ choices: [{ delta: { content: `⚠️ ${message}` } }] })}\n\n`));
+    await writer.write(new TextEncoder().encode("data: [DONE]\n\n"));
+    await writer.close();
+    return new Response(readable, {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+    });
   }
 });

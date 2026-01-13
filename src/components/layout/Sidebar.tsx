@@ -15,6 +15,7 @@ import {
   MessageSquare,
   Upload,
   Home,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -39,6 +40,7 @@ const topics: Topic[] = [
   { id: "ai", label: "AI in AdTech", icon: <Brain className="w-4 h-4" />, description: "Smart optimization" },
   { id: "documents", label: "Documents", icon: <BookOpen className="w-4 h-4" />, description: "PDFs & resources" },
   { id: "glossary", label: "Glossary", icon: <BookOpen className="w-4 h-4" />, description: "Key terms & definitions" },
+  { id: "sessions", label: "Session Notes", icon: <FileText className="w-4 h-4" />, description: "Learning sessions" },
 ];
 
 interface SidebarProps {
