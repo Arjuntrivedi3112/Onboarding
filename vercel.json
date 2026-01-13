@@ -6,11 +6,5 @@
       "source": "/(.*)",
       "destination": "/index.html"
     }
-  ],
-  "env": {
-    "VITE_GITHUB_TOKEN": "@vite_github_token",
-    "VITE_GITHUB_OWNER": "@vite_github_owner",
-    "VITE_GITHUB_REPO": "@vite_github_repo",
-    "VITE_GITHUB_BRANCH": "@vite_github_branch"
-  }
+  ]
 }
