@@ -14,4 +14,8 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  define: {
+    // Ensure environment variables are properly injected during build
+    __VITE_ENV__: JSON.stringify(process.env),
+  },
 }));
