@@ -55,10 +55,12 @@ const enqueueCommit = async (path: string, task: () => Promise<boolean>): Promis
 // Get current file SHA from GitHub (required for updates)
 const getFileSha = async (config: GitHubConfig, path: string): Promise<string | null> => {
   try {
-    console.log('Fetching file SHA from GitHub:', path);
+    console.log('[GitHub Storage] Fetching file SHA from GitHub:', path);
 
+    // Add cache-busting timestamp to prevent stale data
+    const cacheBuster = `ts=${Date.now()}`;
     const response = await fetch(
-      `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${path}?ref=${config.branch}&ts=${Date.now()}`,
+      `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${path}?ref=${config.branch}&${cacheBuster}`,
       {
         headers: {
           Authorization: `Bearer ${config.token}`,
@@ -68,18 +70,22 @@ const getFileSha = async (config: GitHubConfig, path: string): Promise<string | 
     );
 
     if (!response.ok) {
-      console.log('File does not exist yet, will create new:', path);
+      if (response.status === 404) {
+        console.log('[GitHub Storage] File does not exist yet, will create new:', path);
+        return null;
+      }
+      console.error('[GitHub Storage] Failed to fetch file SHA:', response.status, response.statusText);
       return null;
     }
 
     const data = await response.json();
-    console.log('Got file SHA:', data.sha);
+    console.log('[GitHub Storage] Got file SHA:', data.sha);
     if (data?.sha) {
       lastKnownSha[path] = data.sha;
     }
     return data.sha;
   } catch (error) {
-    console.error("Error fetching file SHA:", error);
+    console.error("[GitHub Storage] Error fetching file SHA:", error);
     return null;
   }
 };
@@ -93,6 +99,8 @@ const commitFile = async (
   sha?: string | null
 ): Promise<boolean> => {
   try {
+    console.log('[GitHub Storage] Starting commit process:', { path, message, hasSha: !!sha });
+    
     // Base64 encode content - handle Unicode properly
     const base64Content = btoa(unescape(encodeURIComponent(content)));
 
@@ -107,7 +115,13 @@ const commitFile = async (
         body.sha = shaToUse;
       }
 
-      console.log('Committing to GitHub:', { path, message, hasSha: !!shaToUse });
+      console.log('[GitHub Storage] Committing to GitHub:', { 
+        path, 
+        message, 
+        hasSha: !!shaToUse,
+        repo: `${config.owner}/${config.repo}`,
+        branch: config.branch 
+      });
 
       return await fetch(
         `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${path}`,
@@ -127,6 +141,7 @@ const commitFile = async (
 
     // Handle 409 (SHA mismatch) by extracting the expected SHA from error response and retrying once
     if (response.status === 409) {
+      console.warn('[GitHub Storage] SHA mismatch detected (409), attempting retry...');
       let errorDetail: any = {};
       try {
         errorDetail = await response.clone().json();
@@ -139,13 +154,14 @@ const commitFile = async (
       const expectedSha = match?.[1];
 
       if (expectedSha && expectedSha !== sha) {
-        console.warn('SHA mismatch, retrying with server-reported SHA:', expectedSha);
+        console.warn('[GitHub Storage] SHA mismatch, retrying with server-reported SHA:', expectedSha);
         response = await doCommit(expectedSha);
       } else {
-        console.warn('SHA mismatch with no extractable SHA; fetching latest and retrying once');
+        console.warn('[GitHub Storage] SHA mismatch with no extractable SHA; fetching latest and retrying once');
         await new Promise((resolve) => setTimeout(resolve, 500));
         const latestSha = await getFileSha(config, path);
         if (latestSha && latestSha !== sha) {
+          console.log('[GitHub Storage] Retrying with fresh SHA:', latestSha);
           response = await doCommit(latestSha);
         }
       }
@@ -158,31 +174,33 @@ const commitFile = async (
       } catch (parseError) {
         errorDetail = { message: 'Failed to parse error response', parseError };
       }
-      console.error("GitHub commit failed:", {
+      console.error("[GitHub Storage] GitHub commit failed:", {
         status: response.status,
         statusText: response.statusText,
+        url: `${config.owner}/${config.repo}/${path}`,
         error: errorDetail,
       });
       try {
-        console.error("GitHub commit failed (stringified):", JSON.stringify(errorDetail));
+        console.error("[GitHub Storage] GitHub commit failed (stringified):", JSON.stringify(errorDetail));
       } catch (_) {
         // ignore stringify errors
       }
       return false;
     }
 
-    console.log('Successfully committed to GitHub:', path);
+    console.log('[GitHub Storage] ✓ Successfully committed to GitHub:', path);
     try {
       const body = await response.clone().json();
       if (body?.content?.sha) {
         lastKnownSha[path] = body.content.sha;
+        console.log('[GitHub Storage] Updated cached SHA:', body.content.sha);
       }
     } catch (_) {
       // ignore parse failures on success
     }
     return true;
   } catch (error) {
-    console.error("Error committing to GitHub:", error);
+    console.error("[GitHub Storage] Error committing to GitHub:", error);
     return false;
   }
 };
@@ -191,20 +209,29 @@ const commitFile = async (
  * Save sessions to GitHub
  */
 export const saveSessionsToGitHub = async (sessions: Session[]): Promise<boolean> => {
+  console.log('[GitHub Storage] Saving sessions...', { count: sessions.length });
   const config = getGitHubConfig();
-  if (!config) return false;
+  if (!config) {
+    console.error('[GitHub Storage] Cannot save: GitHub not configured');
+    return false;
+  }
 
   const path = "data/sessions/sessions.json";
   const content = JSON.stringify(sessions, null, 2);
+  console.log('[GitHub Storage] Preparing commit:', { path, contentLength: content.length });
+  
   return enqueueCommit(path, async () => {
     const sha = await getFileSha(config, path);
-    return await commitFile(
+    console.log('[GitHub Storage] File SHA:', sha || 'new file');
+    const result = await commitFile(
       config,
       path,
       content,
       `Update sessions data (${sessions.length} sessions)`,
       sha
     );
+    console.log('[GitHub Storage] Save result:', result);
+    return result;
   });
 };
 
@@ -212,20 +239,29 @@ export const saveSessionsToGitHub = async (sessions: Session[]): Promise<boolean
  * Save doubts to GitHub
  */
 export const saveDoubtsToGitHub = async (doubts: Doubt[]): Promise<boolean> => {
+  console.log('[GitHub Storage] Saving doubts...', { count: doubts.length });
   const config = getGitHubConfig();
-  if (!config) return false;
+  if (!config) {
+    console.error('[GitHub Storage] Cannot save: GitHub not configured');
+    return false;
+  }
 
   const path = "data/sessions/doubts.json";
   const content = JSON.stringify(doubts, null, 2);
+  console.log('[GitHub Storage] Preparing commit:', { path, contentLength: content.length });
+  
   return enqueueCommit(path, async () => {
     const sha = await getFileSha(config, path);
-    return await commitFile(
+    console.log('[GitHub Storage] File SHA:', sha || 'new file');
+    const result = await commitFile(
       config,
       path,
       content,
       `Update doubts data (${doubts.length} doubts)`,
       sha
     );
+    console.log('[GitHub Storage] Save result:', result);
+    return result;
   });
 };
 
@@ -251,7 +287,8 @@ export const saveAllToGitHub = async (
  * Check if GitHub auto-commit is configured
  */
 export const isGitHubConfigured = (): boolean => {
-  return getGitHubConfig() !== null;
+  const config = getGitHubConfig();
+  return config !== null;
 };
 
 // Convert Blob/File to base64 string (no data URL prefix)
@@ -395,4 +432,78 @@ export const deleteSessionImageFromGitHub = async (imageUrl: string): Promise<bo
 
     return true;
   });
+};
+
+/**
+ * Load sessions from GitHub
+ */
+export const loadSessionsFromGitHub = async (): Promise<Session[] | null> => {
+  const config = getGitHubConfig();
+  if (!config) {
+    console.error('[GitHub Storage] Cannot load: GitHub not configured');
+    return null;
+  }
+
+  try {
+    const cacheBuster = `ts=${Date.now()}`;
+    const response = await fetch(
+      `https://api.github.com/repos/${config.owner}/${config.repo}/contents/data/sessions/sessions.json?ref=${config.branch}&${cacheBuster}`,
+      {
+        headers: {
+          Authorization: `Bearer ${config.token}`,
+          Accept: "application/vnd.github.v3+json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      console.error('[GitHub Storage] Failed to load sessions:', response.status, response.statusText);
+      return null;
+    }
+
+    const data = await response.json();
+    const sessions = JSON.parse(atob(data.content)) as Session[];
+    return sessions;
+  } catch (error) {
+    console.error('[GitHub Storage] Error loading sessions from GitHub:', error);
+    return null;
+  }
+};
+
+/**
+ * Load doubts from GitHub
+ */
+export const loadDoubtsFromGitHub = async (): Promise<Doubt[] | null> => {
+  const config = getGitHubConfig();
+  if (!config) {
+    console.error('[GitHub Storage] Cannot load: GitHub not configured');
+    return null;
+  }
+
+  try {
+    console.log('[GitHub Storage] Loading doubts from GitHub...');
+    const cacheBuster = `ts=${Date.now()}`;
+    const response = await fetch(
+      `https://api.github.com/repos/${config.owner}/${config.repo}/contents/data/sessions/doubts.json?ref=${config.branch}&${cacheBuster}`,
+      {
+        headers: {
+          Authorization: `Bearer ${config.token}`,
+          Accept: "application/vnd.github.v3+json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      console.error('[GitHub Storage] Failed to load doubts:', response.status, response.statusText);
+      return null;
+    }
+
+    const data = await response.json();
+    const doubts = JSON.parse(atob(data.content)) as Doubt[];
+    console.log('[GitHub Storage] ✓ Loaded doubts from GitHub:', doubts.length);
+    return doubts;
+  } catch (error) {
+    console.error('[GitHub Storage] Error loading doubts from GitHub:', error);
+    return null;
+  }
 };

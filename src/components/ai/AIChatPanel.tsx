@@ -61,30 +61,85 @@ export function AIChatPanel({ isOpen, onClose, context }: AIChatPanelProps) {
     setIsLoading(true);
 
     try {
+      // Try Supabase Edge Function first, fallback to direct GROQ API
+      const groqApiKey = import.meta.env.VITE_GROQ_API_KEY;
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-      if (!anonKey) {
-        throw new Error("Supabase anon key is missing (VITE_SUPABASE_ANON_KEY)");
+      
+      let response: Response;
+      let useDirectGroq = false;
+
+      // Try Supabase Edge Function first
+      if (supabaseUrl && anonKey) {
+        try {
+          response = await fetch(
+            `${supabaseUrl}/functions/v1/adtech-chat`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${anonKey}`,
+              },
+              body: JSON.stringify({
+                messages: allMessages
+                  .filter((m) => m.id !== "welcome")
+                  .map((m) => ({ role: m.role, content: m.content })),
+                context,
+              }),
+            }
+          );
+          
+          if (!response.ok) {
+            throw new Error("Edge function not available");
+          }
+        } catch (edgeFunctionError) {
+          console.log("Edge function unavailable, using direct GROQ API");
+          useDirectGroq = true;
+        }
+      } else {
+        useDirectGroq = true;
       }
 
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/adtech-chat`,
-        {
+      // Fallback to direct GROQ API
+      if (useDirectGroq) {
+        if (!groqApiKey) {
+          throw new Error("GROQ API key is missing");
+        }
+
+        const systemPrompt = `You are an expert AdTech educator and explainer. Your role is to help users understand the advertising technology ecosystem in clear, simple terms.
+
+GUIDELINES:
+- Explain concepts at the user's level - if they say "like I'm new", use analogies and simple language
+- If they mention a role (PM, developer, etc.), tailor your explanation to that perspective
+- Use **bold** for key terms and concepts
+- Keep responses concise but informative (2-4 paragraphs max)
+- Include practical examples when helpful
+
+Be helpful, accurate, and encouraging. Make AdTech accessible to everyone.`;
+
+        response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${anonKey}`,
+            Authorization: `Bearer ${groqApiKey}`,
           },
           body: JSON.stringify({
-            messages: allMessages
-              .filter((m) => m.id !== "welcome")
-              .map((m) => ({ role: m.role, content: m.content })),
-            context,
+            model: "llama-3.1-70b-versatile",
+            messages: [
+              { role: "system", content: systemPrompt },
+              ...allMessages
+                .filter((m) => m.id !== "welcome")
+                .map((m) => ({ role: m.role, content: m.content })),
+            ],
+            temperature: 0.7,
+            max_tokens: 1000,
+            stream: true,
           }),
-        }
-      );
+        });
+      }
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || "Failed to get response");
       }
 
@@ -139,12 +194,21 @@ export function AIChatPanel({ isOpen, onClose, context }: AIChatPanelProps) {
       }
     } catch (error) {
       console.error("Chat error:", error);
+      
+      let errorMessage = "Sorry, I encountered an error.";
+      
+      if (error instanceof TypeError && error.message.includes("Failed to fetch")) {
+        errorMessage = "⚠️ AI Chat is not configured yet.\n\nThe Supabase Edge Function needs to be deployed. This feature requires:\n1. A valid Supabase project\n2. The `adtech-chat` Edge Function deployed\n\nFor now, you can explore the other features of AdTech Explorer!";
+      } else if (error instanceof Error) {
+        errorMessage = `Error: ${error.message}`;
+      }
+      
       setMessages((prev) => [
         ...prev,
         {
           id: Date.now().toString(),
           role: "assistant",
-          content: `Sorry, I encountered an error: ${error instanceof Error ? error.message : "Please try again."}`,
+          content: errorMessage,
         },
       ]);
     } finally {

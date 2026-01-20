@@ -22,7 +22,7 @@ import { Rocket, BookOpen, Zap } from "lucide-react";
 import sessionsData from "../../data/sessions/sessions.json";
 import doubtsData from "../../data/sessions/doubts.json";
 import type { Session, Doubt } from "@/components/modules/SessionNotesModule";
-import { isGitHubConfigured } from "@/lib/githubStorage";
+import { isGitHubConfigured, loadSessionsFromGitHub, loadDoubtsFromGitHub } from "@/lib/githubStorage";
 
 const Index = () => {
   const [activeModule, setActiveModule] = useState("home");
@@ -44,52 +44,28 @@ const Index = () => {
   useEffect(() => {
     const loadFromGitHub = async () => {
       if (!isGitHubConfigured()) {
+        console.log('[Index] GitHub not configured, using local data');
         return;
       }
       
       setIsLoading(true);
 
       try {
-        const token = import.meta.env.VITE_GITHUB_TOKEN;
-        const owner = import.meta.env.VITE_GITHUB_OWNER;
-        const repo = import.meta.env.VITE_GITHUB_REPO;
-        const branch = import.meta.env.VITE_GITHUB_BRANCH || "main";
+        // Use the new utility functions
+        const [loadedSessions, loadedDoubts] = await Promise.all([
+          loadSessionsFromGitHub(),
+          loadDoubtsFromGitHub(),
+        ]);
 
-        // Fetch sessions
-        const sessionsResponse = await fetch(
-          `https://api.github.com/repos/${owner}/${repo}/contents/data/sessions/sessions.json?ref=${branch}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              Accept: "application/vnd.github.v3+json",
-            },
-          }
-        );
-
-        if (sessionsResponse.ok) {
-          const sessionsData = await sessionsResponse.json();
-          const sessionsContent = JSON.parse(atob(sessionsData.content));
-          setSessions(sessionsContent);
+        if (loadedSessions) {
+          setSessions(loadedSessions);
         }
 
-        // Fetch doubts
-        const doubtsResponse = await fetch(
-          `https://api.github.com/repos/${owner}/${repo}/contents/data/sessions/doubts.json?ref=${branch}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              Accept: "application/vnd.github.v3+json",
-            },
-          }
-        );
-
-        if (doubtsResponse.ok) {
-          const doubtsData = await doubtsResponse.json();
-          const doubtsContent = JSON.parse(atob(doubtsData.content));
-          setDoubts(doubtsContent);
+        if (loadedDoubts) {
+          setDoubts(loadedDoubts);
         }
       } catch (error) {
-        console.error("Error loading from GitHub:", error);
+        console.error("[Index] Error loading from GitHub:", error);
       } finally {
         setIsLoading(false);
       }

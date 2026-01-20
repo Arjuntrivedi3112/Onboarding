@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Plus, Calendar, Clock, Tag, AlertCircle, CheckCircle2, X, Trash2, Image as ImageIcon } from "lucide-react";
+import { Plus, Calendar, Clock, Tag, AlertCircle, CheckCircle2, X, Trash2, Image as ImageIcon, RefreshCw } from "lucide-react";
 import sessionsData from "../../../data/sessions/sessions.json";
 import doubtsData from "../../../data/sessions/doubts.json";
-import { saveSessionsToGitHub, saveDoubtsToGitHub, isGitHubConfigured, uploadSessionImageToGitHub } from "@/lib/githubStorage";
+import { saveSessionsToGitHub, saveDoubtsToGitHub, isGitHubConfigured, uploadSessionImageToGitHub, loadSessionsFromGitHub, loadDoubtsFromGitHub } from "@/lib/githubStorage";
 import { useToast } from "@/hooks/use-toast";
 
 // Session type definition - extensible structure for future features
@@ -232,6 +232,59 @@ export function SessionNotesModule({ onSelectSession, sessions, doubts, onSessio
     }
   };
 
+  // Refresh sessions from GitHub
+  const refreshFromGitHub = async () => {
+    if (!githubConfigured) {
+      toast({
+        title: "GitHub not configured",
+        description: "Please set up GitHub environment variables.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSaving(true);
+    toast({
+      title: "Refreshing...",
+      description: "Loading latest data from GitHub.",
+    });
+
+    try {
+      const [loadedSessions, loadedDoubts] = await Promise.all([
+        loadSessionsFromGitHub(),
+        loadDoubtsFromGitHub(),
+      ]);
+
+      if (loadedSessions) {
+        onSessionsChange(loadedSessions);
+      }
+      if (loadedDoubts) {
+        onDoubtsChange(loadedDoubts);
+      }
+
+      if (loadedSessions || loadedDoubts) {
+        toast({
+          title: "Refreshed!",
+          description: `Loaded ${loadedSessions?.length || 0} sessions from GitHub.`,
+        });
+      } else {
+        toast({
+          title: "Refresh failed",
+          description: "Could not load data from GitHub. Check console.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('[SessionNotesModule] Refresh error:', error);
+      toast({
+        title: "Refresh failed",
+        description: "An error occurred while refreshing.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   // Format date for display
   const formatDate = (dateStr: string) => {
@@ -260,7 +313,17 @@ export function SessionNotesModule({ onSelectSession, sessions, doubts, onSessio
           <p className="text-muted-foreground">Record and revisit your learning sessions over time.</p>
         </div>
         <div className="flex items-center gap-2">
-          {/* Manual save removed: auto-commit occurs on actions (create, upload, delete) */}
+          {githubConfigured && (
+            <button 
+              onClick={refreshFromGitHub}
+              disabled={isSaving}
+              className="px-4 py-2 rounded-lg bg-muted text-foreground flex items-center gap-2 hover:bg-muted/80 transition-colors disabled:opacity-50"
+              title="Refresh from GitHub"
+            >
+              <RefreshCw className={`w-4 h-4 ${isSaving ? 'animate-spin' : ''}`} />
+              Refresh
+            </button>
+          )}
           <button 
             onClick={() => setShowCreateModal(true)}
             className="px-4 py-2 rounded-lg bg-primary text-primary-foreground flex items-center gap-2 hover:bg-primary/90 transition-colors"
