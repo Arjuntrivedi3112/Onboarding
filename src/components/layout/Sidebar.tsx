@@ -16,6 +16,8 @@ import {
   Upload,
   Home,
   FileText,
+  GitBranch,
+  Scale,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -33,10 +35,12 @@ const topics: Topic[] = [
   { id: "adserving", label: "Ad Serving", icon: <Zap className="w-4 h-4" />, description: "Step-by-step flow" },
   { id: "targeting", label: "Targeting & Budget", icon: <Target className="w-4 h-4" />, description: "Precision delivery" },
   { id: "mediabuying", label: "Media Buying & RTB", icon: <DollarSign className="w-4 h-4" />, description: "Real-time bidding" },
-  { id: "tracking", label: "Tracking & Attribution", icon: <BarChart3 className="w-4 h-4" />, description: "Measuring success" },
+  { id: "tracking", label: "Tracking & Reporting", icon: <BarChart3 className="w-4 h-4" />, description: "Measuring success" },
   { id: "channels", label: "Channels & Formats", icon: <Tv className="w-4 h-4" />, description: "Display, video, CTV" },
   { id: "identity", label: "User Identity", icon: <Users className="w-4 h-4" />, description: "Privacy & tracking" },
   { id: "data", label: "Data & DMP", icon: <Database className="w-4 h-4" />, description: "Audience segments" },
+  { id: "attribution", label: "Attribution", icon: <GitBranch className="w-4 h-4" />, description: "Crediting conversions" },
+  { id: "buildbuy", label: "Build vs Rent vs Buy", icon: <Scale className="w-4 h-4" />, description: "Platform strategy" },
   { id: "ai", label: "AI in AdTech", icon: <Brain className="w-4 h-4" />, description: "Smart optimization" },
   { id: "documents", label: "Documents", icon: <BookOpen className="w-4 h-4" />, description: "PDFs & resources" },
   { id: "glossary", label: "Glossary", icon: <BookOpen className="w-4 h-4" />, description: "Key terms & definitions" },

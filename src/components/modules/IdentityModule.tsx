@@ -107,8 +107,52 @@ const privacySolutions = [
   },
 ];
 
+const matchingApproaches = [
+  {
+    id: "deterministic",
+    name: "Deterministic",
+    description:
+      "Builds a profile from data about a user, then identifies them on other devices by looking for a common identifier. Email is by far the most common — it's unique, cross-platform, and appears in many datasets. Companies like Meta, Google, and LinkedIn do this with exceptional precision, because users must sign in with an email to use their services across devices.",
+    accuracy: 88,
+    accuracyLabel: "80–90% match rate",
+    scale: 25,
+    scaleLabel: "Limited",
+    signals: ["Email address", "First & last name", "Address", "Date of birth", "Phone number"],
+    tradeoff:
+      "Highly accurate, but it lacks scale — most companies don't collect this data, and email addresses aren't typically used for buying and selling online advertising.",
+  },
+  {
+    id: "probabilistic",
+    name: "Probabilistic",
+    description:
+      "Uses various pieces of non-unique data, algorithms, and statistical modelling to estimate a match. Models are trained on datasets that contain deterministic identifiers so they learn what a matching user looks like, then applied to millions of records that have no such identifier.",
+    accuracy: 45,
+    accuracyLabel: "Estimated",
+    scale: 90,
+    scaleLabel: "Very wide",
+    signals: ["IP address", "Device characteristics", "Location data", "Browser & OS", "Behavioural patterns"],
+    tradeoff:
+      "Greater scale and reach, but it can't match deterministic accuracy. Drawbacks include limited transparency in matching methods, redundant or outdated data from weak oversight, and reduced data availability under privacy regulations like GDPR, which requires consent to collect identifiers such as IP address and location.",
+  },
+  {
+    id: "hybrid",
+    name: "Hybrid",
+    description:
+      "Companies will often use both approaches together to increase match rates. Deterministic links form a trusted core of the graph, and probabilistic modelling extends it out to devices that share no login signal.",
+    accuracy: 70,
+    accuracyLabel: "Strong",
+    scale: 75,
+    scaleLabel: "Wide",
+    signals: ["Hashed emails", "MAIDs", "Cookies", "IP address", "Device signals"],
+    tradeoff:
+      "The practical default: accept some loss of precision at the edges of the graph in exchange for covering the users deterministic matching alone would never reach.",
+  },
+];
+
 export function IdentityModule() {
   const [selectedIdentifier, setSelectedIdentifier] = useState("firstparty");
+  const [selectedMatching, setSelectedMatching] = useState("deterministic");
+  const currentMatching = matchingApproaches.find(m => m.id === selectedMatching)!;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -393,6 +437,142 @@ export function IdentityModule() {
             </ul>
           </div>
         </div>
+      </motion.div>
+
+      {/* ID & Device Graphs */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.7 }}
+        className="glass rounded-xl p-6"
+      >
+        <h2 className="font-display text-xl font-semibold mb-2">
+          Cross-Device Identity Resolution
+        </h2>
+        <p className="text-muted-foreground mb-6">
+          ID graphs map various identifiers — cookies, MAIDs, emails, IP addresses — to a unified
+          user profile, letting marketers deliver consistent messaging across devices and platforms.
+          Building that graph requires matching, and there are two ways to do it.
+        </p>
+
+        <div className="flex flex-wrap gap-2 mb-6">
+          {matchingApproaches.map((approach) => (
+            <button
+              key={approach.id}
+              onClick={() => setSelectedMatching(approach.id)}
+              className={cn(
+                "px-4 py-2 rounded-lg border text-sm transition-all",
+                selectedMatching === approach.id
+                  ? "bg-primary/10 border-primary/30 text-primary"
+                  : "border-border text-muted-foreground hover:border-primary/30"
+              )}
+            >
+              {approach.name}
+            </button>
+          ))}
+        </div>
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentMatching.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6"
+          >
+            <div>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                {currentMatching.description}
+              </p>
+
+              <div className="space-y-3">
+                <div>
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-muted-foreground">Accuracy</span>
+                    <span className="text-foreground font-medium">{currentMatching.accuracyLabel}</span>
+                  </div>
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <motion.div
+                      className="h-full bg-gradient-to-r from-green-500 to-emerald-400"
+                      animate={{ width: `${currentMatching.accuracy}%` }}
+                      transition={{ duration: 0.4 }}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-muted-foreground">Scale & reach</span>
+                    <span className="text-foreground font-medium">{currentMatching.scaleLabel}</span>
+                  </div>
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <motion.div
+                      className="h-full bg-gradient-to-r from-primary to-accent"
+                      animate={{ width: `${currentMatching.scale}%` }}
+                      transition={{ duration: 0.4 }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="p-4 rounded-lg bg-card border border-border">
+                <h3 className="font-semibold text-foreground mb-2 text-sm">Signals used</h3>
+                <div className="flex flex-wrap gap-1.5">
+                  {currentMatching.signals.map((signal) => (
+                    <span
+                      key={signal}
+                      className="px-2 py-1 rounded-md bg-muted text-xs text-muted-foreground"
+                    >
+                      {signal}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="p-4 rounded-lg bg-card border border-border">
+                <h3 className="font-semibold text-foreground mb-2 text-sm">Trade-off</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {currentMatching.tradeoff}
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="p-4 rounded-lg bg-card border border-border">
+            <h3 className="font-semibold text-foreground mb-2 text-sm">
+              The Scale Problem — and the Login Wall
+            </h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Email is the most common deterministic identifier, but most companies don't collect it
+              and it isn't typically used for buying and selling ads. To fix that, publishers push
+              users to register — by encouragement (more content in exchange for an email) or by
+              force (gating content behind a subscription). This works best for large publishers
+              with engaged audiences; few people create an account to read a couple of blog posts.
+            </p>
+          </div>
+          <div className="p-4 rounded-lg bg-card border border-border">
+            <h3 className="font-semibold text-foreground mb-2 text-sm">What Matching Is Used For</h3>
+            <ul className="text-xs text-muted-foreground space-y-2">
+              <li>
+                <span className="text-foreground font-medium">Cross-device targeting</span> —
+                recognizing a user across devices and serving ads based on their collective
+                behaviour: browse a jacket on a laptop, see it advertised on your phone.
+              </li>
+              <li>
+                <span className="text-foreground font-medium">Cross-device attribution</span> —
+                linking an ad interaction on one device to a conversion on another: click a running
+                shoe ad on a phone, buy on a laptop.
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <p className="text-xs text-muted-foreground mt-4">
+          Identifiers used for deterministic matching are typically hashed when collected, to protect
+          user privacy and remove personally identifiable information (PII).
+        </p>
       </motion.div>
     </div>
   );

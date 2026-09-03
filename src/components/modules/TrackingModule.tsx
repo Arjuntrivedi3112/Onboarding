@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Eye, MousePointer, Target, BarChart3, 
-  Shield, Clock, Database, Zap, Link, MapPin, QrCode
+import {
+  Eye, MousePointer, Target, Shield, Clock, Database, Zap, Globe
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -77,33 +76,102 @@ const trackingMethods: TrackingMethod[] = [
   },
 ];
 
-const attributionModels = [
-  { name: "Last Click", description: "100% credit to final touchpoint", visual: [0, 0, 0, 100] },
-  { name: "Last Non-Direct", description: "100% credit to last non-direct touchpoint", visual: [0, 0, 0, 100] },
-  { name: "First Click", description: "100% credit to first touchpoint", visual: [100, 0, 0, 0] },
-  { name: "Linear", description: "Equal credit to all touchpoints", visual: [25, 25, 25, 25] },
-  { name: "Time Decay", description: "More credit to recent touches", visual: [10, 20, 30, 40] },
-  { name: "Position-Based", description: "40% first, 40% last, 20% middle", visual: [40, 10, 10, 40] },
-  { name: "Custom", description: "Advertiser-defined rules for attribution", visual: [30, 20, 20, 30] },
+const reportingMetrics = [
+  { metric: "Impressions", description: "Number of times an ad is displayed" },
+  { metric: "Clicks", description: "Number of times an ad is clicked" },
+  { metric: "Conversions", description: "Number of desired user actions completed" },
+  { metric: "Reach", description: "Number of unique visitors or devices reached" },
+  { metric: "CTR", description: "Click-through rate — (Clicks ÷ Impressions) × 100" },
+  { metric: "CVR", description: "Conversion rate — (Conversions ÷ Clicks) × 100" },
+  { metric: "CPM", description: "Cost per mille — cost per 1,000 impressions" },
+  { metric: "CPC", description: "Cost per click" },
+  { metric: "CPA", description: "Cost per action — cost per conversion" },
+  { metric: "Amount spent", description: "Total media cost" },
+  { metric: "Revenue", description: "Total conversion value" },
+  { metric: "Viewability Rate", description: "% of impressions that were viewable" },
 ];
 
-const reportingMetrics = [
-  { metric: "Impressions", description: "Total times ad was displayed" },
-  { metric: "Clicks", description: "Total clicks on the ad" },
-  { metric: "CTR", description: "Click-through rate (Clicks ÷ Impressions × 100)" },
-  { metric: "Conversions", description: "Goal completions attributed to the ad" },
-  { metric: "CVR", description: "Conversion rate (Conversions ÷ Clicks × 100)" },
-  { metric: "CPA", description: "Cost per acquisition (Spend ÷ Conversions)" },
-  { metric: "ROAS", description: "Return on ad spend (Revenue ÷ Spend)" },
-  { metric: "Viewability Rate", description: "% of impressions that were viewable" },
+const dimensions = [
+  "Country", "Device type", "Browser", "Time of day", "Campaign",
+  "Line Item", "Creative", "Publisher domain", "OS", "OS version", "Geolocation",
+];
+
+const technicalConsiderations = [
+  {
+    title: "Delays",
+    icon: <Clock className="w-5 h-5" />,
+    color: "text-amber-500",
+    detail:
+      "Reports lag behind real-time events. Approximated data may appear within minutes, but accurate data suitable for billing typically takes up to 24 hours.",
+  },
+  {
+    title: "Reporting Time Zone",
+    icon: <Globe className="w-5 h-5" />,
+    color: "text-primary",
+    detail:
+      "If two systems operate in different time zones, their reports will not align. Confirm and standardize reporting time zones before comparing data across platforms.",
+  },
+  {
+    title: "Data Retention",
+    icon: <Database className="w-5 h-5" />,
+    color: "text-purple-500",
+    detail:
+      "To manage volume, platforms reduce retention or granularity over time: last month at hourly granularity, 1–12 months at daily granularity, and 1 year as campaign-level summaries only.",
+  },
+];
+
+const discrepancyCauses = [
+  {
+    group: "Human and Implementation Errors",
+    items: [
+      "Incorrect or partial pixel placement",
+      "Misconfigured macros or missing cache busters",
+      "Differences in campaign start/end dates across systems",
+    ],
+  },
+  {
+    group: "Configuration Differences",
+    items: [
+      "Mismatched reporting time zones",
+      "Different fraud filters, traffic-validation criteria, or viewability rules",
+      "Varying impression-counting methods (pixel-fired vs. server-served)",
+    ],
+  },
+  {
+    group: "Client-Side Tracking Limitations",
+    items: [
+      "Poor connectivity or latency preventing pixel load",
+      "JavaScript errors or browser restrictions blocking scripts",
+      "URL length limitations truncating redirect paths",
+      "Creative file size and resource-heavy pages delaying pixel fires",
+    ],
+  },
 ];
 
 export function TrackingModule() {
   const [selectedTracking, setSelectedTracking] = useState<TrackingType>("impression");
-  const [selectedAttribution, setSelectedAttribution] = useState("Last Click");
+  const [campaign, setCampaign] = useState({
+    impressions: 1000000,
+    clicks: 1500,
+    conversions: 10,
+    cost: 4000,
+    revenue: 5200,
+  });
+  const [discrepancy, setDiscrepancy] = useState({ publisher: 108000, advertiser: 100000 });
 
   const currentTracking = trackingMethods.find(t => t.id === selectedTracking)!;
-  const currentAttribution = attributionModels.find(a => a.name === selectedAttribution)!;
+
+  const safeDiv = (a: number, b: number) => (b > 0 ? a / b : 0);
+  const eCPM = safeDiv(campaign.cost, campaign.impressions) * 1000;
+  const eCPC = safeDiv(campaign.cost, campaign.clicks);
+  const eCPA = safeDiv(campaign.cost, campaign.conversions);
+  const ctr = safeDiv(campaign.clicks, campaign.impressions) * 100;
+  const cvr = safeDiv(campaign.conversions, campaign.clicks) * 100;
+  const roi = safeDiv(campaign.revenue - campaign.cost, campaign.cost) * 100;
+
+  const discrepancyPct =
+    safeDiv(discrepancy.publisher - discrepancy.advertiser, discrepancy.advertiser) * 100;
+  const withinTolerance = Math.abs(discrepancyPct) <= 10;
 
   return (
     <div className="space-y-8">
@@ -113,10 +181,10 @@ export function TrackingModule() {
         animate={{ opacity: 1, y: 0 }}
       >
         <h1 className="font-display text-3xl font-bold text-foreground mb-2">
-          Tracking & Attribution
+          Tracking & Reporting
         </h1>
         <p className="text-muted-foreground">
-          How could one assess digital advertising campaign performance without tracking and reporting solutions? Learn how impressions, clicks, and conversions are recorded and attributed.
+          How could one assess digital advertising campaign performance without tracking and reporting solutions? Learn how impressions, clicks, and conversions are recorded, measured, and reconciled.
         </p>
       </motion.div>
 
@@ -196,71 +264,73 @@ export function TrackingModule() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Attribution Models */}
+      {/* Effective Metrics Calculator */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
         className="glass rounded-xl p-6"
       >
-        <h2 className="font-display text-xl font-semibold mb-2">Attribution Models</h2>
-        <p className="text-muted-foreground mb-6">
-          Attribution determines how credit for conversions is distributed across touchpoints in the customer journey.
+        <h2 className="font-display text-xl font-semibold mb-2">
+          Effective Metrics Calculator (eCPM, eCPC, eCPA)
+        </h2>
+        <p className="text-muted-foreground text-sm mb-6">
+          "Effective" metrics standardize performance across pricing models, so a CPM campaign can be
+          compared against a CPC or CPA one. Change any input below and watch every derived metric
+          recalculate.
         </p>
 
-        <div className="flex flex-wrap gap-2 mb-6">
-          {attributionModels.map((model) => (
-            <button
-              key={model.name}
-              onClick={() => setSelectedAttribution(model.name)}
-              className={cn(
-                "px-4 py-2 rounded-lg border text-sm transition-all",
-                selectedAttribution === model.name
-                  ? "bg-primary/10 border-primary/30 text-primary"
-                  : "border-border text-muted-foreground hover:border-primary/30"
-              )}
-            >
-              {model.name}
-            </button>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+          {([
+            { key: "impressions", label: "Impressions", step: 10000 },
+            { key: "clicks", label: "Clicks", step: 100 },
+            { key: "conversions", label: "Conversions", step: 5 },
+            { key: "cost", label: "Cost ($)", step: 500 },
+            { key: "revenue", label: "Revenue ($)", step: 500 },
+          ] as const).map((field) => (
+            <div key={field.key}>
+              <label className="text-xs text-muted-foreground block mb-1.5">{field.label}</label>
+              <input
+                type="number"
+                min={0}
+                step={field.step}
+                value={campaign[field.key]}
+                onChange={(e) =>
+                  setCampaign((c) => ({ ...c, [field.key]: Math.max(0, Number(e.target.value) || 0) }))
+                }
+                className="w-full px-3 py-2 rounded-lg bg-card border border-border text-sm text-foreground focus:outline-none focus:border-primary/50"
+              />
+            </div>
           ))}
         </div>
 
-        {/* Attribution Visual */}
-        <div className="bg-muted/50 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-sm font-medium text-foreground">{currentAttribution.name}</span>
-            <span className="text-xs text-muted-foreground">{currentAttribution.description}</span>
-          </div>
-
-          {/* Journey visualization */}
-          <div className="flex items-center gap-2 mb-4">
-            {["Display Ad", "Social Ad", "Email", "Search Ad"].map((touch, i) => (
-              <div key={touch} className="flex-1 flex items-center">
-                <div className="flex-1">
-                  <div className="text-xs text-muted-foreground mb-1 text-center">{touch}</div>
-                  <div className="h-8 bg-muted rounded relative overflow-hidden">
-                    <motion.div
-                      className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary to-accent"
-                      animate={{ width: `${currentAttribution.visual[i]}%` }}
-                      transition={{ duration: 0.3 }}
-                    />
-                    <span className="absolute inset-0 flex items-center justify-center text-xs font-medium">
-                      {currentAttribution.visual[i]}%
-                    </span>
-                  </div>
-                </div>
-                {i < 3 && <div className="w-4 h-px bg-border mx-1" />}
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center">
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/20 text-green-500 text-sm">
-              <Target className="w-4 h-4" />
-              Conversion
-            </span>
-          </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          {[
+            { label: "eCPM", value: `$${eCPM.toFixed(2)}`, formula: "(spend ÷ impressions) × 1,000" },
+            { label: "eCPC", value: `$${eCPC.toFixed(2)}`, formula: "spend ÷ clicks" },
+            { label: "eCPA", value: `$${eCPA.toFixed(2)}`, formula: "spend ÷ conversions" },
+            { label: "CTR", value: `${ctr.toFixed(2)}%`, formula: "(clicks ÷ impressions) × 100" },
+            { label: "CVR", value: `${cvr.toFixed(2)}%`, formula: "(conversions ÷ clicks) × 100" },
+            { label: "ROI", value: `${roi >= 0 ? "+" : ""}${roi.toFixed(1)}%`, formula: "(revenue − spend) ÷ spend" },
+          ].map((item) => (
+            <div key={item.label} className="p-3 rounded-lg bg-card border border-border">
+              <p className="text-xs text-muted-foreground">{item.label}</p>
+              <p className={cn(
+                "text-lg font-bold",
+                item.label === "ROI" ? (roi >= 0 ? "text-green-500" : "text-destructive") : "text-primary"
+              )}>
+                {item.value}
+              </p>
+              <p className="text-[10px] text-muted-foreground mt-1 leading-tight">{item.formula}</p>
+            </div>
+          ))}
         </div>
+
+        <p className="text-xs text-muted-foreground mt-4">
+          Note: ROI here excludes operational costs — important for physical goods, less relevant for
+          digital products with low marginal costs. Effective metrics also let publishers
+          retroactively evaluate what revenue would have looked like under a different pricing model.
+        </p>
       </motion.div>
 
       {/* Reporting Metrics */}
@@ -346,58 +416,199 @@ export function TrackingModule() {
         </div>
       </motion.div>
 
-      {/* Offline-Online Attribution */}
+      {/* Dimensions & Filtering */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+      >
+        <div className="glass rounded-xl p-6">
+          <h2 className="font-display text-lg font-semibold mb-2">Dimensions & Subdimensions</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Dimensions are the attributes used to break down and analyse data. Subdimensions (or
+            drill-downs) allow progressively deeper breakdowns.
+          </p>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {dimensions.map((d) => (
+              <span
+                key={d}
+                className="px-2.5 py-1 rounded-md bg-card border border-border text-xs text-muted-foreground"
+              >
+                {d}
+              </span>
+            ))}
+          </div>
+          <div className="p-3 rounded-lg bg-muted/50">
+            <p className="text-xs text-muted-foreground mb-2">Example drill-down:</p>
+            <div className="flex items-center gap-1.5 flex-wrap text-xs">
+              {["Country", "Carrier", "Line Item", "Ad"].map((level, i, arr) => (
+                <span key={level} className="flex items-center gap-1.5">
+                  <span className="text-primary font-medium">{level}</span>
+                  {i < arr.length - 1 && <span className="text-muted-foreground">→</span>}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="glass rounded-xl p-6">
+          <h2 className="font-display text-lg font-semibold mb-2">Filtering</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Filtering — also called segmentation — narrows the dataset used in a report to focus on
+            specific criteria or dimensions. Include/exclude filters allow even more precise
+            segmentation.
+          </p>
+          <div className="space-y-3">
+            {[
+              { label: "Date range", example: "1 Jan – 31 Jan" },
+              { label: "Campaign hierarchy", example: "advertiser → IO → line item → ad" },
+              { label: "Geographic or technical", example: "country = Poland OR Germany" },
+            ].map((f) => (
+              <div key={f.label} className="p-3 rounded-lg bg-card border border-border">
+                <p className="text-sm font-medium text-foreground">{f.label}</p>
+                <p className="text-xs text-muted-foreground font-mono mt-0.5">{f.example}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Technical Considerations */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
         className="glass rounded-xl p-6"
       >
-        <h2 className="font-display text-xl font-semibold mb-4">Offline-Online Attribution</h2>
-        <p className="text-muted-foreground mb-6">
-          Connecting offline ad exposure (TV, radio, billboards) with online conversions and web traffic.
+        <h2 className="font-display text-xl font-semibold mb-2">
+          Technical Considerations of Reporting
+        </h2>
+        <p className="text-muted-foreground text-sm mb-6">
+          Several technical variables affect the accuracy and interpretation of reporting data.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {technicalConsiderations.map((item) => (
+            <div key={item.title} className="p-4 rounded-xl bg-card border border-border">
+              <div className={cn("flex items-center gap-2 mb-2", item.color)}>
+                {item.icon}
+                <h3 className="font-semibold text-foreground text-sm">{item.title}</h3>
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">{item.detail}</p>
+            </div>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Discrepancy Calculator */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.7 }}
+        className="glass rounded-xl p-6"
+      >
+        <h2 className="font-display text-xl font-semibold mb-2">Discrepancies: Trust, But Verify</h2>
+        <p className="text-muted-foreground text-sm mb-6">
+          Discrepancies are differences in reported metrics between systems — usually between
+          publisher and advertiser reports. They directly affect billing accuracy and trust, and most
+          stem from technical or implementation issues in client-side tracking.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-4 rounded-xl bg-card border border-border">
-            <div className="flex items-center gap-2 mb-2">
-              <Link className="w-5 h-5 text-primary" />
-              <h3 className="font-semibold text-foreground">Vanity URLs</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <div>
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div>
+                <label className="text-xs text-muted-foreground block mb-1.5">
+                  Publisher impressions
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  step={1000}
+                  value={discrepancy.publisher}
+                  onChange={(e) =>
+                    setDiscrepancy((d) => ({ ...d, publisher: Math.max(0, Number(e.target.value) || 0) }))
+                  }
+                  className="w-full px-3 py-2 rounded-lg bg-card border border-border text-sm text-foreground focus:outline-none focus:border-primary/50"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground block mb-1.5">
+                  Advertiser impressions
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  step={1000}
+                  value={discrepancy.advertiser}
+                  onChange={(e) =>
+                    setDiscrepancy((d) => ({ ...d, advertiser: Math.max(0, Number(e.target.value) || 0) }))
+                  }
+                  className="w-full px-3 py-2 rounded-lg bg-card border border-border text-sm text-foreground focus:outline-none focus:border-primary/50"
+                />
+              </div>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Easy-to-remember domain names created for specific campaigns (e.g., newproduct.com). Users type these URLs after seeing offline ads, linking offline exposure to online visits.
+            <p className="text-xs text-muted-foreground font-mono mb-4">
+              (publisher − advertiser) ÷ advertiser × 100
             </p>
           </div>
 
-          <div className="p-4 rounded-xl bg-card border border-border">
-            <div className="flex items-center gap-2 mb-2">
-              <Clock className="w-5 h-5 text-accent" />
-              <h3 className="font-semibold text-foreground">Time-Limited Windows</h3>
-            </div>
+          <div
+            className={cn(
+              "p-5 rounded-xl border flex flex-col justify-center",
+              withinTolerance
+                ? "bg-green-500/10 border-green-500/30"
+                : "bg-destructive/10 border-destructive/30"
+            )}
+          >
+            <p className="text-xs text-muted-foreground mb-1">Discrepancy</p>
+            <p
+              className={cn(
+                "text-3xl font-bold mb-2",
+                withinTolerance ? "text-green-500" : "text-destructive"
+              )}
+            >
+              {discrepancyPct >= 0 ? "+" : ""}
+              {discrepancyPct.toFixed(1)}%
+            </p>
             <p className="text-sm text-muted-foreground">
-              Analyzes web traffic and conversions within a specific timeframe (e.g., 30 minutes) after a TV or radio ad airs, looking for increases that can be attributed to the offline campaign.
+              {withinTolerance
+                ? "Within the IAB-recommended 10% tolerance — the publisher's data is typically accepted for billing."
+                : "Outside the IAB-recommended 10% tolerance — this requires investigation and reconciliation before billing."}
             </p>
           </div>
+        </div>
 
-          <div className="p-4 rounded-xl bg-card border border-border">
-            <div className="flex items-center gap-2 mb-2">
-              <QrCode className="w-5 h-5 text-green-500" />
-              <h3 className="font-semibold text-foreground">Coupons</h3>
+        <h3 className="font-semibold text-foreground mb-3">Common Causes</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          {discrepancyCauses.map((cause, i) => (
+            <div key={cause.group} className="p-4 rounded-xl bg-card border border-border">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="w-5 h-5 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold shrink-0">
+                  {i + 1}
+                </span>
+                <h4 className="font-semibold text-foreground text-sm">{cause.group}</h4>
+              </div>
+              <ul className="space-y-1.5">
+                {cause.items.map((item) => (
+                  <li key={item} className="text-xs text-muted-foreground flex gap-2">
+                    <span className="text-muted-foreground/50">•</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Unique coupon codes issued per campaign allow advertisers to attribute conversions to specific offline channels like direct mail or printed materials.
-            </p>
-          </div>
+          ))}
+        </div>
 
-          <div className="p-4 rounded-xl bg-card border border-border">
-            <div className="flex items-center gap-2 mb-2">
-              <MapPin className="w-5 h-5 text-purple-500" />
-              <h3 className="font-semibold text-foreground">Zip/Postal Codes</h3>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Collecting ZIP codes from online customers can help measure offline campaigns like direct mail. More valuable when combined with other attribution methods.
-            </p>
-          </div>
+        <div className="p-4 rounded-lg bg-muted/50">
+          <h4 className="font-semibold text-foreground text-sm mb-1">Reconciliation</h4>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Reconciliation is the process of comparing datasets from multiple systems to resolve
+            reporting inconsistencies. In AdOps this is often a manual process — pulling reports from
+            both the publisher and advertiser systems, comparing them at a matching level of
+            granularity, and agreeing on which number is used for billing.
+          </p>
         </div>
       </motion.div>
     </div>

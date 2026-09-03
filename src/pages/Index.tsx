@@ -11,6 +11,8 @@ import { ChannelsModule } from "@/components/modules/ChannelsModule";
 import { TrackingModule } from "@/components/modules/TrackingModule";
 import { IdentityModule } from "@/components/modules/IdentityModule";
 import { DataModule } from "@/components/modules/DataModule";
+import { AttributionModule } from "@/components/modules/AttributionModule";
+import { BuildBuyModule } from "@/components/modules/BuildBuyModule";
 import { AIModule } from "@/components/modules/AIModule";
 import { DocumentsModule } from "@/components/modules/DocumentsModule";
 import { KeywordsModule } from "@/components/modules/KeywordsModule";
@@ -100,6 +102,8 @@ const Index = () => {
       case "tracking": return <TrackingModule />;
       case "identity": return <IdentityModule />;
       case "data": return <DataModule />;
+      case "attribution": return <AttributionModule />;
+      case "buildbuy": return <BuildBuyModule />;
       case "ai": return <AIModule />;
       case "documents": return <DocumentsModule />;
       case "glossary": return <KeywordsModule />;
