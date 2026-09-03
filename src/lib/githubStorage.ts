@@ -37,18 +37,18 @@ const getGitHubConfig = (): GitHubConfig | null => {
 };
 
 // Simple per-path commit queue to avoid parallel writes racing the SHA
-const commitQueues: Record<string, Promise<boolean>> = {};
+const commitQueues: Record<string, Promise<unknown>> = {};
 // Cache last known SHA per path after successful commits to reduce races
 const lastKnownSha: Record<string, string> = {};
 
-const enqueueCommit = async (path: string, task: () => Promise<boolean>): Promise<boolean> => {
-  const prev = commitQueues[path] || Promise.resolve(true);
+const enqueueCommit = async <T>(path: string, task: () => Promise<T>): Promise<T> => {
+  const prev = commitQueues[path] || Promise.resolve();
   const next = prev
     .catch(() => {}) // swallow previous failure for chaining
     .then(task);
 
   // Store the in-flight promise so subsequent calls queue behind it
-  commitQueues[path] = next.catch(() => false);
+  commitQueues[path] = next.catch(() => undefined);
   return next;
 };
 
