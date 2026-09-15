@@ -349,19 +349,19 @@ export function ChannelsModule() {
           </p>
           <ul className="space-y-2 text-sm">
             <li className="flex items-start gap-2">
-              <span className="text-accent">VAST</span>
+              <span className="text-primary">VAST</span>
               <span className="text-muted-foreground">— Video Ad Serving Template</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-accent">VMAP</span>
+              <span className="text-primary">VMAP</span>
               <span className="text-muted-foreground">— Video Multiple Ad Playlist</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-accent">VPAID</span>
+              <span className="text-primary">VPAID</span>
               <span className="text-muted-foreground">— Video Player Ad Interface</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-accent">SIMID</span>
+              <span className="text-primary">SIMID</span>
               <span className="text-muted-foreground">— Secure Interactive Media</span>
             </li>
           </ul>

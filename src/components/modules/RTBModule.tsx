@@ -361,7 +361,7 @@ export function RTBModule() {
 
             <div className="p-4 rounded-lg bg-card border border-border">
               <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
-                <Server className="w-4 h-4 text-accent" />
+                <Server className="w-4 h-4 text-primary" />
                 Server-Side Header Bidding
               </h4>
               <p className="text-sm text-muted-foreground mb-2">
@@ -404,7 +404,7 @@ export function RTBModule() {
 
             <div className="p-4 rounded-lg bg-card border border-border">
               <div className="flex items-center gap-2 mb-2">
-                <Lock className="w-5 h-5 text-accent" />
+                <Lock className="w-5 h-5 text-primary" />
                 <h4 className="font-semibold text-foreground">Private Marketplace (PMP)</h4>
               </div>
               <p className="text-sm text-muted-foreground mb-2">
@@ -564,7 +564,7 @@ export function RTBModule() {
 
             <div className="p-4 rounded-lg bg-card border border-border">
               <div className="flex items-center gap-2 mb-3">
-                <TrendingUp className="w-5 h-5 text-accent" />
+                <TrendingUp className="w-5 h-5 text-primary" />
                 <h4 className="font-semibold text-foreground">Automated Optimization</h4>
               </div>
               <p className="text-sm text-muted-foreground mb-3">

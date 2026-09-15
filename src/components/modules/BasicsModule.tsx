@@ -284,7 +284,7 @@ function ClickVisual() {
           <p className="text-xs text-muted-foreground">Clicks</p>
         </div>
         <div>
-          <p className="text-2xl font-bold text-accent">{ctr}%</p>
+          <p className="text-2xl font-bold text-primary">{ctr}%</p>
           <p className="text-xs text-muted-foreground">CTR</p>
         </div>
       </div>
@@ -308,7 +308,7 @@ function ConversionVisual() {
           >
             {i === 0 && <Eye className="w-6 h-6 mb-1 text-muted-foreground" />}
             {i === 1 && <MousePointer className="w-6 h-6 mb-1 text-primary" />}
-            {i === 2 && <Monitor className="w-6 h-6 mb-1 text-accent" />}
+            {i === 2 && <Monitor className="w-6 h-6 mb-1 text-primary" />}
             {i === 3 && <ShoppingCart className="w-6 h-6 mb-1 text-green-500" />}
             <span className="text-xs font-medium">{step}</span>
           </motion.div>

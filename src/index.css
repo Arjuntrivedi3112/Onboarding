@@ -1,89 +1,130 @@
-
-@import '@fontsource/space-grotesk/400.css';
-@import '@fontsource/space-grotesk/500.css';
-@import '@fontsource/space-grotesk/600.css';
-@import '@fontsource/space-grotesk/700.css';
 @import '@fontsource/inter/400.css';
 @import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/newsreader/600.css';
+@import '@fontsource/ibm-plex-mono/500.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* AdTech Visual Explorer - Command Center Design System */
+/*
+ * AdTech Journey — design tokens.
+ *
+ * Two colour systems that never touch:
+ *   CHROME  (paper / ink / rule / clearing / floor / nobid) — all interface.
+ *   CHAIN   (--chain-*) — data encoding for the supply chain only. A chain hue
+ *           may appear in the ecosystem map and the chain rail, and nowhere
+ *           else: never on a button, badge, border, icon or card.
+ *
+ * Light is the default appearance; dark is selected by the OS via
+ * prefers-color-scheme. There is deliberately no in-app theme toggle — the OS
+ * setting is the path a low-vision user has already configured.
+ *
+ * The COMPAT LAYER re-points the original variable names (--background,
+ * --card, --primary, --sidebar-*, …) at the new roles, so the ~40 components
+ * that consume them pick up the new palette without being edited.
+ *
+ * Contrast figures are computed against the surface each token sits on.
+ */
 @layer base {
   :root {
-    /* Core backgrounds - deep space theme */
-    --background: 222 47% 6%;
-    --foreground: 210 40% 96%;
+    color-scheme: light;
 
-    /* Cards and surfaces */
-    --card: 222 47% 8%;
-    --card-foreground: 210 40% 96%;
+    /* ---- ROLE LAYER: light (default) ---- */
+    --paper:         40 24% 97%;
+    --paper-raised:  40 20% 99%;
+    --paper-sunken:  38 18% 94%;
+    --ink:          220 18% 13%;   /* 15.52:1 on paper */
+    --ink-muted:    220 10% 40%;   /*  5.72:1 on paper */
+    --ink-subtle:   220 10% 46%;   /* ≥4.5:1 on paper — metadata */
+    --rule:          35 14% 86%;   /* decorative hairline only */
+    --rule-strong:   35 10% 52%;   /* ≥3:1 — mandatory on controls */
+    --clearing:     168 78% 24%;   /*  5.91:1 — win / cleared price / primary */
+    --floor:         30 92% 32%;   /*  5.46:1 — rejected / caution */
+    --nobid:          0 70% 40%;   /*  6.60:1 — no fill / destructive */
+    --on-clearing:   40 24% 97%;   /*  6.27:1 on clearing */
 
-    --popover: 222 47% 10%;
-    --popover-foreground: 210 40% 96%;
+    /* ---- CHAIN SCALE: data encoding ONLY ---- */
+    --chain-advertiser: 24 80% 40%;
+    --chain-agency:     14 72% 42%;
+    --chain-dsp:        36 74% 36%;
+    --chain-dmp:        60 30% 34%;
+    --chain-exchange:   46 16% 40%;
+    --chain-ssp:       198 48% 34%;
+    --chain-adserver:  186 44% 32%;
+    --chain-publisher: 214 60% 38%;
+    --chain-user:      238 44% 44%;
 
-    /* Primary - electric cyan for data flows */
-    --primary: 186 100% 50%;
-    --primary-foreground: 222 47% 6%;
+    /* ---- COMPAT LAYER: original names, re-pointed ---- */
+    --background: var(--paper);
+    --foreground: var(--ink);
+    --card: var(--paper-raised);
+    --card-foreground: var(--ink);
+    --popover: var(--paper-raised);
+    --popover-foreground: var(--ink);
+    --primary: var(--clearing);
+    --primary-foreground: var(--on-clearing);
+    --secondary: var(--paper-sunken);
+    --secondary-foreground: var(--ink);
+    --muted: var(--paper-sunken);
+    --muted-foreground: var(--ink-muted);
+    --accent: var(--paper-sunken);
+    --accent-foreground: var(--ink);
+    --destructive: var(--nobid);
+    --destructive-foreground: var(--on-clearing);
+    --border: var(--rule);
+    --input: var(--rule-strong);
+    --ring: var(--clearing);
 
-    /* Secondary - muted blue */
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 96%;
+    --radius: 0.5rem;
 
-    /* Muted surfaces */
-    --muted: 217 33% 12%;
-    --muted-foreground: 215 20% 55%;
-
-    /* Accent - electric purple for highlights */
-    --accent: 265 89% 65%;
-    --accent-foreground: 210 40% 98%;
-
-    /* States */
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-
-    /* Borders and inputs */
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 186 100% 50%;
-
-    --radius: 0.75rem;
-
-    /* Custom tokens for AdTech visuals */
-    --glow-primary: 186 100% 50%;
-    --glow-accent: 265 89% 65%;
-    --glow-success: 142 76% 45%;
-    --glow-warning: 38 92% 50%;
-
-    /* Node colors for ecosystem */
-    --node-advertiser: 38 92% 50%;
-    --node-dsp: 186 100% 50%;
-    --node-exchange: 265 89% 65%;
-    --node-ssp: 142 76% 45%;
-    --node-publisher: 340 82% 60%;
-    --node-user: 210 100% 60%;
-
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(186 100% 50%), hsl(210 100% 60%));
-    --gradient-accent: linear-gradient(135deg, hsl(265 89% 65%), hsl(340 82% 60%));
-    --gradient-surface: linear-gradient(180deg, hsl(222 47% 10%), hsl(222 47% 6%));
-    --gradient-glow: radial-gradient(ellipse at center, hsl(186 100% 50% / 0.15), transparent 70%);
-
-    /* Sidebar */
-    --sidebar-background: 222 47% 7%;
-    --sidebar-foreground: 210 40% 96%;
-    --sidebar-primary: 186 100% 50%;
-    --sidebar-primary-foreground: 222 47% 6%;
-    --sidebar-accent: 217 33% 15%;
-    --sidebar-accent-foreground: 210 40% 96%;
-    --sidebar-border: 217 33% 17%;
-    --sidebar-ring: 186 100% 50%;
+    --sidebar-background: var(--paper-sunken);
+    --sidebar-foreground: var(--ink);
+    --sidebar-primary: var(--clearing);
+    --sidebar-primary-foreground: var(--on-clearing);
+    --sidebar-accent: var(--paper-raised);
+    --sidebar-accent-foreground: var(--ink);
+    --sidebar-border: var(--rule);
+    --sidebar-ring: var(--clearing);
   }
 
-  .dark {
-    /* Already dark by default */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+
+      --paper:         220 16% 8%;
+      --paper-raised:  220 15% 12%;
+      --paper-sunken:  220 18% 6%;
+      --ink:            40 14% 93%;  /* 16.00:1 — warm, not pure white */
+      --ink-muted:     220 10% 64%;  /*  7.08:1 */
+      --ink-subtle:    220 10% 54%;  /* ≥4.5:1 */
+      --rule:          220 12% 20%;
+      --rule-strong:   220 10% 38%;  /* ≥3:1 */
+      --clearing:      163 58% 54%;  /*  9.38:1 */
+      --floor:          36 88% 62%;  /*  9.77:1 */
+      --nobid:           4 74% 68%;  /*  6.60:1 */
+      --on-clearing:   220 16% 8%;
+
+      --chain-advertiser: 26 84% 66%;
+      --chain-agency:     14 76% 68%;
+      --chain-dsp:        40 74% 64%;
+      --chain-dmp:        62 34% 62%;
+      --chain-exchange:   48 20% 62%;
+      --chain-ssp:       196 46% 62%;
+      --chain-adserver:  186 44% 60%;
+      --chain-publisher: 212 58% 64%;
+      --chain-user:      238 44% 70%;
+    }
+  }
+
+  /* Increased-contrast: collapse the muted tier into full ink. */
+  @media (prefers-contrast: more) {
+    :root {
+      --ink-muted: var(--ink);
+      --ink-subtle: var(--ink);
+      --rule: var(--rule-strong);
+    }
   }
 }
 
@@ -92,96 +133,100 @@
     @apply border-border;
   }
 
-  html {
-    scroll-behavior: smooth;
-  }
-
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', sans-serif;
+    /* Body is 16px/1.625 — the floor for anything that is a sentence. */
+    font-size: 1rem;
+    line-height: 1.625;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Space Grotesk', sans-serif;
-    @apply font-semibold tracking-tight;
+    @apply font-semibold tracking-tight text-foreground;
+  }
+
+  /* Display face is for lesson and section titles only — never body copy. */
+  .font-display {
+    font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+    letter-spacing: -0.02em;
+  }
+
+  /*
+   * One global focus ring. `focus:outline-none` is banned in components unless
+   * it is immediately paired with a focus-visible ring.
+   */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    border-radius: var(--radius);
+  }
+
+  :focus:not(:focus-visible) {
+    outline: none;
   }
 }
 
 @layer utilities {
-  /* Glow effects */
-  .glow-primary {
-    box-shadow: 0 0 20px hsl(var(--glow-primary) / 0.4),
-                0 0 60px hsl(var(--glow-primary) / 0.2);
+  /*
+   * Every price, duration, percentage and count. Tabular figures stop numbers
+   * jittering as they animate, and slashed zero keeps 0 and O apart.
+   */
+  .figure {
+    font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'zero' 1;
+    font-weight: 500;
   }
 
-  .glow-accent {
-    box-shadow: 0 0 20px hsl(var(--glow-accent) / 0.4),
-                0 0 60px hsl(var(--glow-accent) / 0.2);
+  /* Prose column: 68–72 characters is the comfortable measure. */
+  .measure {
+    max-width: 68ch;
   }
 
-  .text-glow {
-    text-shadow: 0 0 20px hsl(var(--primary) / 0.5);
-  }
-
-  /* Animated gradient border */
-  .border-glow {
-    position: relative;
-  }
-
-  .border-glow::before {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    border-radius: inherit;
-    padding: 1px;
-    background: var(--gradient-primary);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    opacity: 0.6;
-  }
-
-  /* Data flow animation */
-  @keyframes flow {
-    0% { stroke-dashoffset: 100; }
-    100% { stroke-dashoffset: 0; }
-  }
-
-  @keyframes pulse-glow {
-    0%, 100% { opacity: 0.4; }
-    50% { opacity: 1; }
-  }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-  }
-
-  .animate-flow {
-    animation: flow 2s linear infinite;
-  }
-
-  .animate-pulse-glow {
-    animation: pulse-glow 2s ease-in-out infinite;
-  }
-
-  .animate-float {
-    animation: float 3s ease-in-out infinite;
-  }
-
-  /* Glass morphism */
+  /*
+   * COMPAT SHIM — `.glass` used to be a backdrop-blur surface on 46 content
+   * cards. HIG puts translucent materials on the floating interactive layer,
+   * never in content, so the effect is gone; the class is kept temporarily so
+   * those 46 surfaces render as ordinary cards instead of transparent boxes
+   * while they are migrated to `bg-card border border-border` directly.
+   * Delete this block once no `.glass` usages remain in src/.
+   */
   .glass {
-    background: hsl(222 47% 8% / 0.8);
-    backdrop-filter: blur(20px);
-    border: 1px solid hsl(217 33% 20% / 0.5);
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
   }
 
-  /* Node colors */
-  .node-advertiser { --node-color: var(--node-advertiser); }
-  .node-dsp { --node-color: var(--node-dsp); }
-  .node-exchange { --node-color: var(--node-exchange); }
-  .node-ssp { --node-color: var(--node-ssp); }
-  .node-publisher { --node-color: var(--node-publisher); }
-  .node-user { --node-color: var(--node-user); }
+  /*
+   * Ecosystem node hues. These set the local --node-color that the map's
+   * nodes and flow lines read. Mapped onto the chain scale, which is the only
+   * other place these hues are permitted.
+   */
+  .node-advertiser { --node-color: var(--chain-advertiser); }
+  .node-agency     { --node-color: var(--chain-agency); }
+  .node-dsp        { --node-color: var(--chain-dsp); }
+  .node-dmp        { --node-color: var(--chain-dmp); }
+  .node-exchange   { --node-color: var(--chain-exchange); }
+  .node-ssp        { --node-color: var(--chain-ssp); }
+  .node-adserver   { --node-color: var(--chain-adserver); }
+  .node-publisher  { --node-color: var(--chain-publisher); }
+  .node-user       { --node-color: var(--chain-user); }
+}
+
+/*
+ * Reduced motion. Deliberately OUTSIDE @layer so it beats layered rules on
+ * specificity, and paired with <MotionConfig reducedMotion="user"> in App.tsx
+ * which covers the framer-motion elements this cannot reach.
+ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -361,7 +361,7 @@ export function AdServingModule() {
         </div>
 
         <div className="glass rounded-xl p-6">
-          <h3 className="font-display text-lg font-semibold mb-3 text-accent">
+          <h3 className="font-display text-lg font-semibold mb-3 text-primary">
             Third-Party Ad Server
           </h3>
           <p className="text-sm text-muted-foreground mb-4">
@@ -369,15 +369,15 @@ export function AdServingModule() {
           </p>
           <ul className="space-y-2 text-sm">
             <li className="flex items-start gap-2">
-              <span className="text-accent">•</span>
+              <span className="text-primary">•</span>
               <span>Tracks performance across all publishers in one system</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-accent">•</span>
+              <span className="text-primary">•</span>
               <span>Measures campaign reach and co-viewership</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-accent">•</span>
+              <span className="text-primary">•</span>
               <span>Verifies publisher-reported data for billing</span>
             </li>
           </ul>
@@ -419,7 +419,7 @@ export function AdServingModule() {
 
           <div className="p-4 rounded-lg bg-card border border-border">
             <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-              <FileCode className="w-5 h-5 text-accent" />
+              <FileCode className="w-5 h-5 text-primary" />
               Ad Markup
             </h3>
             <p className="text-sm text-muted-foreground mb-3">

@@ -131,7 +131,7 @@ const brokerTypes: BrokerType[] = [
   },
   {
     name: "Identity Verification & Fraud Detection",
-    icon: <ShieldCheck className="w-4 h-4 text-accent" />,
+    icon: <ShieldCheck className="w-4 h-4 text-primary" />,
     description: "Help organizations such as banks confirm individual identities.",
   },
   {
@@ -249,7 +249,7 @@ export function TechnologyModule() {
 
           {/* Why It Exists */}
           <div className="bg-card border border-border rounded-2xl p-6">
-            <h4 className="text-sm font-semibold text-accent mb-2">Why Does It Exist?</h4>
+            <h4 className="text-sm font-semibold text-primary mb-2">Why Does It Exist?</h4>
             <p className="text-sm text-muted-foreground leading-relaxed mb-6">
               {current.whyExists}
             </p>
@@ -416,7 +416,7 @@ export function TechnologyModule() {
                 className="p-4 rounded-lg bg-card border border-border"
               >
                 <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-accent" />
+                  <Globe className="w-4 h-4 text-primary" />
                   Independent AdTech
                 </h4>
                 <p className="text-sm text-muted-foreground mb-3">
@@ -514,7 +514,7 @@ export function TechnologyModule() {
 
             <div className="p-4 rounded-lg bg-card border border-border">
               <div className="flex items-center gap-2 mb-3">
-                <Users className="w-5 h-5 text-accent" />
+                <Users className="w-5 h-5 text-primary" />
                 <h4 className="font-semibold text-foreground">Agency Trading Desk (ATD)</h4>
               </div>
               <p className="text-sm text-muted-foreground mb-3">
@@ -530,7 +530,7 @@ export function TechnologyModule() {
                   </p>
                 </div>
                 <div className="p-3 rounded-lg bg-muted/50">
-                  <p className="text-xs font-semibold text-accent mb-1">Technical layer</p>
+                  <p className="text-xs font-semibold text-primary mb-1">Technical layer</p>
                   <p className="text-xs text-muted-foreground">
                     Proprietary technology combined with external tools such as DSPs.
                   </p>
@@ -614,7 +614,7 @@ export function TechnologyModule() {
                   </div>
                   <div className="p-4 rounded-lg bg-card border border-border">
                     <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
-                      <Layers className="w-4 h-4 text-accent" />
+                      <Layers className="w-4 h-4 text-primary" />
                       Publisher AdOps Team
                     </h4>
                     <p className="text-sm text-muted-foreground">
@@ -633,7 +633,7 @@ export function TechnologyModule() {
               >
                 <div className="p-4 rounded-lg bg-card border border-border mb-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <ClipboardList className="w-5 h-5 text-accent" />
+                    <ClipboardList className="w-5 h-5 text-primary" />
                     <h4 className="font-semibold text-foreground">Ad Trafficking — the process</h4>
                   </div>
                   <p className="text-sm text-muted-foreground">
@@ -644,7 +644,7 @@ export function TechnologyModule() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {[
                     { label: "Set up", icon: <Settings className="w-4 h-4 text-primary" />, text: "Build the campaign in the ad server, load creatives, and traffic the ad tags." },
-                    { label: "Monitor", icon: <Server className="w-4 h-4 text-accent" />, text: "Watch delivery, pacing, and discrepancies once the campaign is live." },
+                    { label: "Monitor", icon: <Server className="w-4 h-4 text-primary" />, text: "Watch delivery, pacing, and discrepancies once the campaign is live." },
                     { label: "Optimize", icon: <Target className="w-4 h-4 text-green-500" />, text: "Adjust campaigns and header-bidding wrapper settings as needed." },
                   ].map((phase) => (
                     <div key={phase.label} className="p-4 rounded-lg bg-card border border-border">

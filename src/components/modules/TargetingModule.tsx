@@ -468,7 +468,7 @@ export function TargetingModule() {
             <div className="p-4 rounded-lg bg-muted/50">
               <h3 className="font-semibold text-foreground mb-2 text-sm">Tiered structure</h3>
               <p className="text-sm text-muted-foreground">
-                The taxonomy is a hierarchy. A broad <span className="text-primary font-medium">Tier 1</span> category (e.g. Automotive) contains narrower <span className="text-accent font-medium">Tier 2</span> subcategories, which in turn contain <span className="text-foreground font-medium">Tier 3</span> topics. Buyers pick the tier that matches how precise they want to be — a whole vertical, or one specific topic within it.
+                The taxonomy is a hierarchy. A broad <span className="text-primary font-medium">Tier 1</span> category (e.g. Automotive) contains narrower <span className="text-primary font-medium">Tier 2</span> subcategories, which in turn contain <span className="text-foreground font-medium">Tier 3</span> topics. Buyers pick the tier that matches how precise they want to be — a whole vertical, or one specific topic within it.
               </p>
             </div>
           </div>
@@ -513,7 +513,7 @@ export function TargetingModule() {
                                 onClick={() => toggleTier2(sub.name)}
                                 className={cn(
                                   "w-full flex items-center gap-2 px-3 py-2 text-left text-sm transition-all",
-                                  expandedTier2 === sub.name ? "text-accent" : "text-muted-foreground hover:text-foreground"
+                                  expandedTier2 === sub.name ? "text-primary" : "text-muted-foreground hover:text-foreground"
                                 )}
                               >
                                 <ChevronRight className={cn(
@@ -630,7 +630,7 @@ export function TargetingModule() {
               ))}
             </ul>
 
-            <p className="mt-4 p-3 rounded-lg bg-muted/50 text-sm text-accent">
+            <p className="mt-4 p-3 rounded-lg bg-muted/50 text-sm text-primary">
               {currentStage.output}
             </p>
           </motion.div>

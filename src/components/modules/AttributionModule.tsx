@@ -251,7 +251,7 @@ const offlineToOnline = [
   {
     name: "Time-Limited Attribution Windows",
     icon: <Clock className="w-5 h-5" />,
-    color: "text-accent",
+    color: "text-primary",
     description:
       "Analyses the period after a TV or radio spot airs — say 30 minutes — and looks for a lift in web traffic and conversions.",
     limitation:
@@ -298,7 +298,7 @@ const onlineToOffline = [
   {
     name: "Zip/Postal Codes at POS",
     icon: <MapPin className="w-5 h-5" />,
-    color: "text-accent",
+    color: "text-primary",
     description:
       "The reverse of the offline-to-online technique: staff ask for a ZIP code at the point of sale, and those codes are matched against the location data in online campaign reports.",
     limitation: true,

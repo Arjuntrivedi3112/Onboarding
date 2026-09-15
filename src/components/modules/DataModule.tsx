@@ -249,7 +249,7 @@ export function DataModule() {
               transition={{ delay: 0.5 + i * 0.1 }}
               className="p-4 rounded-xl bg-card border border-border text-center"
             >
-              <div className="w-10 h-10 rounded-lg bg-accent/20 text-accent flex items-center justify-center mx-auto mb-3">
+              <div className="w-10 h-10 rounded-lg bg-accent/20 text-primary flex items-center justify-center mx-auto mb-3">
                 {useCase.icon}
               </div>
               <h3 className="font-semibold text-foreground text-sm">{useCase.title}</h3>
@@ -291,24 +291,24 @@ export function DataModule() {
         </div>
 
         <div className="p-6 rounded-xl bg-card border border-border">
-          <h3 className="font-display text-lg font-semibold mb-3 text-accent">
+          <h3 className="font-display text-lg font-semibold mb-3 text-primary">
             Customer Data Platform (CDP)
           </h3>
           <ul className="space-y-2 text-sm">
             <li className="flex items-start gap-2">
-              <span className="text-accent">•</span>
+              <span className="text-primary">•</span>
               <span className="text-muted-foreground">Focused on known customer data</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-accent">•</span>
+              <span className="text-primary">•</span>
               <span className="text-muted-foreground">Primarily uses first-party data</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-accent">•</span>
+              <span className="text-primary">•</span>
               <span className="text-muted-foreground">Persistent data storage</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-accent">•</span>
+              <span className="text-primary">•</span>
               <span className="text-muted-foreground">Used for marketing + advertising</span>
             </li>
           </ul>

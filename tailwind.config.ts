@@ -1,7 +1,9 @@
 import type { Config } from "tailwindcss";
+import animatePlugin from "tailwindcss-animate";
 
 export default {
-  darkMode: ["class"],
+  // Appearance follows the OS via prefers-color-scheme in index.css. There is
+  // no class-based toggle, so darkMode is deliberately not configured.
   content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
   prefix: "",
   theme: {
@@ -14,11 +16,29 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        display: ['Space Grotesk', 'system-ui', 'sans-serif'],
+        sans: ["Inter", "system-ui", "sans-serif"],
+        // Display is for lesson and section titles only, never body copy.
+        display: ["Newsreader", "Georgia", "Times New Roman", "serif"],
+        mono: ["IBM Plex Mono", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
+      },
+      /*
+       * Type scale in rem so browser zoom and OS text size scale the whole
+       * system. Nothing below 0.8125rem (13px) exists; `text-xs` survives only
+       * as the uppercase Label role, never for a sentence.
+       */
+      fontSize: {
+        xs: ["0.75rem", { lineHeight: "1rem", letterSpacing: "0.06em" }],
+        sm: ["0.875rem", { lineHeight: "1.3125rem" }],
+        base: ["1rem", { lineHeight: "1.625rem" }],
+        lg: ["1.1875rem", { lineHeight: "1.625rem", letterSpacing: "-0.01em" }],
+        xl: ["1.375rem", { lineHeight: "1.875rem", letterSpacing: "-0.01em" }],
+        "2xl": ["1.75rem", { lineHeight: "2.125rem", letterSpacing: "-0.015em" }],
+        "3xl": ["2.25rem", { lineHeight: "2.5rem", letterSpacing: "-0.02em" }],
+        "4xl": ["2.75rem", { lineHeight: "2.75rem", letterSpacing: "-0.02em" }],
       },
       colors: {
         border: "hsl(var(--border))",
+        "border-strong": "hsl(var(--rule-strong))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
@@ -61,20 +81,22 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        // AdTech ecosystem node colors
-        node: {
-          advertiser: "hsl(var(--node-advertiser))",
-          dsp: "hsl(var(--node-dsp))",
-          exchange: "hsl(var(--node-exchange))",
-          ssp: "hsl(var(--node-ssp))",
-          publisher: "hsl(var(--node-publisher))",
-          user: "hsl(var(--node-user))",
-        },
-        glow: {
-          primary: "hsl(var(--glow-primary))",
-          accent: "hsl(var(--glow-accent))",
-          success: "hsl(var(--glow-success))",
-          warning: "hsl(var(--glow-warning))",
+        // Domain signals. One colour, one meaning.
+        clearing: "hsl(var(--clearing))",
+        floor: "hsl(var(--floor))",
+        nobid: "hsl(var(--nobid))",
+        // Supply-chain data encoding. Permitted in the ecosystem map and the
+        // chain rail only — never on a button, badge, border, icon or card.
+        chain: {
+          advertiser: "hsl(var(--chain-advertiser))",
+          agency: "hsl(var(--chain-agency))",
+          dsp: "hsl(var(--chain-dsp))",
+          dmp: "hsl(var(--chain-dmp))",
+          exchange: "hsl(var(--chain-exchange))",
+          ssp: "hsl(var(--chain-ssp))",
+          adserver: "hsl(var(--chain-adserver))",
+          publisher: "hsl(var(--chain-publisher))",
+          user: "hsl(var(--chain-user))",
         },
       },
       borderRadius: {
@@ -82,6 +104,7 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      // Accordion transitions only. Nothing in this product loops.
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
@@ -91,29 +114,13 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
-        "pulse-ring": {
-          "0%": { transform: "scale(0.8)", opacity: "1" },
-          "100%": { transform: "scale(2)", opacity: "0" },
-        },
-        "data-flow": {
-          "0%": { strokeDashoffset: "100" },
-          "100%": { strokeDashoffset: "0" },
-        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "pulse-ring": "pulse-ring 1.5s ease-out infinite",
-        "data-flow": "data-flow 2s linear infinite",
-      },
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'grid-pattern': 'linear-gradient(hsl(217 33% 17% / 0.3) 1px, transparent 1px), linear-gradient(90deg, hsl(217 33% 17% / 0.3) 1px, transparent 1px)',
-      },
-      backgroundSize: {
-        'grid': '50px 50px',
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  // shadcn/ui components rely on this for their enter/exit transitions.
+  plugins: [animatePlugin],
 } satisfies Config;

@@ -346,7 +346,7 @@ export function IdentityModule() {
               className="p-4 rounded-xl bg-card border border-border"
             >
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center text-accent shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center text-primary shrink-0">
                   {solution.icon}
                 </div>
                 <div>

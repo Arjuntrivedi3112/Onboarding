@@ -393,7 +393,7 @@ export function TrackingModule() {
 
         <div className="p-6 rounded-xl bg-card border border-border">
           <h3 className="font-display text-lg font-semibold mb-3 flex items-center gap-2">
-            <Zap className="w-5 h-5 text-accent" />
+            <Zap className="w-5 h-5 text-primary" />
             Server-Side Method
           </h3>
           <p className="text-sm text-muted-foreground mb-4">
