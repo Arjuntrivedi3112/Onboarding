@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -40,6 +40,16 @@ export function SessionDetailView({ sessionId, onBack, sessions, doubts: allDoub
   const [newDoubtText, setNewDoubtText] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [viewerImageUrl, setViewerImageUrl] = useState<string | null>(null);
+
+  // The fullscreen viewer needs a keyboard way out.
+  useEffect(() => {
+    if (!viewerImageUrl) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setViewerImageUrl(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [viewerImageUrl]);
   const [isEditingMeta, setIsEditingMeta] = useState(false);
   const [editDate, setEditDate] = useState<string>(session?.date || "");
   const [editTime, setEditTime] = useState<string>(session?.time || "");
@@ -379,8 +389,14 @@ export function SessionDetailView({ sessionId, onBack, sessions, doubts: allDoub
 
       {/* Fullscreen Viewer */}
       {viewerImageUrl && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur flex items-center justify-center p-4" onClick={() => setViewerImageUrl(null)}>
-          <div className="relative max-w-5xl w-full" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Session media">
+          <button
+            type="button"
+            aria-label="Close image"
+            onClick={() => setViewerImageUrl(null)}
+            className="absolute inset-0 bg-foreground/80"
+          />
+          <div className="relative max-w-5xl w-full">
             <button
               className="absolute -top-10 right-0 px-3 py-2 rounded-md bg-background text-foreground border"
               onClick={() => setViewerImageUrl(null)}
@@ -430,7 +446,7 @@ export function SessionDetailView({ sessionId, onBack, sessions, doubts: allDoub
             value={newDoubtText}
             onChange={(e) => setNewDoubtText(e.target.value)}
             placeholder="Type your doubt or question here..."
-            className="w-full px-4 py-3 rounded-lg bg-muted border border-border focus:border-primary focus:outline-none text-sm resize-none"
+            className="w-full px-4 py-3 rounded-lg bg-muted border border-border focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background text-sm resize-none"
             rows={3}
           />
           <div className="flex justify-end mt-2">
@@ -466,7 +482,7 @@ export function SessionDetailView({ sessionId, onBack, sessions, doubts: allDoub
                     className="mt-1 text-muted-foreground hover:text-primary transition-colors"
                   >
                     {doubt.status === "resolved" ? (
-                      <CheckCircle2 className="w-5 h-5 text-green-500" />
+                      <CheckCircle2 className="w-5 h-5 text-primary" />
                     ) : (
                       <Circle className="w-5 h-5" />
                     )}
@@ -487,8 +503,8 @@ export function SessionDetailView({ sessionId, onBack, sessions, doubts: allDoub
                       <span
                         className={`px-2 py-0.5 rounded-full ${
                           doubt.status === "open"
-                            ? "bg-orange-500/10 text-orange-500"
-                            : "bg-green-500/10 text-green-500"
+                            ? "bg-[hsl(var(--floor)/0.12)] text-[hsl(var(--floor))]"
+                            : "bg-primary/10 text-primary"
                         }`}
                       >
                         {doubt.status === "open" ? "Open" : "Resolved"}

@@ -1,74 +1,51 @@
-# Welcome to your Lovable project
+# AdTech Journey
 
-## Project info
+An onboarding platform that turns *The AdTech Book* (2026 edition) into a structured,
+progress-tracked learning journey for new hires.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## What this is
 
-## How can I edit this code?
+- **79 lessons across 11 sections**, mapped one-to-one onto the book's chapters — section 5 is
+  always chapter 5. A 12th "appendix" section (AI in AdTech) sits outside the book and outside
+  progress tracking.
+- Every lesson has its own interactive "try it" — a live auction simulator, an attribution model
+  that recomputes credit as you edit a customer journey, a discrepancy calculator checked against
+  the IAB tolerance rule, and more.
+- Progress is tracked per-lesson in the browser (`src/lib/progress.ts`), no login required. The
+  headline percentage is minute-weighted across the book's ~633 minutes of content, so it never
+  reads 100% with anything left unfinished.
+- Reference tools live alongside the journey: an ecosystem map, an 89-term glossary, a document
+  library, and session notes.
 
-There are several ways of editing your application.
+## Structure
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+src/curriculum/        The single source of truth: parts -> sections -> lessons
+src/components/journey/  Shell, sidebar, lesson chrome, the chain-rail signature element
+src/components/lessons/  One file per lesson, grouped by section
+src/pages/              Route-level pages (Dashboard, SectionPage, LessonPage, reference tools)
+src/lib/progress.ts      localStorage-backed progress store
 ```
 
-**Edit a file directly in GitHub**
+Adding a lesson is a filesystem convention: drop a file at
+`src/components/lessons/<section>/<slug>.tsx` matching the slug in `src/curriculum/data.ts`, and
+it's picked up automatically via `import.meta.glob`.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Design
 
-**Use GitHub Codespaces**
+Built against Apple's Human Interface Guidelines foundations (accessibility, color, typography,
+layout, motion, writing) — see `src/index.css` for the token system and `src/test/design-rules.test.ts`
+for the executable rules that keep it that way.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Development
 
-## What technologies are used for this project?
+```sh
+npm i
+npm run dev      # start the dev server
+npm run test     # run the test suite (curriculum invariants, design rules, full render sweep)
+npm run build    # production build
+```
 
-This project is built with:
+## Deployment
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
-# Trigger deployment
+Deployed on Vercel from `main`. `vercel.json` configures the build command and SPA rewrites.

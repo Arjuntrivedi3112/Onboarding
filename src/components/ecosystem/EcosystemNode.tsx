@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface EcosystemNodeProps {
@@ -7,31 +6,25 @@ interface EcosystemNodeProps {
   description: string;
   x: number;
   y: number;
+  /** Chain actor key — selects the data-encoding hue for this node. */
   color: string;
   isActive: boolean;
   onHover: (id: string | null) => void;
   onClick: () => void;
-  delay: number;
 }
 
-const colorMap: Record<string, string> = {
-  advertiser: "from-amber-500 to-orange-600",
-  dsp: "from-cyan-400 to-blue-500",
-  exchange: "from-purple-500 to-pink-500",
-  ssp: "from-emerald-400 to-green-500",
-  publisher: "from-rose-400 to-pink-500",
-  user: "from-blue-400 to-indigo-500",
-};
-
-const glowMap: Record<string, string> = {
-  advertiser: "shadow-amber-500/30",
-  dsp: "shadow-cyan-400/30",
-  exchange: "shadow-purple-500/30",
-  ssp: "shadow-emerald-400/30",
-  publisher: "shadow-rose-400/30",
-  user: "shadow-blue-400/30",
-};
-
+/**
+ * One actor on the ecosystem map.
+ *
+ * A real button, not a div with a handler: these nine nodes are the only route
+ * from the map into the sections that explain them, so a pointer-only
+ * implementation made that content unreachable by keyboard. Focus mirrors
+ * hover, so tabbing through the map reveals the same detail as pointing at it.
+ *
+ * Colour comes from the chain scale, which encodes supply-chain position. It
+ * is never the only signal — the label is always present, and the active state
+ * is carried by the border and ring as well as the hue.
+ */
 export function EcosystemNode({
   id,
   label,
@@ -42,77 +35,40 @@ export function EcosystemNode({
   isActive,
   onHover,
   onClick,
-  delay,
 }: EcosystemNodeProps) {
+  const hue = `hsl(var(--chain-${color}))`;
+
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay, type: "spring", stiffness: 200, damping: 20 }}
+    <button
+      type="button"
+      onMouseEnter={() => onHover(id)}
+      onMouseLeave={() => onHover(null)}
+      onFocus={() => onHover(id)}
+      onBlur={() => onHover(null)}
+      onClick={onClick}
+      aria-label={`${label} — ${description}. Open the section that explains it.`}
       style={{
         position: "absolute",
         left: `${x}%`,
         top: `${y}%`,
         transform: "translate(-50%, -50%)",
       }}
-      onMouseEnter={() => onHover(id)}
-      onMouseLeave={() => onHover(null)}
-      onClick={onClick}
-      className="cursor-pointer group"
+      className={cn(
+        "group flex min-h-[2.75rem] min-w-[5rem] flex-col items-center justify-center rounded-lg border bg-card px-2.5 py-2 text-center transition-colors",
+        isActive ? "border-border-strong" : "border-border hover:border-border-strong"
+      )}
     >
-      {/* Pulse ring on active */}
-      {isActive && (
-        <motion.div
-          className={cn(
-            "absolute inset-0 rounded-xl bg-gradient-to-br",
-            colorMap[color]
-          )}
-          initial={{ opacity: 0.5, scale: 1 }}
-          animate={{ opacity: 0, scale: 1.5 }}
-          transition={{ duration: 1, repeat: Infinity }}
-        />
-      )}
-
-      {/* Main node - compact pill design */}
-      <motion.div
-        whileHover={{ scale: 1.08 }}
-        whileTap={{ scale: 0.95 }}
-        className={cn(
-          "relative px-2 py-1.5 rounded-lg bg-card border transition-all duration-300 min-w-[60px]",
-          isActive
-            ? `border-transparent shadow-lg ${glowMap[color]}`
-            : "border-border hover:border-muted-foreground/50"
-        )}
-      >
-        {/* Gradient overlay */}
-        <div
-          className={cn(
-            "absolute inset-0 rounded-lg bg-gradient-to-br opacity-15 group-hover:opacity-25 transition-opacity",
-            colorMap[color]
-          )}
-        />
-
-        {/* Content - ultra compact */}
-        <div className="relative z-10 text-center">
-          <h3 className="font-display font-bold text-[11px] text-foreground leading-tight">
-            {label}
-          </h3>
-          <p className="text-[9px] text-muted-foreground leading-tight">
-            {description}
-          </p>
-        </div>
-      </motion.div>
-
-      {/* Tooltip on hover */}
-      {isActive && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="absolute top-full mt-2 left-1/2 -translate-x-1/2 glass rounded-lg px-2 py-1 whitespace-nowrap z-20"
-        >
-          <p className="text-[10px] text-primary">Click to explore →</p>
-        </motion.div>
-      )}
-    </motion.div>
+      <span
+        aria-hidden="true"
+        className="mb-1 h-1.5 w-1.5 rounded-full"
+        style={{ backgroundColor: hue }}
+      />
+      <span className="text-xs font-semibold normal-case tracking-normal text-foreground">
+        {label}
+      </span>
+      <span className="mt-0.5 text-xs normal-case tracking-normal text-muted-foreground">
+        {description}
+      </span>
+    </button>
   );
 }

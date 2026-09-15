@@ -299,12 +299,12 @@ export function SessionNotesModule({ onSelectSession, sessions, doubts, onSessio
           <div className="flex items-center gap-3 mb-2">
             <h2 className="text-2xl font-bold">Session Notes</h2>
             {githubConfigured ? (
-              <div className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-green-500/10 text-green-500 border border-green-500/20">
+              <div className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
                 <CheckCircle2 className="w-3 h-3" />
                 Auto-commit enabled
               </div>
             ) : (
-              <div className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-orange-500/10 text-orange-500 border border-orange-500/20">
+              <div className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-[hsl(var(--floor)/0.12)] text-[hsl(var(--floor))] border border-[hsl(var(--floor)/0.25)]">
                 <AlertCircle className="w-3 h-3" />
                 Manual export only
               </div>
@@ -479,7 +479,7 @@ export function SessionNotesModule({ onSelectSession, sessions, doubts, onSessio
                   value={newSession.title || ""}
                   onChange={(e) => setNewSession(prev => ({ ...prev, title: e.target.value }))}
                   placeholder="e.g., Understanding DSP Architecture"
-                  className="w-full px-4 py-2 rounded-lg bg-muted border border-border focus:border-primary focus:outline-none text-sm"
+                  className="w-full px-4 py-2 rounded-lg bg-muted border border-border focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background text-sm"
                 />
               </div>
 
@@ -489,7 +489,7 @@ export function SessionNotesModule({ onSelectSession, sessions, doubts, onSessio
                   type="date"
                   value={(newSession.date as string) || ""}
                   onChange={(e) => setNewSession(prev => ({ ...prev, date: e.target.value }))}
-                  className="w-full px-4 py-2 rounded-lg bg-muted border border-border focus:border-primary focus:outline-none text-sm"
+                  className="w-full px-4 py-2 rounded-lg bg-muted border border-border focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background text-sm"
                 />
               </div>
 
@@ -499,7 +499,7 @@ export function SessionNotesModule({ onSelectSession, sessions, doubts, onSessio
                   type="time"
                   value={(newSession.time as string) || ""}
                   onChange={(e) => setNewSession(prev => ({ ...prev, time: e.target.value }))}
-                  className="w-full px-4 py-2 rounded-lg bg-muted border border-border focus:border-primary focus:outline-none text-sm"
+                  className="w-full px-4 py-2 rounded-lg bg-muted border border-border focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background text-sm"
                 />
               </div>
 
@@ -510,7 +510,7 @@ export function SessionNotesModule({ onSelectSession, sessions, doubts, onSessio
                   value={newSession.summary || ""}
                   onChange={(e) => setNewSession(prev => ({ ...prev, summary: e.target.value }))}
                   placeholder="One-line takeaway from this session"
-                  className="w-full px-4 py-2 rounded-lg bg-muted border border-border focus:border-primary focus:outline-none text-sm"
+                  className="w-full px-4 py-2 rounded-lg bg-muted border border-border focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background text-sm"
                 />
               </div>
 
@@ -523,7 +523,7 @@ export function SessionNotesModule({ onSelectSession, sessions, doubts, onSessio
                     onChange={(e) => setTagInput(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
                     placeholder="Add tag and press Enter"
-                    className="flex-1 px-4 py-2 rounded-lg bg-muted border border-border focus:border-primary focus:outline-none text-sm"
+                    className="flex-1 px-4 py-2 rounded-lg bg-muted border border-border focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background text-sm"
                   />
                   <button
                     onClick={addTag}
@@ -556,7 +556,7 @@ export function SessionNotesModule({ onSelectSession, sessions, doubts, onSessio
                   onChange={(e) => setNewSession(prev => ({ ...prev, overview: e.target.value }))}
                   placeholder="What did this session cover?"
                   rows={3}
-                  className="w-full px-4 py-2 rounded-lg bg-muted border border-border focus:border-primary focus:outline-none text-sm resize-none"
+                  className="w-full px-4 py-2 rounded-lg bg-muted border border-border focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background text-sm resize-none"
                 />
               </div>
 
@@ -600,7 +600,7 @@ export function SessionNotesModule({ onSelectSession, sessions, doubts, onSessio
                   onChange={(e) => setNewSession(prev => ({ ...prev, understanding: e.target.value }))}
                   placeholder="What did you learn? Capture your mental model..."
                   rows={5}
-                  className="w-full px-4 py-2 rounded-lg bg-muted border border-border focus:border-primary focus:outline-none text-sm resize-none"
+                  className="w-full px-4 py-2 rounded-lg bg-muted border border-border focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background text-sm resize-none"
                 />
               </div>
 
@@ -611,7 +611,7 @@ export function SessionNotesModule({ onSelectSession, sessions, doubts, onSessio
                   onChange={(e) => setNewSession(prev => ({ ...prev, outcomes: e.target.value }))}
                   placeholder="What changed? What to revisit?"
                   rows={3}
-                  className="w-full px-4 py-2 rounded-lg bg-muted border border-border focus:border-primary focus:outline-none text-sm resize-none"
+                  className="w-full px-4 py-2 rounded-lg bg-muted border border-border focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background text-sm resize-none"
                 />
               </div>
             </div>

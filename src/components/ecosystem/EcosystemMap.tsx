@@ -52,7 +52,6 @@ export function EcosystemMap({ onNodeClick }: EcosystemMapProps) {
   return (
     <div className="relative w-full h-[500px] bg-card/50 border border-border rounded-2xl overflow-hidden px-10">
       {/* Background glow */}
-      <div className="absolute inset-0 bg-gradient-radial from-primary/5 via-transparent to-transparent pointer-events-none" />
       
       {/* SVG for connection lines */}
       <svg className="absolute inset-0 w-full h-full" style={{ zIndex: 0 }}>
@@ -94,14 +93,13 @@ export function EcosystemMap({ onNodeClick }: EcosystemMapProps) {
 
       {/* Nodes */}
       <div className="relative z-10 w-full h-full">
-        {nodes.map((node, i) => (
+        {nodes.map((node) => (
           <EcosystemNode
             key={node.id}
             {...node}
             isActive={activeNode === node.id}
             onHover={(id) => setActiveNode(id)}
             onClick={() => onNodeClick(node.id)}
-            delay={i * 0.1}
           />
         ))}
       </div>
@@ -111,20 +109,20 @@ export function EcosystemMap({ onNodeClick }: EcosystemMapProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1 }}
-        className="absolute bottom-4 left-4 glass rounded-xl p-3"
+        className="absolute bottom-4 left-4 rounded-xl border border-border bg-card p-3"
       >
-        <p className="text-xs text-muted-foreground mb-2">Click any component to learn more</p>
+        <p className="mb-2 text-sm text-muted-foreground">Select any part to open the section that explains it</p>
         <div className="flex flex-wrap gap-3">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-node-advertiser" />
+            <div className="w-2 h-2 rounded-full bg-chain-advertiser" />
             <span className="text-xs">Demand Side</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-node-exchange" />
+            <div className="w-2 h-2 rounded-full bg-chain-exchange" />
             <span className="text-xs">Marketplace</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-node-ssp" />
+            <div className="w-2 h-2 rounded-full bg-chain-ssp" />
             <span className="text-xs">Supply Side</span>
           </div>
         </div>

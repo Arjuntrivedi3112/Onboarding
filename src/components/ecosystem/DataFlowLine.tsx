@@ -50,29 +50,7 @@ export function DataFlowLine({
         initial={{ pathLength: 0, opacity: 0 }}
         animate={{ pathLength: 1, opacity: 1 }}
         transition={{ delay, duration: 0.8, ease: "easeOut" }}
-        style={{
-          filter: isActive ? "drop-shadow(0 0 8px hsl(var(--primary)))" : "none",
-        }}
       />
-
-      {/* Animated flow dots */}
-      {isActive && (
-        <motion.circle
-          r={3}
-          fill="hsl(var(--primary))"
-          initial={{ offsetDistance: "0%" }}
-          animate={{ offsetDistance: "100%" }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          style={{
-            offsetPath: `path("${pathD}")`,
-            filter: "drop-shadow(0 0 6px hsl(var(--primary)))",
-          }}
-        />
-      )}
 
       {/* Label */}
       {isActive && (

@@ -129,7 +129,7 @@ export function KeywordsModule() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search terms or definitions..."
-          className="flex-1 px-4 py-2 rounded-lg bg-muted border border-border focus:border-primary focus:outline-none text-sm"
+          className="flex-1 px-4 py-2 rounded-lg bg-muted border border-border focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background text-sm"
         />
         <button
           onClick={() => handleAskAI(q || "Explain glossary terms")}

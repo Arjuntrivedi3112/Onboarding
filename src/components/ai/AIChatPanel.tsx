@@ -239,7 +239,7 @@ Be helpful, accurate, and encouraging. Make AdTech accessible to everyone.`;
             {/* Header */}
             <div className="p-4 border-b border-border flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
                   <Sparkles className="w-5 h-5 text-white" />
                 </div>
                 <div>
@@ -270,7 +270,7 @@ Be helpful, accurate, and encouraging. Make AdTech accessible to everyone.`;
                     className={cn(
                       "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
                       msg.role === "assistant"
-                        ? "bg-gradient-to-br from-primary to-accent"
+                        ? "bg-primary"
                         : "bg-muted"
                     )}
                   >
@@ -308,8 +308,8 @@ Be helpful, accurate, and encouraging. Make AdTech accessible to everyone.`;
                   animate={{ opacity: 1 }}
                   className="flex gap-3"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                    <Loader2 className="w-4 h-4 text-white animate-spin" />
+                  <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+                    <Loader2 className="w-4 h-4 text-primary-foreground animate-spin" />
                   </div>
                   <div className="bg-muted rounded-2xl px-4 py-3">
                     <div className="flex gap-1">
@@ -346,7 +346,7 @@ Be helpful, accurate, and encouraging. Make AdTech accessible to everyone.`;
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSend()}
                   placeholder="Ask about AdTech concepts..."
-                  className="flex-1 px-4 py-3 rounded-xl bg-muted border border-border focus:border-primary focus:outline-none text-sm"
+                  className="flex-1 px-4 py-3 rounded-xl bg-muted border border-border focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background text-sm"
                 />
                 <motion.button
                   whileHover={{ scale: 1.05 }}

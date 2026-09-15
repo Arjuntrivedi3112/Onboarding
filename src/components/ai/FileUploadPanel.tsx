@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { X, Upload, FileText, Loader2, CheckCircle, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -124,11 +124,26 @@ export function FileUploadPanel({ isOpen, onClose }: { isOpen: boolean; onClose:
     }
   }, []);
 
+  // A modal needs a keyboard way out, not just a click on the scrim.
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
     <>
-      <div className="fixed inset-0 z-[99] bg-background/80 backdrop-blur-sm" onClick={onClose} />
+      <button
+        type="button"
+        aria-label="Close"
+        onClick={onClose}
+        className="fixed inset-0 z-[99] bg-background/80 backdrop-blur-sm"
+      />
       <div className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-auto">
         <div
           className="relative w-full max-w-lg mx-auto pointer-events-auto"
@@ -217,7 +232,7 @@ export function FileUploadPanel({ isOpen, onClose }: { isOpen: boolean; onClose:
                             <span>Analyzing...</span>
                           </div>
                         )}
-                        {file.status === "done" && <CheckCircle className="w-5 h-5 text-green-500" />}
+                        {file.status === "done" && <CheckCircle className="w-5 h-5 text-primary" />}
                         {file.status === "error" && <AlertCircle className="w-5 h-5 text-destructive" />}
                       </div>
                     </div>
