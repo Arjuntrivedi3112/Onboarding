@@ -209,10 +209,13 @@ function LessonFooter({
           {prev && (
             <Link
               to={lessonPath(prev)}
-              className="inline-flex min-h-[2.75rem] flex-1 items-center gap-2 rounded-lg border border-border px-4 text-sm text-muted-foreground transition-colors hover:border-border-strong hover:text-foreground sm:flex-none"
+              className="interactive inline-flex min-h-[2.75rem] flex-1 items-center gap-2 rounded-lg border border-border px-4 text-sm text-muted-foreground hover:border-border-strong hover:text-foreground sm:flex-none"
             >
               <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden="true" />
               <span className="truncate">{prev.lesson.title}</span>
+              <kbd className="figure ml-auto hidden shrink-0 rounded border border-border px-1 text-xs leading-none text-muted-foreground sm:inline-block">
+                [
+              </kbd>
             </Link>
           )}
         </div>
@@ -221,8 +224,11 @@ function LessonFooter({
           {next && (
             <Link
               to={lessonPath(next)}
-              className="inline-flex min-h-[2.75rem] flex-1 items-center justify-end gap-2 rounded-lg border border-border px-4 text-sm text-muted-foreground transition-colors hover:border-border-strong hover:text-foreground sm:flex-none"
+              className="interactive inline-flex min-h-[2.75rem] flex-1 items-center justify-end gap-2 rounded-lg border border-border px-4 text-sm text-muted-foreground hover:border-border-strong hover:text-foreground sm:flex-none"
             >
+              <kbd className="figure hidden shrink-0 rounded border border-border px-1 text-xs leading-none text-muted-foreground sm:inline-block">
+                ]
+              </kbd>
               <span className="truncate">{next.lesson.title}</span>
               <ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" />
             </Link>

@@ -4,6 +4,7 @@ import { BookMarked, Check, FileText, Library, Map, Search } from "lucide-react"
 
 import { curriculum, lessonPath, sectionPath } from "@/curriculum";
 import type { Part, Section } from "@/curriculum/types";
+import { openCommandPalette } from "@/components/journey/CommandPalette";
 import { useProgress } from "@/hooks/useProgress";
 import { cn } from "@/lib/utils";
 
@@ -62,6 +63,18 @@ export function JourneySidebar({ onNavigate }: { onNavigate?: () => void }) {
             11 sections · {book.total} lessons
           </p>
         )}
+
+        <button
+          type="button"
+          onClick={openCommandPalette}
+          className="interactive mt-3 flex w-full items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm text-muted-foreground hover:border-border-strong hover:text-foreground"
+        >
+          <Search className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+          <span className="flex-1 text-left">Jump to…</span>
+          <kbd className="figure hidden shrink-0 rounded border border-border bg-secondary px-1.5 py-0.5 text-xs leading-none text-muted-foreground sm:inline-block">
+            ⌘K
+          </kbd>
+        </button>
       </div>
 
       <nav className="flex-1 overflow-y-auto px-2 py-4" aria-label="Journey">

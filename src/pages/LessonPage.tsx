@@ -1,10 +1,46 @@
 import { Suspense, useEffect, useMemo } from "react";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 
 import { LessonShell } from "@/components/journey/LessonShell";
 import { loadLessonContent } from "@/components/journey/lesson-registry";
+import { ReadingProgress } from "@/components/journey/ReadingProgress";
 import { lessonBySlug, lessonPath, sectionPath } from "@/curriculum";
+import type { LessonRef } from "@/curriculum/types";
 import { useAdjacentLessons, useProgress } from "@/hooks/useProgress";
+
+/** True while the user is typing or interacting with a control — [ and ] must not hijack that. */
+function isTypingTarget(el: Element | null): boolean {
+  if (!el) return false;
+  const tag = el.tagName;
+  return (
+    tag === "INPUT" ||
+    tag === "TEXTAREA" ||
+    tag === "SELECT" ||
+    (el as HTMLElement).isContentEditable
+  );
+}
+
+/** [ and ] move to the previous/next lesson — a quiet power-user shortcut, never the only way. */
+function useLessonKeyboardNav(prev: LessonRef | null, next: LessonRef | null) {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      if (isTypingTarget(document.activeElement)) return;
+
+      if (event.key === "[" && prev) {
+        event.preventDefault();
+        navigate(lessonPath(prev));
+      } else if (event.key === "]" && next) {
+        event.preventDefault();
+        navigate(lessonPath(next));
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [prev, next, navigate]);
+}
 
 export default function LessonPage() {
   const { sectionId, lessonSlug } = useParams<{ sectionId: string; lessonSlug: string }>();
@@ -12,6 +48,7 @@ export default function LessonPage() {
 
   const { isComplete, toggleComplete, recordVisit } = useProgress();
   const { prev, next } = useAdjacentLessons(refInfo?.lesson.id ?? "");
+  useLessonKeyboardNav(prev, next);
 
   const LessonContentComponent = useMemo(
     () => (refInfo ? loadLessonContent(refInfo.section.id, refInfo.lesson.slug) : null),
@@ -35,20 +72,23 @@ export default function LessonPage() {
   }
 
   return (
-    <Suspense fallback={<LessonSkeleton />}>
-      <LessonContentComponent
-        render={(content) => (
-          <LessonShell
-            refInfo={refInfo}
-            content={content}
-            prev={prev}
-            next={next}
-            isComplete={complete}
-            onToggleComplete={() => toggleComplete(refInfo.lesson.id)}
-          />
-        )}
-      />
-    </Suspense>
+    <>
+      <ReadingProgress />
+      <Suspense fallback={<LessonSkeleton />}>
+        <LessonContentComponent
+          render={(content) => (
+            <LessonShell
+              refInfo={refInfo}
+              content={content}
+              prev={prev}
+              next={next}
+              isComplete={complete}
+              onToggleComplete={() => toggleComplete(refInfo.lesson.id)}
+            />
+          )}
+        />
+      </Suspense>
+    </>
   );
 }
 

@@ -3,7 +3,9 @@ import { Outlet, useLocation } from "react-router-dom";
 import { Menu, MessageSquare, X } from "lucide-react";
 
 import { AIChatPanel } from "@/components/ai/AIChatPanel";
+import { CommandPalette } from "@/components/journey/CommandPalette";
 import { JourneySidebar } from "@/components/journey/JourneySidebar";
+import { PageTransition } from "@/components/journey/PageTransition";
 
 /**
  * The app shell: a persistent rail plus the routed content column.
@@ -82,20 +84,23 @@ export function JourneyLayout() {
 
       <main id="main" className="lg:ml-[280px]">
         <div className="mx-auto max-w-4xl px-4 py-8 md:px-8">
-          <Outlet />
+          <PageTransition>
+            <Outlet />
+          </PageTransition>
         </div>
       </main>
 
       <button
         type="button"
         onClick={() => setAskOpen(true)}
-        className="fixed bottom-5 right-5 z-30 inline-flex min-h-[2.75rem] items-center gap-2 rounded-full border border-border bg-card px-4 text-sm text-foreground shadow-lg hover:border-border-strong"
+        className="interactive fixed bottom-5 right-5 z-30 inline-flex min-h-[2.75rem] items-center gap-2 rounded-full border border-border bg-card px-4 text-sm text-foreground shadow-lg hover:border-primary/40"
       >
         <MessageSquare className="h-4 w-4" aria-hidden="true" />
         Ask a question
       </button>
 
       <AIChatPanel isOpen={askOpen} onClose={() => setAskOpen(false)} />
+      <CommandPalette />
     </div>
   );
 }
