@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { IqmSpotlight } from "@/components/journey/IqmSpotlight";
 import type { LessonContent } from "@/components/journey/lesson-content";
 import { cn } from "@/lib/utils";
 
@@ -58,6 +59,14 @@ function Body() {
           collection of them a company has assembled for its own needs.
         </p>
       </div>
+
+      <IqmSpotlight>
+        IQM is a good example of a stack assembled around one job: since 2014 it's brought a DSP,
+        DMP, and identity graph together into one platform built specifically for regulated
+        industries — political, healthcare, cannabis, gaming — where compliance and precision
+        matter as much as reach. It was named Best Demand-Side Technology at the 2025 AdExchanger
+        Awards.
+      </IqmSpotlight>
 
       <section>
         <h3 className="mb-3 text-lg text-foreground">Some of the pieces</h3>

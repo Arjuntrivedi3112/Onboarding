@@ -36,7 +36,7 @@ export default function Dashboard() {
               aria-valuetext={`${book.done} of ${book.total} lessons complete`}
               className="h-2 w-full overflow-hidden rounded-full bg-secondary"
             >
-              <div className="h-full bg-primary" style={{ width: `${book.pct}%` }} />
+              <div className="h-full bg-primary transition-[width] duration-500 ease-out" style={{ width: `${book.pct}%` }} />
             </div>
             <p className="figure mt-2 text-sm text-muted-foreground">
               {book.done} of {book.total} lessons · {book.pct}% of the book
@@ -53,7 +53,7 @@ export default function Dashboard() {
 
       {/* The next action. Same position, day 0 and day 40. */}
       {resume && (
-        <section className="mb-10 rounded-lg border border-border bg-card p-6">
+        <section className="shadow-card mb-10 rounded-lg border border-border bg-card p-6">
           <p className="text-xs uppercase text-muted-foreground">
             {finishedBook
               ? "You've finished the book"
@@ -70,7 +70,7 @@ export default function Dashboard() {
           <div className="mt-5 flex flex-wrap items-center gap-4">
             <Link
               to={lessonPath(resume)}
-              className="inline-flex min-h-[2.75rem] items-center gap-2 rounded-lg bg-primary px-5 text-base text-primary-foreground hover:opacity-90"
+              className="interactive inline-flex min-h-[2.75rem] items-center gap-2 rounded-lg bg-primary px-5 text-base text-primary-foreground hover:bg-primary/90"
             >
               {hasStarted ? "Continue" : `Start section ${resume.section.number}`}
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -123,7 +123,7 @@ function SectionCard({
     <li>
       <Link
         to={sectionPath(section)}
-        className="flex h-full flex-col rounded-lg border border-border bg-card p-4 hover:border-border-strong"
+        className="interactive shadow-card flex h-full flex-col rounded-lg border border-border bg-card p-4 hover:border-primary/40"
       >
         <div className="flex items-center gap-2.5">
           <Icon className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
@@ -145,7 +145,7 @@ function SectionCard({
                 <span
                   key={lesson.id}
                   className={cn(
-                    "h-1 flex-1 rounded-full",
+                    "h-1 flex-1 rounded-full transition-colors duration-300",
                     i < done ? "bg-primary" : "bg-secondary"
                   )}
                 />

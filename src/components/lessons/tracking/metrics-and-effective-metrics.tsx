@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { IqmSpotlight } from "@/components/journey/IqmSpotlight";
 import type { LessonContent } from "@/components/journey/lesson-content";
 import { formatUSD, safeDiv, toggleClass } from "./_shared";
 
@@ -134,6 +135,12 @@ function Body() {
           ))}
         </ul>
       </div>
+
+      <IqmSpotlight>
+        IQM's reporting layer runs this analysis automatically: an AI-powered bid drop-off funnel
+        pinpoints exactly where in the auction chain — request, bid, win, render — impressions are
+        being lost, instead of leaving a trafficker to infer it from a handful of aggregate metrics.
+      </IqmSpotlight>
 
       <section>
         <h3 className="mb-3 text-lg text-foreground">Key reporting metrics</h3>

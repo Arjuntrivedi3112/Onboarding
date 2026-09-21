@@ -43,7 +43,7 @@ export function LessonShell({
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <Link
           to={sectionPath(section)}
-          className="text-xs uppercase text-muted-foreground hover:text-foreground"
+          className="text-xs uppercase text-muted-foreground transition-colors hover:text-foreground"
         >
           {section.bookChapter > 0 ? `Section ${section.number}` : "Appendix"} · {section.title}
         </Link>
@@ -123,7 +123,7 @@ export function LessonShell({
       {next && (
         <Link
           to={lessonPath(next)}
-          className="mb-8 flex items-center justify-between gap-4 rounded-lg border border-border bg-card p-5 hover:border-border-strong"
+          className="interactive shadow-card mb-8 flex items-center justify-between gap-4 rounded-lg border border-border bg-card p-5 hover:border-primary/40"
         >
           <span className="min-w-0">
             <span className="block text-xs uppercase text-muted-foreground">Up next</span>
@@ -189,10 +189,10 @@ function LessonFooter({
           onClick={onToggleComplete}
           aria-pressed={isComplete}
           className={cn(
-            "inline-flex min-h-[2.75rem] items-center justify-center gap-2 rounded-lg px-5 text-base transition-colors sm:order-2",
+            "interactive inline-flex min-h-[2.75rem] items-center justify-center gap-2 rounded-lg px-5 text-base sm:order-2",
             isComplete
               ? "border border-border-strong text-foreground hover:bg-secondary"
-              : "bg-primary text-primary-foreground hover:opacity-90"
+              : "bg-primary text-primary-foreground hover:bg-primary/90"
           )}
         >
           {isComplete ? (
@@ -209,7 +209,7 @@ function LessonFooter({
           {prev && (
             <Link
               to={lessonPath(prev)}
-              className="inline-flex min-h-[2.75rem] flex-1 items-center gap-2 rounded-lg border border-border px-4 text-sm text-muted-foreground hover:text-foreground sm:flex-none"
+              className="inline-flex min-h-[2.75rem] flex-1 items-center gap-2 rounded-lg border border-border px-4 text-sm text-muted-foreground transition-colors hover:border-border-strong hover:text-foreground sm:flex-none"
             >
               <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden="true" />
               <span className="truncate">{prev.lesson.title}</span>
@@ -221,7 +221,7 @@ function LessonFooter({
           {next && (
             <Link
               to={lessonPath(next)}
-              className="inline-flex min-h-[2.75rem] flex-1 items-center justify-end gap-2 rounded-lg border border-border px-4 text-sm text-muted-foreground hover:text-foreground sm:flex-none"
+              className="inline-flex min-h-[2.75rem] flex-1 items-center justify-end gap-2 rounded-lg border border-border px-4 text-sm text-muted-foreground transition-colors hover:border-border-strong hover:text-foreground sm:flex-none"
             >
               <span className="truncate">{next.lesson.title}</span>
               <ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" />

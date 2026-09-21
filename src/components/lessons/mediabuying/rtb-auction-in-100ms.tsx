@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
+import { IqmSpotlight } from "@/components/journey/IqmSpotlight";
 import type { LessonContent } from "@/components/journey/lesson-content";
 import { cn } from "@/lib/utils";
 import { DEFAULT_BIDS, highestBid } from "./_shared";
@@ -169,6 +170,13 @@ function Body() {
           eye.
         </p>
       </div>
+
+      <IqmSpotlight>
+        Speed compounds beyond the auction itself: IQM advertises campaign activation in under{" "}
+        <span className="figure">30 minutes</span> from setup to live bidding, on a platform with a{" "}
+        <span className="figure">99.9%</span> uptime guarantee — the auction being fast is only
+        useful if the DSP running it is, too.
+      </IqmSpotlight>
 
       <section>
         <h3 className="mb-1 text-lg text-foreground">Try it</h3>

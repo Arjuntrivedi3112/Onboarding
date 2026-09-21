@@ -29,3 +29,6 @@ dist-ssr
 
 # Vendored design reference (installed at .claude/skills/apple-design)
 apple-design-skill-main/
+
+# IQM's internal design system reference (V2.5 skill files, not app source)
+Product Design Skills/

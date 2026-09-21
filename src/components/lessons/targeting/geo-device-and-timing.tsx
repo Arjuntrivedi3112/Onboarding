@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { IqmSpotlight } from "@/components/journey/IqmSpotlight";
 import type { LessonContent } from "@/components/journey/lesson-content";
 import { cn } from "@/lib/utils";
 
@@ -70,6 +71,12 @@ function Body() {
           when it arrived are each, on their own, a usable targeting signal.
         </p>
       </div>
+
+      <IqmSpotlight>
+        IQM's geo-farming goes further than a standard IP lookup: it draws custom boundaries around
+        a location rather than stopping at the zip code, so a healthcare advertiser can target
+        exactly the block radius around a clinic instead of the whole surrounding zip.
+      </IqmSpotlight>
 
       <section>
         <h3 className="mb-3 text-lg text-foreground">Location, from the request alone</h3>

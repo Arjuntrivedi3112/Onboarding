@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { IqmSpotlight } from "@/components/journey/IqmSpotlight";
 import type { LessonContent } from "@/components/journey/lesson-content";
 import { cn } from "@/lib/utils";
 
@@ -59,6 +60,14 @@ function Body() {
           it, which companies frequently combine.
         </p>
       </div>
+
+      <IqmSpotlight>
+        This is what IQM's proprietary Identity Graph does in production: <span className="figure">75%</span> US
+        household coverage, an <span className="figure">85%</span> active match rate, and{" "}
+        <span className="figure">0%</span> reliance on third-party cookies — built for the regulated
+        verticals, political and healthcare among them, where a stale or leaky match isn't an
+        option.
+      </IqmSpotlight>
 
       <section>
         <h3 className="mb-1 text-lg text-foreground">Try it</h3>

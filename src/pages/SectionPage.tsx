@@ -46,7 +46,7 @@ export default function SectionPage() {
       {firstUnfinished && (
         <Link
           to={lessonPath({ lesson: firstUnfinished, section, part, index: 0 })}
-          className="mb-8 inline-flex min-h-[2.75rem] items-center gap-2 rounded-lg bg-primary px-5 text-base text-primary-foreground hover:opacity-90"
+          className="interactive mb-8 inline-flex min-h-[2.75rem] items-center gap-2 rounded-lg bg-primary px-5 text-base text-primary-foreground hover:bg-primary/90"
         >
           {done > 0 ? "Continue this section" : "Start section"}
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -62,7 +62,7 @@ export default function SectionPage() {
             <li key={lesson.id}>
               <Link
                 to={lessonPath({ lesson, section, part, index: 0 })}
-                className="flex items-start gap-4 rounded-lg border border-border bg-card p-4 hover:border-border-strong"
+                className="interactive shadow-card flex items-start gap-4 rounded-lg border border-border bg-card p-4 hover:border-primary/40"
               >
                 <span
                   className={cn(

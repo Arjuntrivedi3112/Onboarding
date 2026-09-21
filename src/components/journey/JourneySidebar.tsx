@@ -51,7 +51,7 @@ export function JourneySidebar({ onNavigate }: { onNavigate?: () => void }) {
               aria-valuetext={`${book.done} of ${book.total} lessons complete`}
               className="h-1.5 w-full overflow-hidden rounded-full bg-secondary"
             >
-              <div className="h-full bg-primary" style={{ width: `${book.pct}%` }} />
+              <div className="h-full bg-primary transition-[width] duration-500 ease-out" style={{ width: `${book.pct}%` }} />
             </div>
             <p className="figure mt-2 text-xs text-muted-foreground">
               {book.done} of {book.total} lessons · {book.pct}%
@@ -87,7 +87,7 @@ export function JourneySidebar({ onNavigate }: { onNavigate?: () => void }) {
                 onClick={onNavigate}
                 className={({ isActive }) =>
                   cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2 text-sm",
+                    "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
                     isActive
                       ? "bg-sidebar-accent text-foreground"
                       : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
@@ -105,7 +105,7 @@ export function JourneySidebar({ onNavigate }: { onNavigate?: () => void }) {
               onClick={onNavigate}
               className={({ isActive }) =>
                 cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm",
+                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
                   isActive
                     ? "bg-sidebar-accent text-foreground"
                     : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
@@ -156,7 +156,7 @@ function PartGroup({
                   onClick={onNavigate}
                   className={({ isActive }) =>
                     cn(
-                      "flex min-w-0 flex-1 items-center gap-2.5 rounded-l-lg py-2 pl-3 pr-1 text-sm",
+                      "flex min-w-0 flex-1 items-center gap-2.5 rounded-l-lg py-2 pl-3 pr-1 text-sm transition-colors",
                       isActive
                         ? "bg-sidebar-accent text-foreground"
                         : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
@@ -173,7 +173,7 @@ function PartGroup({
                   onClick={() => onToggleSection(section.id)}
                   aria-expanded={open}
                   aria-label={`${open ? "Hide" : "Show"} lessons in ${section.title}`}
-                  className="figure shrink-0 rounded-r-lg px-2.5 text-xs text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
+                  className="figure shrink-0 rounded-r-lg px-2.5 text-xs text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
                 >
                   {finished ? (
                     <Check className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
@@ -195,7 +195,7 @@ function PartGroup({
                           onClick={onNavigate}
                           className={({ isActive }) =>
                             cn(
-                              "flex items-start gap-2 rounded-lg px-2 py-1.5 text-sm",
+                              "flex items-start gap-2 rounded-lg px-2 py-1.5 text-sm transition-colors",
                               isActive
                                 ? "bg-sidebar-accent text-foreground"
                                 : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"

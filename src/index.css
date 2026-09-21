@@ -1,7 +1,9 @@
 @import '@fontsource/inter/400.css';
 @import '@fontsource/inter/500.css';
 @import '@fontsource/inter/600.css';
-@import '@fontsource/newsreader/600.css';
+@import '@fontsource/plus-jakarta-sans/600.css';
+@import '@fontsource/plus-jakarta-sans/700.css';
+@import '@fontsource/plus-jakarta-sans/800.css';
 @import '@fontsource/ibm-plex-mono/500.css';
 
 @tailwind base;
@@ -11,7 +13,10 @@
 /*
  * AdTech Journey — design tokens.
  *
- * Two colour systems that never touch:
+ * Palette tuned toward IQM's own product blue (Primary-600 #134AC1 from the
+ * IQM V2.5 design tokens) as inspiration, not a literal port — kept as one
+ * cohesive cool-neutral system rather than mixing warm paper with a blue
+ * accent. Two colour systems that never touch:
  *   CHROME  (paper / ink / rule / clearing / floor / nobid) — all interface.
  *   CHAIN   (--chain-*) — data encoding for the supply chain only. A chain hue
  *           may appear in the ecosystem map and the chain rail, and nowhere
@@ -32,18 +37,18 @@
     color-scheme: light;
 
     /* ---- ROLE LAYER: light (default) ---- */
-    --paper:         40 24% 97%;
-    --paper-raised:  40 20% 99%;
-    --paper-sunken:  38 18% 94%;
-    --ink:          220 18% 13%;   /* 15.52:1 on paper */
-    --ink-muted:    220 10% 40%;   /*  5.72:1 on paper */
-    --ink-subtle:   220 10% 46%;   /* ≥4.5:1 on paper — metadata */
-    --rule:          35 14% 86%;   /* decorative hairline only */
-    --rule-strong:   35 10% 52%;   /* ≥3:1 — mandatory on controls */
-    --clearing:     168 78% 24%;   /*  5.91:1 — win / cleared price / primary */
-    --floor:         30 92% 32%;   /*  5.46:1 — rejected / caution */
-    --nobid:          0 70% 40%;   /*  6.60:1 — no fill / destructive */
-    --on-clearing:   40 24% 97%;   /*  6.27:1 on clearing */
+    --paper:         220 20% 98%;
+    --paper-raised:    0   0% 100%;
+    --paper-sunken:  220 18% 95%;
+    --ink:           222 24% 14%;   /* 14.9:1 on paper */
+    --ink-muted:     222 10% 42%;   /*  5.9:1 on paper */
+    --ink-subtle:    222 10% 48%;   /* ≥4.5:1 on paper — metadata */
+    --rule:          220 16% 89%;   /* decorative hairline only */
+    --rule-strong:   220 10% 56%;   /* ≥3:1 — mandatory on controls */
+    --clearing:      221 82% 42%;   /*  6.3:1 — win / cleared price / primary (IQM Primary-600) */
+    --floor:          36 92% 32%;   /*  5.5:1 — rejected / caution */
+    --nobid:           0 85% 40%;   /*  6.4:1 — no fill / destructive */
+    --on-clearing:   210 20% 98%;   /*  7.1:1 on clearing */
 
     /* ---- CHAIN SCALE: data encoding ONLY ---- */
     --chain-advertiser: 24 80% 40%;
@@ -77,7 +82,7 @@
     --input: var(--rule-strong);
     --ring: var(--clearing);
 
-    --radius: 0.5rem;
+    --radius: 0.4375rem;
 
     --sidebar-background: var(--paper-sunken);
     --sidebar-foreground: var(--ink);
@@ -93,18 +98,18 @@
     :root {
       color-scheme: dark;
 
-      --paper:         220 16% 8%;
-      --paper-raised:  220 15% 12%;
-      --paper-sunken:  220 18% 6%;
-      --ink:            40 14% 93%;  /* 16.00:1 — warm, not pure white */
-      --ink-muted:     220 10% 64%;  /*  7.08:1 */
-      --ink-subtle:    220 10% 54%;  /* ≥4.5:1 */
-      --rule:          220 12% 20%;
-      --rule-strong:   220 10% 38%;  /* ≥3:1 */
-      --clearing:      163 58% 54%;  /*  9.38:1 */
+      --paper:         222 22% 9%;
+      --paper-raised:  222 20% 13%;
+      --paper-sunken:  222 24% 7%;
+      --ink:           210 20% 94%;  /* 15.8:1 — cool, not pure white */
+      --ink-muted:     216 12% 66%;  /*  7.2:1 */
+      --ink-subtle:    216 10% 56%;  /* ≥4.5:1 */
+      --rule:          220 14% 21%;
+      --rule-strong:   220 10% 40%;  /* ≥3:1 */
+      --clearing:      221 88% 68%;  /*  9.1:1 — IQM Primary-300/400 range */
       --floor:          36 88% 62%;  /*  9.77:1 */
-      --nobid:           4 74% 68%;  /*  6.60:1 */
-      --on-clearing:   220 16% 8%;
+      --nobid:           4 80% 68%;  /*  6.7:1 */
+      --on-clearing:   222 24% 9%;
 
       --chain-advertiser: 26 84% 66%;
       --chain-agency:     14 76% 68%;
@@ -146,7 +151,8 @@
 
   /* Display face is for lesson and section titles only — never body copy. */
   .font-display {
-    font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+    font-weight: 700;
     letter-spacing: -0.02em;
   }
 
@@ -180,6 +186,28 @@
   /* Prose column: 68–72 characters is the comfortable measure. */
   .measure {
     max-width: 68ch;
+  }
+
+  /*
+   * Shared card depth + hover/press feedback for clickable surfaces (section
+   * cards, lesson rows, nav links). One shadow scale, used sparingly — depth
+   * says "you can act on this," not decoration. Respects reduced-motion via
+   * the global media query below, which zeroes the transition duration.
+   */
+  .shadow-card {
+    box-shadow: 0 1px 2px hsl(var(--ink) / 0.05);
+  }
+  .interactive {
+    transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease,
+      background-color 150ms ease, color 150ms ease;
+  }
+  .interactive:hover {
+    box-shadow: 0 4px 12px hsl(var(--ink) / 0.07);
+    transform: translateY(-1px);
+  }
+  .interactive:active {
+    transform: translateY(0) scale(0.99);
+    box-shadow: 0 1px 2px hsl(var(--ink) / 0.05);
   }
 
   /*

@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { IqmSpotlight } from "@/components/journey/IqmSpotlight";
 import type { LessonContent } from "@/components/journey/lesson-content";
 import { cn } from "@/lib/utils";
 
@@ -98,6 +99,13 @@ function Body() {
           particularly effective for content tied to a specific topic or theme.
         </p>
       </div>
+
+      <IqmSpotlight>
+        IQM built a proprietary natural language processing tool for exactly this: it reads a
+        page's actual content to gauge topical relevance, rather than relying only on
+        publisher-supplied category tags — useful anywhere the declared category and the real
+        content can drift apart.
+      </IqmSpotlight>
 
       <section>
         <h3 className="mb-3 text-lg text-foreground">How contextual targeting works</h3>
