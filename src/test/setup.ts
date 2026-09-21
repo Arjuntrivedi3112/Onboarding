@@ -23,6 +23,7 @@ window.matchMedia =
     }) as unknown as MediaQueryList);
 
 window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
+Element.prototype.scrollIntoView = Element.prototype.scrollIntoView || vi.fn();
 
 class ResizeObserverStub {
   observe() {}

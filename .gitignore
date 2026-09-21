@@ -32,3 +32,7 @@ apple-design-skill-main/
 
 # IQM's internal design system reference (V2.5 skill files, not app source)
 Product Design Skills/
+
+# Generated content search index — rebuilt by predev/prebuild from the
+# actual lesson source, so it's always fresh and never worth committing.
+/public/search-index.json

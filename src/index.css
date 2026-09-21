@@ -224,6 +224,31 @@
   }
 
   /*
+   * Briefly marks the exact paragraph a content search jumped to. Fades on
+   * its own via the animation below; reduced-motion collapses the animation
+   * duration globally, so it just appears and disappears instead of fading.
+   */
+  .search-highlight {
+    animation: search-highlight-fade 2.2s ease-out;
+    border-radius: var(--radius);
+  }
+
+  @keyframes search-highlight-fade {
+    0% {
+      background-color: hsl(var(--clearing) / 0.16);
+      box-shadow: 0 0 0 4px hsl(var(--clearing) / 0.16);
+    }
+    70% {
+      background-color: hsl(var(--clearing) / 0.16);
+      box-shadow: 0 0 0 4px hsl(var(--clearing) / 0.16);
+    }
+    100% {
+      background-color: transparent;
+      box-shadow: 0 0 0 0 transparent;
+    }
+  }
+
+  /*
    * Ecosystem node hues. These set the local --node-color that the map's
    * nodes and flow lines read. Mapped onto the chain scale, which is the only
    * other place these hues are permitted.

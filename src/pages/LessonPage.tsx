@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useMemo } from "react";
-import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { LessonShell } from "@/components/journey/LessonShell";
 import { loadLessonContent } from "@/components/journey/lesson-registry";
@@ -7,6 +7,51 @@ import { ReadingProgress } from "@/components/journey/ReadingProgress";
 import { lessonBySlug, lessonPath, sectionPath } from "@/curriculum";
 import type { LessonRef } from "@/curriculum/types";
 import { useAdjacentLessons, useProgress } from "@/hooks/useProgress";
+import { scrollToRenderedText } from "@/lib/scrollToText";
+
+/**
+ * When the command palette sends someone to a specific paragraph (not just
+ * the lesson), the target text arrives as router state. The lazy-loaded
+ * lesson component and the page's own enter transition both mount
+ * asynchronously, so this polls briefly rather than assuming the DOM is
+ * ready on the next tick. Consumes the state once so navigating away and
+ * back, or hitting refresh, doesn't repeat the jump.
+ */
+function useScrollToSearchMatch() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const target = (location.state as { scrollToText?: string } | null)?.scrollToText;
+
+  useEffect(() => {
+    if (!target) return;
+
+    let attempts = 0;
+    let cancelled = false;
+
+    function tryScroll() {
+      if (cancelled) return;
+      const root = document.getElementById("main");
+      const found = root ? scrollToRenderedText(root, target) : false;
+      attempts += 1;
+      if (!found && attempts < 30) {
+        requestAnimationFrame(tryScroll);
+      } else {
+        // Clear the state either way so this never fires again for this entry.
+        navigate(location.pathname, { replace: true, state: {} });
+      }
+    }
+
+    const raf = requestAnimationFrame(tryScroll);
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(raf);
+    };
+    // Only the target and pathname identify "a fresh jump to act on" — leaving
+    // navigate/location.state out avoids re-running when this effect's own
+    // state-clearing triggers a re-render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [target, location.pathname]);
+}
 
 /** True while the user is typing or interacting with a control — [ and ] must not hijack that. */
 function isTypingTarget(el: Element | null): boolean {
@@ -49,6 +94,7 @@ export default function LessonPage() {
   const { isComplete, toggleComplete, recordVisit } = useProgress();
   const { prev, next } = useAdjacentLessons(refInfo?.lesson.id ?? "");
   useLessonKeyboardNav(prev, next);
+  useScrollToSearchMatch();
 
   const LessonContentComponent = useMemo(
     () => (refInfo ? loadLessonContent(refInfo.section.id, refInfo.lesson.slug) : null),
