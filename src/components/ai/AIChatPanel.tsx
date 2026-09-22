@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Bot, User, Sparkles, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import { ChatMarkdown } from "@/components/ai/ChatMarkdown";
 import { formatBookContext, pickRelevantExcerpts, type ContentSnippet } from "@/lib/bookContext";
 import { checkGuardrails, REFUSAL_MESSAGE } from "@/lib/guardrails";
 
@@ -344,15 +345,17 @@ Be helpful, accurate, and encouraging. Make AdTech accessible to everyone.`;
                         : "bg-primary text-primary-foreground"
                     )}
                   >
-                    <p className="text-sm leading-relaxed whitespace-pre-line">
-                      {msg.content || (
+                    <div className="text-sm leading-relaxed">
+                      {msg.content ? (
+                        <ChatMarkdown text={msg.content} />
+                      ) : (
                         <span className="flex gap-1">
                           <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" />
                           <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "150ms" }} />
                           <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "300ms" }} />
                         </span>
                       )}
-                    </p>
+                    </div>
                   </div>
                 </motion.div>
               ))}
