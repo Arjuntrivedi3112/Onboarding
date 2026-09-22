@@ -23,22 +23,13 @@ import {
 } from "@/components/ui/command";
 import { lessonBySlug, lessonList, lessonPath, sectionList, sectionPath } from "@/curriculum";
 import { useProgress } from "@/hooks/useProgress";
+import type { ContentSnippet } from "@/lib/bookContext";
 
 /** Fired by any visible trigger (e.g. the sidebar search button) to open the palette. */
 export const OPEN_COMMAND_PALETTE_EVENT = "adtech-journey:open-command-palette";
 
 export function openCommandPalette() {
   window.dispatchEvent(new Event(OPEN_COMMAND_PALETTE_EVENT));
-}
-
-interface ContentSnippet {
-  sectionId: string;
-  slug: string;
-  lessonId: string;
-  lessonTitle: string;
-  sectionTitle: string;
-  heading: string | null;
-  text: string;
 }
 
 const MAX_CONTENT_RESULTS = 8;

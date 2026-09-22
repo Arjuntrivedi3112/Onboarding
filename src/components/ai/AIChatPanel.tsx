@@ -3,6 +3,22 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Bot, User, Sparkles, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import { formatBookContext, pickRelevantExcerpts, type ContentSnippet } from "@/lib/bookContext";
+
+// Fetched once per session and reused — the same generated index the
+// command palette searches (see scripts/build-search-index.mjs).
+let contentIndexPromise: Promise<ContentSnippet[]> | null = null;
+function loadContentIndex(): Promise<ContentSnippet[]> {
+  if (!contentIndexPromise) {
+    contentIndexPromise = fetch("/search-index.json")
+      .then((res) => (res.ok ? res.json() : Promise.reject(res.status)))
+      .catch(() => {
+        contentIndexPromise = null; // allow retry on the next message
+        return [];
+      });
+  }
+  return contentIndexPromise;
+}
 
 interface Message {
   id: string;
@@ -61,11 +77,18 @@ export function AIChatPanel({ isOpen, onClose, context }: AIChatPanelProps) {
     setIsLoading(true);
 
     try {
+      // Ground the answer in the book first: pull the excerpts most
+      // relevant to this specific question out of the same content index
+      // the command palette searches.
+      const contentIndex = await loadContentIndex();
+      const excerpts = pickRelevantExcerpts(contentIndex, input);
+      const bookContext = formatBookContext(excerpts);
+
       // Try Supabase Edge Function first, fallback to direct GROQ API
       const groqApiKey = import.meta.env.VITE_GROQ_API_KEY;
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-      
+
       let response: Response;
       let useDirectGroq = false;
 
@@ -85,6 +108,7 @@ export function AIChatPanel({ isOpen, onClose, context }: AIChatPanelProps) {
                   .filter((m) => m.id !== "welcome")
                   .map((m) => ({ role: m.role, content: m.content })),
                 context,
+                bookContext,
               }),
             }
           );
@@ -106,7 +130,14 @@ export function AIChatPanel({ isOpen, onClose, context }: AIChatPanelProps) {
           throw new Error("GROQ API key is missing");
         }
 
-        const systemPrompt = `You are an expert AdTech educator and explainer. Your role is to help users understand the advertising technology ecosystem in clear, simple terms.
+        const systemPrompt = `You are the AdTech explainer for a learning platform built on a specific reference book. Your job is to help the learner understand the advertising technology ecosystem, grounded first in what that book actually says.
+
+PRIORITY ORDER, ALWAYS:
+1. If the excerpts below answer the question, base your answer on them — use their terms, their examples, their framing. Treat them as ground truth.
+2. If the excerpts only partially cover it, use them for what they cover and say plainly what they don't, before adding anything else.
+3. If the excerpts don't cover the question at all, say so in one short sentence (e.g. "The book doesn't get into this specific point, but—") and then answer from general AdTech knowledge. Never blend outside knowledge into a claim as if the book said it.
+
+${bookContext || "No matching excerpts were found for this question — the book may not cover this specific topic."}
 
 GUIDELINES:
 - Explain concepts at the user's level - if they say "like I'm new", use analogies and simple language
