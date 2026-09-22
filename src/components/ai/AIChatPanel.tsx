@@ -124,7 +124,9 @@ Be helpful, accurate, and encouraging. Make AdTech accessible to everyone.`;
             Authorization: `Bearer ${groqApiKey}`,
           },
           body: JSON.stringify({
-            model: "llama-3.1-70b-versatile",
+            // llama-3.1-70b-versatile is long decommissioned by Groq; kept in
+            // sync with the edge function's model below.
+            model: "openai/gpt-oss-120b",
             messages: [
               { role: "system", content: systemPrompt },
               ...allMessages

@@ -78,7 +78,11 @@ serve(async (req) => {
             "Authorization": `Bearer ${GROQ_API_KEY}`,
           },
           body: JSON.stringify({
-            model: "llama-3.3-70b-versatile",
+            // llama-3.3-70b-versatile was decommissioned for free/developer-tier
+            // Groq accounts on 2026-08-16 (still works for enterprise
+            // committed-spend accounts only). gpt-oss-120b is the model Groq
+            // points free/developer accounts to instead.
+            model: "openai/gpt-oss-120b",
             messages: [
               { role: "system", content: systemPrompt },
               ...messages,
