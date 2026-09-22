@@ -36,7 +36,7 @@ export function JourneySidebar({ onNavigate }: { onNavigate?: () => void }) {
   }, [activeSectionId]);
 
   return (
-    <div className="flex h-full flex-col bg-sidebar">
+    <div className="flex h-full flex-col bg-sidebar" data-tour="sidebar">
       <div className="border-b border-sidebar-border p-4">
         <Link to="/dashboard" onClick={onNavigate} className="block">
           <span className="font-display text-lg text-foreground">AdTech Journey</span>
@@ -67,6 +67,7 @@ export function JourneySidebar({ onNavigate }: { onNavigate?: () => void }) {
         <button
           type="button"
           onClick={openCommandPalette}
+          data-tour="search-trigger"
           className="interactive mt-3 flex w-full items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm text-muted-foreground hover:border-border-strong hover:text-foreground"
         >
           <Search className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
@@ -77,7 +78,7 @@ export function JourneySidebar({ onNavigate }: { onNavigate?: () => void }) {
         </button>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-2 py-4" aria-label="Journey">
+      <nav className="flex-1 overflow-y-auto px-2 py-4" aria-label="Journey" data-tour="section-list">
         {curriculum.map((part) => (
           <PartGroup
             key={part.id}

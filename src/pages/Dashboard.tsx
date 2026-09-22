@@ -53,7 +53,7 @@ export default function Dashboard() {
 
       {/* The next action. Same position, day 0 and day 40. */}
       {resume && (
-        <section className="shadow-card mb-10 rounded-lg border border-border bg-card p-6">
+        <section className="shadow-card mb-10 rounded-lg border border-border bg-card p-6" data-tour="next-action">
           <p className="text-xs uppercase text-muted-foreground">
             {finishedBook
               ? "You've finished the book"
@@ -86,7 +86,7 @@ export default function Dashboard() {
         <h2 className="mb-4 text-xl text-foreground">
           {hasStarted ? "Your sections" : "What's covered"}
         </h2>
-        <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3" data-tour="sections">
           {sections.map((section) => (
             <SectionCard
               key={section.id}

@@ -6,6 +6,8 @@ import { AIChatPanel } from "@/components/ai/AIChatPanel";
 import { CommandPalette } from "@/components/journey/CommandPalette";
 import { JourneySidebar } from "@/components/journey/JourneySidebar";
 import { PageTransition } from "@/components/journey/PageTransition";
+import { ProductTour } from "@/components/journey/ProductTour";
+import { ThemeToggle } from "@/components/journey/ThemeToggle";
 
 /**
  * The app shell: a persistent rail plus the routed content column.
@@ -93,12 +95,15 @@ export function JourneyLayout() {
       <button
         type="button"
         onClick={() => setAskOpen(true)}
+        data-tour="ask-question"
         className="interactive fixed bottom-5 right-5 z-30 inline-flex min-h-[2.75rem] items-center gap-2 rounded-full border border-border bg-card px-4 text-sm text-foreground shadow-lg hover:border-primary/40"
       >
         <MessageSquare className="h-4 w-4" aria-hidden="true" />
         Ask a question
       </button>
 
+      <ThemeToggle />
+      <ProductTour />
       <AIChatPanel isOpen={askOpen} onClose={() => setAskOpen(false)} />
       <CommandPalette />
     </div>

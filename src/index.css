@@ -22,9 +22,16 @@
  *           may appear in the ecosystem map and the chain rail, and nowhere
  *           else: never on a button, badge, border, icon or card.
  *
- * Light is the default appearance; dark is selected by the OS via
- * prefers-color-scheme. There is deliberately no in-app theme toggle — the OS
- * setting is the path a low-vision user has already configured.
+ * Light is the default appearance; dark follows the OS via
+ * prefers-color-scheme unless overridden. The manual toggle
+ * (ThemeToggle.tsx) stamps `data-theme="light"` or `data-theme="dark"` on
+ * <html> to override the OS either direction, and removes the attribute
+ * entirely to go back to following the OS — so the dark block below is
+ * declared twice on purpose: once gated on the OS preference (and skipped
+ * if the toggle has explicitly chosen light), once gated on the explicit
+ * dark choice regardless of OS. Every dark token must stay identical
+ * between the two; the tokens are the same appearance, just reached two
+ * different ways.
  *
  * The COMPAT LAYER re-points the original variable names (--background,
  * --card, --primary, --sidebar-*, …) at the new roles, so the ~40 components
@@ -95,7 +102,9 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    :root {
+    /* Skipped when the toggle has explicitly chosen light, so an explicit
+       choice always beats the OS setting in either direction. */
+    :root:not([data-theme="light"]) {
       color-scheme: dark;
 
       --paper:         222 22% 9%;
@@ -121,6 +130,34 @@
       --chain-publisher: 212 58% 64%;
       --chain-user:      238 44% 70%;
     }
+  }
+
+  /* The explicit dark choice, regardless of OS — same tokens as above. */
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+
+    --paper:         222 22% 9%;
+    --paper-raised:  222 20% 13%;
+    --paper-sunken:  222 24% 7%;
+    --ink:           210 20% 94%;
+    --ink-muted:     216 12% 66%;
+    --ink-subtle:    216 10% 56%;
+    --rule:          220 14% 21%;
+    --rule-strong:   220 10% 40%;
+    --clearing:      221 88% 68%;
+    --floor:          36 88% 62%;
+    --nobid:           4 80% 68%;
+    --on-clearing:   222 24% 9%;
+
+    --chain-advertiser: 26 84% 66%;
+    --chain-agency:     14 76% 68%;
+    --chain-dsp:        40 74% 64%;
+    --chain-dmp:        62 34% 62%;
+    --chain-exchange:   48 20% 62%;
+    --chain-ssp:       196 46% 62%;
+    --chain-adserver:  186 44% 60%;
+    --chain-publisher: 212 58% 64%;
+    --chain-user:      238 44% 70%;
   }
 
   /* Increased-contrast: collapse the muted tier into full ink. */

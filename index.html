@@ -3,11 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AdTech Visual Explorer | Interactive Learning Platform</title>
-    <meta name="description" content="Master the AdTech ecosystem with interactive visualizations. Learn about DSPs, SSPs, RTB auctions, and programmatic advertising." />
-    <meta property="og:title" content="AdTech Visual Explorer" />
-    <meta property="og:description" content="Interactive learning platform for understanding programmatic advertising" />
+    <title>AdTech Journey | Interactive Learning Platform</title>
+    <meta name="description" content="The AdTech Book, rebuilt as an interactive learning journey — DSPs, SSPs, RTB auctions, targeting, attribution, and more." />
+    <meta property="og:title" content="AdTech Journey" />
+    <meta property="og:description" content="The AdTech Book, rebuilt as an interactive learning journey." />
     <meta property="og:type" content="website" />
+    <script>
+      // Applied before any CSS/React loads, so a saved theme preference never
+      // flashes the wrong appearance for a frame. Mirrors the logic in
+      // src/components/journey/ThemeToggle.tsx — kept in sync by hand since
+      // this has to run standalone, before any module is available.
+      (function () {
+        try {
+          var stored = localStorage.getItem("theme-preference");
+          if (stored === "light" || stored === "dark") {
+            document.documentElement.setAttribute("data-theme", stored);
+          }
+        } catch (e) {
+          // Storage unavailable — falls back to the OS setting, same as
+          // never having a preference saved.
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
