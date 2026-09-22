@@ -1,10 +1,21 @@
-import { useState } from "react";
-
 import { IqmSpotlight } from "@/components/journey/IqmSpotlight";
 import type { LessonContent } from "@/components/journey/lesson-content";
 import { cn } from "@/lib/utils";
+import { useShareableState } from "@/hooks/useShareableState";
 
 type SignalId = "email" | "ip" | "device" | "location";
+const ALL_SIGNAL_IDS: SignalId[] = ["email", "ip", "device", "location"];
+
+// Comma-joined signal ids, e.g. "email,ip" — lets a link reopen this lesson
+// with a specific combination of signals already toggled on, for "look at
+// what hybrid matching does with these two."
+const signalSetCodec = {
+  serialize: (value: Set<SignalId>) => [...value].join(","),
+  deserialize: (raw: string): Set<SignalId> | null => {
+    const ids = raw.split(",").filter((id): id is SignalId => ALL_SIGNAL_IDS.includes(id as SignalId));
+    return ids.length > 0 ? new Set(ids) : null;
+  },
+};
 
 const SIGNALS: Array<{ id: SignalId; label: string; kind: "deterministic" | "probabilistic" }> = [
   { id: "email", label: "Hashed email login", kind: "deterministic" },
@@ -24,16 +35,16 @@ const MODE_STATS: Record<MatchMode, { accuracy: number; accuracyLabel: string; s
 
 const DEVICES = ["Phone", "Laptop", "Tablet"];
 
+const DEFAULT_SIGNALS = new Set<SignalId>(["email"]);
+
 function Body() {
-  const [active, setActive] = useState<Set<SignalId>>(new Set(["email"]));
+  const [active, setActive] = useShareableState("signals", DEFAULT_SIGNALS, signalSetCodec);
 
   function toggleSignal(id: SignalId) {
-    setActive((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+    const next = new Set(active);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setActive(next);
   }
 
   const hasDeterministic = active.has("email");

@@ -1,9 +1,11 @@
-import { useState } from "react";
-
 import type { LessonContent } from "@/components/journey/lesson-content";
 import { cn } from "@/lib/utils";
+import { enumCodec, useShareableState } from "@/hooks/useShareableState";
 
 import { AUCTION_STEP, DIRECT_STEPS, SERVING_STEPS, totalMs, type ServingStep } from "./_shared";
+
+const WIRING_IDS = ["direct", "programmatic", "both-servers"] as const;
+const wiringCodec = enumCodec(WIRING_IDS);
 
 /** The extra hop that appears only when the advertiser runs its own ad server. */
 const ADVERTISER_HOP: ServingStep = {
@@ -72,7 +74,9 @@ const EXTRA_COMPONENTS = [
 ];
 
 function Body() {
-  const [wiringId, setWiringId] = useState<(typeof WIRINGS)[number]["id"]>("direct");
+  // Shareable via the URL — a link with ?wiring=both-servers reopens this
+  // lesson with that wiring already selected, for "look at this example".
+  const [wiringId, setWiringId] = useShareableState("wiring", "direct" as const, wiringCodec);
   const wiring = WIRINGS.find((option) => option.id === wiringId) ?? WIRINGS[0];
   const total = totalMs(wiring.steps);
   const baseline = totalMs(DIRECT_STEPS);

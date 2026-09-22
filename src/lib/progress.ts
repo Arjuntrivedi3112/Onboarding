@@ -43,6 +43,12 @@ export interface ProgressState {
   resume: ResumePointer | null;
   /** First time they opened the journey, for the dashboard greeting */
   startedAt: string | null;
+  /**
+   * lessonId -> ISO timestamp bookmarked. A personal quick-reference list,
+   * deliberately separate from linear progress — bookmarking a lesson says
+   * nothing about whether it's been read or completed.
+   */
+  bookmarks: Record<string, string>;
 }
 
 const EMPTY: ProgressState = {
@@ -51,6 +57,7 @@ const EMPTY: ProgressState = {
   visited: {},
   resume: null,
   startedAt: null,
+  bookmarks: {},
 };
 
 /** Cached snapshot — see design note above. */
@@ -98,12 +105,15 @@ function parse(raw: string | null): ProgressState {
       };
     }
 
+    const bookmarks = isRecordOfStrings(candidate.bookmarks) ? candidate.bookmarks : {};
+
     return {
       version: SCHEMA_VERSION,
       completed,
       visited,
       resume,
       startedAt: typeof candidate.startedAt === "string" ? candidate.startedAt : null,
+      bookmarks,
     };
   } catch {
     return EMPTY;
@@ -220,6 +230,25 @@ export function recordScroll(lessonId: string, scrollY: number) {
   if (!state.resume || state.resume.lessonId !== lessonId) return;
   if (Math.abs(state.resume.scrollY - scrollY) < 50) return;
   write({ ...state, resume: { ...state.resume, scrollY, at: stamp() } });
+}
+
+export function addBookmark(lessonId: string) {
+  const state = read();
+  if (state.bookmarks[lessonId]) return;
+  write(withStart({ ...state, bookmarks: { ...state.bookmarks, [lessonId]: stamp() } }));
+}
+
+export function removeBookmark(lessonId: string) {
+  const state = read();
+  if (!state.bookmarks[lessonId]) return;
+  const bookmarks = { ...state.bookmarks };
+  delete bookmarks[lessonId];
+  write({ ...state, bookmarks });
+}
+
+export function toggleBookmark(lessonId: string) {
+  if (read().bookmarks[lessonId]) removeBookmark(lessonId);
+  else addBookmark(lessonId);
 }
 
 /** Wipe all progress. Callers are responsible for confirming first. */

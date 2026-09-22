@@ -20,6 +20,7 @@ const LibraryPage = lazy(() => import("./pages/reference/LibraryPage"));
 const NotesPage = lazy(() => import("./pages/reference/NotesPage"));
 const SearchPage = lazy(() => import("./pages/reference/SearchPage"));
 const HelpPage = lazy(() => import("./pages/reference/HelpPage"));
+const BookmarksPage = lazy(() => import("./pages/reference/BookmarksPage"));
 
 const queryClient = new QueryClient();
 
@@ -54,6 +55,7 @@ const App = () => (
                 <Route path="/library" element={<LibraryPage />} />
                 <Route path="/notes" element={<NotesPage />} />
                 <Route path="/notes/:sessionId" element={<NotesPage />} />
+                <Route path="/bookmarks" element={<BookmarksPage />} />
                 <Route path="/search" element={<SearchPage />} />
                 <Route path="/help" element={<HelpPage />} />
 

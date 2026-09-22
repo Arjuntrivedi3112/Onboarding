@@ -8,17 +8,20 @@
 import { useCallback, useMemo, useSyncExternalStore } from "react";
 
 import {
+  addBookmark,
   getServerSnapshot,
   getSnapshot,
   markComplete,
   markIncomplete,
   recordScroll,
   recordVisit,
+  removeBookmark,
   resetProgress,
   subscribe,
+  toggleBookmark,
   toggleComplete,
 } from "@/lib/progress";
-import { curriculum } from "@/curriculum/data";
+import { curriculum, lessonList } from "@/curriculum";
 import {
   adjacentLessons,
   bookProgress,
@@ -58,6 +61,23 @@ export function useProgress() {
     [state.completed]
   );
 
+  const isBookmarked = useCallback(
+    (lessonId: string) => Boolean(state.bookmarks[lessonId]),
+    [state.bookmarks]
+  );
+
+  // Newest first, so a recently-starred lesson surfaces at the top of the
+  // bookmarks page rather than getting buried in book order.
+  const bookmarkedLessons = useMemo(() => {
+    return lessonList
+      .filter((ref) => state.bookmarks[ref.lesson.id])
+      .sort(
+        (a, b) =>
+          new Date(state.bookmarks[b.lesson.id]).getTime() -
+          new Date(state.bookmarks[a.lesson.id]).getTime()
+      );
+  }, [state.bookmarks]);
+
   return {
     state,
     /** Headline, minute-weighted, chapters 1-11 only. */
@@ -71,9 +91,14 @@ export function useProgress() {
     isComplete,
     isVisited,
     forSection,
+    isBookmarked,
+    bookmarkedLessons,
     markComplete,
     markIncomplete,
     toggleComplete,
+    addBookmark,
+    removeBookmark,
+    toggleBookmark,
     recordVisit,
     recordScroll,
     resetProgress,

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Check, ChevronDown } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, ChevronDown, Star } from "lucide-react";
 
 import { ChainRail } from "@/components/journey/ChainRail";
 import type { LessonContent } from "@/components/journey/lesson-content";
@@ -8,6 +8,7 @@ import { chainFocusFor } from "@/curriculum/chain";
 import { lessonPath, sectionPath } from "@/curriculum";
 import type { LessonRef } from "@/curriculum/types";
 import { cn } from "@/lib/utils";
+import { highlightGlossaryTerms } from "@/lib/glossaryHighlight";
 
 interface LessonShellProps {
   refInfo: LessonRef;
@@ -16,6 +17,8 @@ interface LessonShellProps {
   next: LessonRef | null;
   isComplete: boolean;
   onToggleComplete: () => void;
+  isBookmarked: boolean;
+  onToggleBookmark: () => void;
 }
 
 /**
@@ -32,10 +35,18 @@ export function LessonShell({
   next,
   isComplete,
   onToggleComplete,
+  isBookmarked,
+  onToggleBookmark,
 }: LessonShellProps) {
   const { lesson, section } = refInfo;
   const lessonNumber = section.lessons.findIndex((l) => l.id === lesson.id) + 1;
   const { Body } = content;
+
+  // One "already introduced" set per lesson, shared across objectives and
+  // takeaways in reading order, so a term gets its inline definition
+  // exactly once per lesson — wherever it's first encountered — not once
+  // per list it happens to appear in.
+  const seenTerms = useMemo(() => new Set<string>(), [lesson.id]);
 
   return (
     <article className="pb-32">
@@ -53,7 +64,22 @@ export function LessonShell({
       </div>
 
       {/* 2. Title, reading time, and the completed badge once earned. */}
-      <h1 className="font-display text-3xl text-foreground">{lesson.title}</h1>
+      <div className="flex items-start justify-between gap-3">
+        <h1 className="font-display text-3xl text-foreground">{lesson.title}</h1>
+        <button
+          type="button"
+          onClick={onToggleBookmark}
+          aria-pressed={isBookmarked}
+          aria-label={isBookmarked ? "Remove bookmark" : "Bookmark this lesson"}
+          title={isBookmarked ? "Remove bookmark" : "Bookmark this lesson"}
+          className="interactive -m-2 mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground"
+        >
+          <Star
+            className={cn("h-5 w-5", isBookmarked && "fill-primary text-primary")}
+            aria-hidden="true"
+          />
+        </button>
+      </div>
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <span className="figure text-sm text-muted-foreground">~{lesson.minutes} min</span>
         {isComplete && (
@@ -80,7 +106,7 @@ export function LessonShell({
           {content.objectives.map((objective) => (
             <li key={objective} className="flex gap-3 text-muted-foreground">
               <span aria-hidden="true" className="mt-2 h-1 w-1 shrink-0 rounded-full bg-primary" />
-              <span>{objective}</span>
+              <span>{highlightGlossaryTerms(objective, seenTerms)}</span>
             </li>
           ))}
         </ul>
@@ -98,7 +124,7 @@ export function LessonShell({
           {content.takeaways.map((takeaway, i) => (
             <li key={takeaway} className="flex gap-3">
               <span className="figure shrink-0 text-sm text-primary">{i + 1}</span>
-              <span className="text-foreground">{takeaway}</span>
+              <span className="text-foreground">{highlightGlossaryTerms(takeaway, seenTerms)}</span>
             </li>
           ))}
         </ol>

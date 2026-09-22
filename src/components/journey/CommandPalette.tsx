@@ -5,11 +5,13 @@ import {
   Check,
   FileText,
   HelpCircle,
+  History,
   Layers,
   Library,
   Map,
   Search,
   Sparkles,
+  Star,
 } from "lucide-react";
 
 import {
@@ -24,6 +26,7 @@ import {
 import { lessonBySlug, lessonList, lessonPath, sectionList, sectionPath } from "@/curriculum";
 import { useProgress } from "@/hooks/useProgress";
 import type { ContentSnippet } from "@/lib/bookContext";
+import { getSearchHistory, recordSearchQuery } from "@/lib/searchHistory";
 
 /** Fired by any visible trigger (e.g. the sidebar search button) to open the palette. */
 export const OPEN_COMMAND_PALETTE_EVENT = "adtech-journey:open-command-palette";
@@ -80,6 +83,7 @@ function HighlightedSnippet({ text, query }: { text: string; query: string }) {
 const REFERENCE_ITEMS = [
   { to: "/map", label: "Ecosystem map", icon: Map },
   { to: "/glossary", label: "Glossary", icon: BookMarked },
+  { to: "/bookmarks", label: "Bookmarks", icon: Star },
   { to: "/library", label: "Library", icon: Library },
   { to: "/notes", label: "Session notes", icon: FileText },
   { to: "/help", label: "Help", icon: HelpCircle },
@@ -102,6 +106,7 @@ export function CommandPalette() {
   const [search, setSearch] = useState("");
   const [contentIndex, setContentIndex] = useState<ContentSnippet[] | null>(null);
   const fetchedRef = useRef(false);
+  const [history, setHistory] = useState<string[]>([]);
   const navigate = useNavigate();
   const { resume, isComplete } = useProgress();
 
@@ -125,6 +130,12 @@ export function CommandPalette() {
     };
   }, []);
 
+  // Refreshed every time the palette opens, so a query recorded in a
+  // previous session (or by closing and reopening) always shows up.
+  useEffect(() => {
+    if (open) setHistory(getSearchHistory());
+  }, [open]);
+
   // Fetched once, the first time the palette is actually opened — not on
   // app load, since most sessions may never need it.
   useEffect(() => {
@@ -144,6 +155,7 @@ export function CommandPalette() {
   );
 
   function go(to: string, state?: Record<string, unknown>) {
+    if (search.trim().length >= 2) recordSearchQuery(search);
     setOpen(false);
     setSearch("");
     navigate(to, state ? { state } : undefined);
@@ -158,6 +170,24 @@ export function CommandPalette() {
       />
       <CommandList>
         <CommandEmpty>No matches. Try a different word.</CommandEmpty>
+
+        {search.trim() === "" && history.length > 0 && (
+          <>
+            <CommandGroup heading="Recent searches">
+              {history.map((query) => (
+                <CommandItem
+                  key={query}
+                  value={`history-${query}`}
+                  onSelect={() => setSearch(query)}
+                >
+                  <History className="mr-2 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                  {query}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+            <CommandSeparator />
+          </>
+        )}
 
         {contentMatches.length > 0 && (
           <>

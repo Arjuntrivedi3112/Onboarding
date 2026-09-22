@@ -91,7 +91,7 @@ export default function LessonPage() {
   const { sectionId, lessonSlug } = useParams<{ sectionId: string; lessonSlug: string }>();
   const refInfo = sectionId && lessonSlug ? lessonBySlug(sectionId, lessonSlug) : null;
 
-  const { isComplete, toggleComplete, recordVisit } = useProgress();
+  const { isComplete, toggleComplete, isBookmarked, toggleBookmark, recordVisit } = useProgress();
   const { prev, next } = useAdjacentLessons(refInfo?.lesson.id ?? "");
   useLessonKeyboardNav(prev, next);
   useScrollToSearchMatch();
@@ -130,6 +130,8 @@ export default function LessonPage() {
               next={next}
               isComplete={complete}
               onToggleComplete={() => toggleComplete(refInfo.lesson.id)}
+              isBookmarked={isBookmarked(refInfo.lesson.id)}
+              onToggleBookmark={() => toggleBookmark(refInfo.lesson.id)}
             />
           )}
         />

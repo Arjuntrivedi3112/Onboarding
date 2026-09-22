@@ -148,11 +148,16 @@ export function ProductTour() {
   }
 
   if (!active) {
+    // Stacked above "Ask a question" in the same corner rather than the
+    // opposite one: the desktop sidebar is `fixed left-0 top-0 h-screen`
+    // with a higher z-index and an opaque background, so anything placed
+    // bottom-left sits fully behind it above the `lg` breakpoint — not
+    // hidden on some screens, invisible on every real desktop window.
     return (
       <button
         type="button"
         onClick={start}
-        className="interactive fixed bottom-5 left-5 z-30 inline-flex min-h-[2.75rem] items-center gap-2 rounded-full border border-border bg-card px-4 text-sm text-foreground shadow-lg hover:border-primary/40"
+        className="interactive fixed bottom-[4.75rem] right-5 z-30 inline-flex min-h-[2.75rem] items-center gap-2 rounded-full border border-border bg-card px-4 text-sm text-foreground shadow-lg hover:border-primary/40"
       >
         <Compass className="h-4 w-4" aria-hidden="true" />
         Take the tour

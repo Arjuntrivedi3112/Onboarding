@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { BookMarked, Check, FileText, Library, Map, Search } from "lucide-react";
+import { BookMarked, Check, FileText, Library, Map, Search, Star } from "lucide-react";
 
 import { curriculum, lessonPath, sectionPath } from "@/curriculum";
 import type { Part, Section } from "@/curriculum/types";
@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 const REFERENCE_LINKS = [
   { to: "/map", label: "Ecosystem map", icon: Map },
   { to: "/glossary", label: "Glossary", icon: BookMarked },
+  { to: "/bookmarks", label: "Bookmarks", icon: Star },
   { to: "/library", label: "Library", icon: Library },
   { to: "/notes", label: "Session notes", icon: FileText },
 ];
