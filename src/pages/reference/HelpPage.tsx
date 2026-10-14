@@ -41,8 +41,35 @@ export default function HelpPage() {
         <section>
           <h2 className="mb-2 text-xl text-foreground">Where your progress lives</h2>
           <p>
-            In this browser, on this device. Nothing is sent anywhere and nobody else can see it.
-            Clearing your browser data clears it, and it will not follow you to another machine.
+            In your account. It's saved as you go and follows you to any device you sign in on. If
+            you're offline, changes wait on this device and sync when you're back.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="mb-2 text-xl text-foreground">What your onboarding lead can see</h2>
+          <p className="mb-2">
+            Admins use the platform to help new people along, so they can see: which lessons you've
+            opened and finished, roughly how long you've spent reading, your self-check ratings,
+            simulator challenges, badges, the questions you ask the assistant, and lesson feedback.
+          </p>
+          <p>
+            They can't see your lesson notes — those are private to you — or your password or
+            recovery code.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="mb-2 text-xl text-foreground">Forgot your password?</h2>
+          <p>
+            No emails are involved. On the sign-in page choose <em>Forgot password</em> and enter
+            the recovery code you saved when you first signed in. Lost that too? Choose{" "}
+            <em>I lost my code</em> and an admin will give you a temporary password. You can make a new
+            recovery code any time from your{" "}
+            <Link to="/profile" className="text-primary hover:underline">
+              profile
+            </Link>
+            .
           </p>
         </section>
 
