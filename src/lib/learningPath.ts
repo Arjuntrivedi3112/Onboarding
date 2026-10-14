@@ -9,14 +9,17 @@
 import { curriculum, lessonList, type LessonRef } from "@/curriculum";
 
 export const TEAMS = [
-  "Sales",
-  "Account Management",
-  "AdOps",
-  "Engineering",
+  "QA",
   "Product",
-  "Data",
-  "Finance",
-  "Other",
+  "Developers",
+  "Frontend",
+  "AI",
+  "DevOps",
+  "Data Science",
+  "Data Engineering",
+  "IT",
+  "Support",
+  "AdOps",
 ] as const;
 export type Team = (typeof TEAMS)[number];
 
@@ -24,15 +27,21 @@ export type Focus = "core" | "standard" | "skim";
 
 /** Sections that matter most for each team, most important first. */
 export const TEAM_FOCUS: Record<Team, string[]> = {
-  Sales: ["basics", "channels", "mediabuying", "targeting", "attribution"],
-  "Account Management": ["basics", "tracking", "attribution", "targeting", "mediabuying"],
+  QA: ["basics", "adserving", "tracking", "mediabuying", "technology"],
+  Product: ["technology", "mediabuying", "identity", "data", "buildbuy"],
+  Developers: ["technology", "adserving", "mediabuying", "identity", "data"],
+  Frontend: ["basics", "channels", "adserving", "tracking"],
+  AI: ["ai", "data", "mediabuying", "attribution", "targeting"],
+  DevOps: ["technology", "adserving", "mediabuying", "tracking"],
+  "Data Science": ["data", "attribution", "ai", "targeting", "tracking"],
+  "Data Engineering": ["data", "tracking", "identity", "attribution"],
+  IT: ["technology", "identity", "buildbuy", "basics"],
+  Support: ["basics", "tracking", "adserving", "targeting", "mediabuying"],
   AdOps: ["adserving", "tracking", "mediabuying", "targeting", "technology"],
-  Engineering: ["technology", "adserving", "mediabuying", "identity", "data"],
-  Product: ["technology", "identity", "data", "buildbuy", "ai"],
-  Data: ["data", "identity", "attribution", "tracking", "ai"],
-  Finance: ["basics", "tracking", "mediabuying", "buildbuy"],
-  Other: ["basics", "technology", "mediabuying"],
 };
+
+/** Used before a team is chosen, or for a team name this version doesn't know. */
+const DEFAULT_FOCUS = ["basics", "technology", "mediabuying"];
 
 /** Comfort 1 (new to it) … 5 (could teach it), per curriculum part id. */
 export type Comfort = Record<string, number>;
@@ -46,11 +55,11 @@ const partOf = (sectionId: string) => curriculum.find((p) => p.sections.some((s)
 
 export function buildLearningPath(team: Team | string | null, comfort: Comfort = {}): LearningPath {
   const sections = curriculum.flatMap((p) => p.sections);
-  const priority = TEAM_FOCUS[(team as Team) ?? "Other"] ?? TEAM_FOCUS.Other;
+  const priority = (team && TEAM_FOCUS[team as Team]) || DEFAULT_FOCUS;
 
   const focus: Record<string, Focus> = {};
   for (const s of sections) {
-    const level = comfort[partOf(s.id)] ?? 2;
+    const level = comfort[partOf(s.id)] ?? 1;
     focus[s.id] = level >= 4 ? "skim" : priority.includes(s.id) ? "core" : "standard";
   }
 

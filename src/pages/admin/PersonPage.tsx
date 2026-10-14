@@ -292,7 +292,7 @@ export default function PersonPage() {
                   {curriculum.map((p) => (
                     <li key={p.id} className="flex justify-between gap-2">
                       <span className="truncate text-muted-foreground">{p.title.replace(/^(Part [IVX]+|Appendix) — /, "")}</span>
-                      <span className="text-foreground">{["", "New", "Heard of it", "", "Comfortable", "Expert"][comfort[p.id] ?? 2] || "—"}</span>
+                      <span className="text-foreground">{["", "New to it", "Heard of it", "", "Comfortable", "Could teach it"][comfort[p.id] ?? 1] || "—"}</span>
                     </li>
                   ))}
                 </ul>

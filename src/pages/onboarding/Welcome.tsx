@@ -6,16 +6,20 @@ import {
   ArrowRight,
   BarChart3,
   BookOpen,
-  Briefcase,
-  Calculator,
+  Brain,
+  Bug,
   Code2,
   Compass,
+  Cpu,
   Database,
   FlaskConical,
-  Handshake,
+  Headset,
   Layers,
+  LineChart,
   MessageSquare,
+  MonitorSmartphone,
   NotebookPen,
+  Server,
   Trophy,
   Users,
 } from "lucide-react";
@@ -38,14 +42,17 @@ import { track } from "@/lib/telemetry";
 import { cn } from "@/lib/utils";
 
 const TEAM_ICONS: Record<Team, typeof Users> = {
-  Sales: Handshake,
-  "Account Management": Users,
-  AdOps: Layers,
-  Engineering: Code2,
+  QA: Bug,
   Product: Compass,
-  Data: Database,
-  Finance: Calculator,
-  Other: Briefcase,
+  Developers: Code2,
+  Frontend: MonitorSmartphone,
+  AI: Brain,
+  DevOps: Server,
+  "Data Science": LineChart,
+  "Data Engineering": Database,
+  IT: Cpu,
+  Support: Headset,
+  AdOps: Layers,
 };
 
 const COMFORT_LEVELS = [
@@ -196,7 +203,7 @@ export default function Welcome() {
                   <h1 id="step-title" className="font-display text-3xl text-foreground">
                     A little about you
                   </h1>
-                  <p className="mt-2 text-muted-foreground">Your team decides which sections we put first.</p>
+                  <p className="mt-2 text-muted-foreground">Your team decides which sections we put first. Nothing is ever hidden.</p>
                   <div className="mt-6 space-y-1.5">
                     <label htmlFor="onb-name" className="text-sm text-foreground">
                       What should we call you?
@@ -211,7 +218,7 @@ export default function Welcome() {
                   </div>
                   <fieldset className="mt-6">
                     <legend className="text-sm text-foreground">Which team are you joining?</legend>
-                    <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
                       {TEAMS.map((t) => {
                         const Icon = TEAM_ICONS[t];
                         return (
@@ -252,7 +259,7 @@ export default function Welcome() {
                         <p className="text-sm text-muted-foreground">{part.sections.map((s) => s.title).join(" · ")}</p>
                         <div role="radiogroup" aria-label={`Comfort with ${part.title}`} className="mt-3 flex flex-wrap gap-2">
                           {COMFORT_LEVELS.map((level) => {
-                            const selected = (comfort[part.id] ?? 2) === level.value;
+                            const selected = (comfort[part.id] ?? 1) === level.value;
                             return (
                               <button
                                 key={level.value}

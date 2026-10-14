@@ -29,7 +29,7 @@ function baseProfile(id: string, email: string): Row {
     id,
     email,
     full_name: "Test Learner",
-    team: "Engineering",
+    team: "Developers",
     experience_level: null,
     comfort: {},
     goals: null,

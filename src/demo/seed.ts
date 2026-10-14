@@ -13,13 +13,13 @@ const ADMIN_ID = "00000000-0000-4000-8000-0000000000ad";
 const COHORT_ID = "00000000-0000-4000-8000-00000000c0f1";
 
 const LEARNERS = [
-  { name: "Priya Shah", team: "Sales", done: 0.82, daysAgo: 0, sims: 7 },
+  { name: "Priya Shah", team: "Support", done: 0.82, daysAgo: 0, sims: 7 },
   { name: "Marcus Lee", team: "AdOps", done: 0.55, daysAgo: 1, sims: 4 },
-  { name: "Sofia Alvarez", team: "Engineering", done: 0.34, daysAgo: 2, sims: 3 },
-  { name: "Daniel Okafor", team: "Account Management", done: 0.12, daysAgo: 9, sims: 1 },
+  { name: "Sofia Alvarez", team: "Developers", done: 0.34, daysAgo: 2, sims: 3 },
+  { name: "Daniel Okafor", team: "QA", done: 0.12, daysAgo: 9, sims: 1 },
   { name: "Hannah Kim", team: "Product", done: 0.68, daysAgo: 0, sims: 6 },
-  { name: "Tom Becker", team: "Finance", done: 0.05, daysAgo: 14, sims: 0 },
-  { name: "Aisha Rahman", team: "Data", done: 1, daysAgo: 0, sims: 12 },
+  { name: "Tom Becker", team: "DevOps", done: 0.05, daysAgo: 14, sims: 0 },
+  { name: "Aisha Rahman", team: "Data Science", done: 1, daysAgo: 0, sims: 12 },
 ];
 
 const QUESTIONS = [

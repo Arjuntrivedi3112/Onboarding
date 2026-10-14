@@ -2,13 +2,37 @@ import { describe, expect, it } from "vitest";
 
 import { bookLessonIds, curriculum, sectionList } from "@/curriculum";
 import { ACHIEVEMENTS, currentStreak, earnedAchievements, shiftDay, weekStart } from "@/lib/achievements";
-import { buildLearningPath, nextOnPath, parseLearningPath, pathMinutes, weeksToFinish } from "@/lib/learningPath";
+import { buildLearningPath, nextOnPath, parseLearningPath, pathMinutes, TEAM_FOCUS, TEAMS, weeksToFinish } from "@/lib/learningPath";
 
 const allSections = sectionList.map((s) => s.id);
 
 describe("learning path", () => {
+  it("offers exactly the eleven IQM teams, each with a focus list of real sections", () => {
+    expect(TEAMS).toEqual([
+      "QA",
+      "Product",
+      "Developers",
+      "Frontend",
+      "AI",
+      "DevOps",
+      "Data Science",
+      "Data Engineering",
+      "IT",
+      "Support",
+      "AdOps",
+    ]);
+    for (const team of TEAMS) {
+      for (const id of TEAM_FOCUS[team]) expect(allSections, `${team} → ${id}`).toContain(id);
+    }
+  });
+
+  it("treats every part as new by default", () => {
+    const path = buildLearningPath("QA", {});
+    expect(Object.values(path.focus)).not.toContain("skim");
+  });
+
   it("never drops a section", () => {
-    for (const team of ["Sales", "Engineering", "Finance", "Other", null]) {
+    for (const team of ["QA", "Developers", "Data Science", "Some old team name", null]) {
       const path = buildLearningPath(team, { foundations: 5, strategy: 1 });
       expect([...path.order].sort()).toEqual([...allSections].sort());
     }
@@ -23,21 +47,21 @@ describe("learning path", () => {
   });
 
   it("marks parts the learner already knows as skim and moves them later", () => {
-    const path = buildLearningPath("Sales", { foundations: 5 });
+    const path = buildLearningPath("Support", { foundations: 5 });
     expect(path.focus.basics).toBe("skim");
     expect(path.order.indexOf("basics")).toBeGreaterThan(path.order.indexOf("mediabuying"));
   });
 
   it("counts skim sections at half time and estimates weeks", () => {
-    const full = pathMinutes(buildLearningPath("Other", {}));
-    const skimmed = pathMinutes(buildLearningPath("Other", { foundations: 5, "supply-chain": 5 }));
+    const full = pathMinutes(buildLearningPath(null, {}));
+    const skimmed = pathMinutes(buildLearningPath(null, { foundations: 5, "supply-chain": 5 }));
     expect(skimmed).toBeLessThan(full);
     expect(weeksToFinish(600, 60)).toBe(10);
     expect(weeksToFinish(5, 60)).toBe(1);
   });
 
   it("finds the next unfinished lesson along the path", () => {
-    const path = buildLearningPath("Engineering", {});
+    const path = buildLearningPath("Developers", {});
     const first = nextOnPath(path, () => false);
     expect(first?.section.id).toBe(path.order[0]);
     const done = new Set(curriculum.flatMap((p) => p.sections.flatMap((s) => s.lessons.map((l) => l.id))));

@@ -92,7 +92,7 @@ export default function Dashboard() {
           <p className="measure mt-2 text-muted-foreground">
             This is the AdTech book, rebuilt as something you can click through. Eleven sections,{" "}
             {book.total} lessons, about {Math.round(book.minutesTotal / 60)} hours if you read every
-            word — ordered for {profile?.team ? `the ${profile.team} team` : "you"}.
+            word — ordered for {profile?.team ? `your team (${profile.team})` : "you"}.
           </p>
         )}
       </header>
