@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.1"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       account_provisions: {
@@ -42,7 +67,15 @@ export type Database = {
           full_name?: string | null
           role?: Database["public"]["Enums"]["app_role"]
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "account_provisions_cohort_id_fkey"
+            columns: ["cohort_id"]
+            isOneToOne: false
+            referencedRelation: "cohorts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       achievements: {
         Row: {
@@ -74,7 +107,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          id?: number
+          id?: never
           lesson_id?: string | null
           meta?: Json
           sim_id?: string | null
@@ -83,7 +116,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          id?: number
+          id?: never
           lesson_id?: string | null
           meta?: Json
           sim_id?: string | null
@@ -117,7 +150,15 @@ export type Database = {
           published_at?: string
           title?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "announcements_cohort_id_fkey"
+            columns: ["cohort_id"]
+            isOneToOne: false
+            referencedRelation: "cohorts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       app_settings: {
         Row: {
@@ -168,7 +209,15 @@ export type Database = {
           target_type?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "assignments_cohort_id_fkey"
+            columns: ["cohort_id"]
+            isOneToOne: false
+            referencedRelation: "cohorts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       bookmarks: {
         Row: {
@@ -202,7 +251,7 @@ export type Database = {
           blocked?: boolean
           context?: string | null
           created_at?: string
-          id?: number
+          id?: never
           lesson_id?: string | null
           question: string
           user_id?: string
@@ -211,7 +260,7 @@ export type Database = {
           blocked?: boolean
           context?: string | null
           created_at?: string
-          id?: number
+          id?: never
           lesson_id?: string | null
           question?: string
           user_id?: string
@@ -483,7 +532,15 @@ export type Database = {
           tour_completed_at?: string | null
           weekly_minutes_goal?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_cohort_id_fkey"
+            columns: ["cohort_id"]
+            isOneToOne: false
+            referencedRelation: "cohorts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       recovery_attempts: {
         Row: {
@@ -495,13 +552,13 @@ export type Database = {
         Insert: {
           attempted_at?: string
           email: string
-          id?: number
+          id?: never
           succeeded: boolean
         }
         Update: {
           attempted_at?: string
           email?: string
-          id?: number
+          id?: never
           succeeded?: boolean
         }
         Relationships: []
@@ -653,181 +710,113 @@ export type Database = {
     }
     Functions: {
       add_lesson_time: {
-        Args: {
-          p_lesson_id: string
-          p_seconds: number
-          p_scroll_pct?: number
-        }
+        Args: { p_lesson_id: string; p_scroll_pct?: number; p_seconds: number }
         Returns: undefined
       }
       admin_daily_activity: {
-        Args: {
-          p_days?: number
-        }
+        Args: { p_days?: number }
         Returns: {
-          day: string
           active_users: number
-          reading_minutes: number
-          lessons_completed: number
-          sims_passed: number
           chat_questions: number
+          day: string
+          lessons_completed: number
+          reading_minutes: number
           signups: number
+          sims_passed: number
         }[]
       }
       admin_lesson_stats: {
         Args: never
         Returns: {
-          lesson_id: string
-          viewers: number
-          completers: number
           avg_seconds: number
-          got_it: number
-          partly: number
-          missed: number
-          helpful_yes: number
-          helpful_no: number
-          comments: number
           chat_questions: number
+          comments: number
+          completers: number
+          got_it: number
+          helpful_no: number
+          helpful_yes: number
+          lesson_id: string
+          missed: number
+          partly: number
+          viewers: number
         }[]
       }
-      admin_reset_progress: {
-        Args: {
-          p_user: string
-        }
-        Returns: undefined
-      }
+      admin_reset_progress: { Args: { p_user: string }; Returns: undefined }
       admin_set_cohort: {
-        Args: {
-          p_users: string[]
-          p_cohort: string
-        }
+        Args: { p_cohort: string; p_users: string[] }
         Returns: undefined
       }
       admin_set_role: {
         Args: {
-          p_user: string
           p_role: Database["public"]["Enums"]["app_role"]
+          p_user: string
         }
         Returns: undefined
       }
       admin_sim_stats: {
         Args: never
         Returns: {
-          sim_id: string
           openers: number
           passers: number
+          sim_id: string
           total_runs: number
         }[]
       }
       admin_update_profile: {
-        Args: {
-          p_user: string
-          p_full_name: string
-          p_team: string
-        }
+        Args: { p_full_name: string; p_team: string; p_user: string }
         Returns: undefined
       }
       admin_users: {
         Args: never
         Returns: {
-          id: string
-          email: string
-          full_name: string
-          team: string
-          role: Database["public"]["Enums"]["app_role"]
+          active_days_14: number
+          badges: number
           cohort_id: string
-          status: string
-          created_via: string
-          created_at: string
-          first_login_at: string
-          last_active_at: string
-          onboarding_completed_at: string
-          weekly_minutes_goal: number
-          must_change_password: boolean
           completed_lessons: string[]
-          visited_lessons: number
-          time_spent_seconds: number
+          created_at: string
+          created_via: string
+          email: string
+          first_login_at: string
+          full_name: string
+          got_it: number
+          id: string
+          last_active_at: string
+          missed: number
+          must_change_password: boolean
+          onboarding_completed_at: string
+          partly: number
+          reading_seconds_7: number
+          role: Database["public"]["Enums"]["app_role"]
           sims_opened: number
           sims_passed: number
-          badges: number
-          got_it: number
-          partly: number
-          missed: number
-          active_days_14: number
-          reading_seconds_7: number
+          status: string
+          team: string
+          time_spent_seconds: number
+          visited_lessons: number
+          weekly_minutes_goal: number
         }[]
       }
-      assert_admin: {
-        Args: never
-        Returns: undefined
-      }
-      can_self_register: {
-        Args: {
-          p_email: string
-        }
-        Returns: boolean
-      }
-      confirm_recovery_code_saved: {
-        Args: never
-        Returns: undefined
-      }
+      assert_admin: { Args: never; Returns: undefined }
+      can_self_register: { Args: { p_email: string }; Returns: boolean }
+      confirm_recovery_code_saved: { Args: never; Returns: undefined }
       consume_recovery_code: {
-        Args: {
-          p_email: string
-          p_code: string
-        }
+        Args: { p_code: string; p_email: string }
         Returns: string
       }
-      generate_recovery_code: {
-        Args: never
-        Returns: string
-      }
+      generate_recovery_code: { Args: never; Returns: string }
       hash_recovery_code: {
-        Args: {
-          p_code: string
-          p_salt: string
-        }
+        Args: { p_code: string; p_salt: string }
         Returns: string
       }
-      is_admin: {
-        Args: never
-        Returns: boolean
-      }
-      local_today: {
-        Args: {
-          p_user: string
-        }
-        Returns: string
-      }
-      mark_password_changed: {
-        Args: never
-        Returns: undefined
-      }
-      my_cohort_id: {
-        Args: never
-        Returns: string
-      }
-      record_sim_open: {
-        Args: {
-          p_sim_id: string
-        }
-        Returns: undefined
-      }
-      record_sim_pass: {
-        Args: {
-          p_sim_id: string
-        }
-        Returns: undefined
-      }
-      regenerate_recovery_code: {
-        Args: never
-        Returns: string
-      }
+      is_admin: { Args: never; Returns: boolean }
+      local_today: { Args: { p_user: string }; Returns: string }
+      mark_password_changed: { Args: never; Returns: undefined }
+      my_cohort_id: { Args: never; Returns: string }
+      record_sim_open: { Args: { p_sim_id: string }; Returns: undefined }
+      record_sim_pass: { Args: { p_sim_id: string }; Returns: undefined }
+      regenerate_recovery_code: { Args: never; Returns: string }
       request_password_help: {
-        Args: {
-          p_email: string
-          p_note?: string
-        }
+        Args: { p_email: string; p_note?: string }
         Returns: undefined
       }
     }
@@ -848,12 +837,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -877,11 +866,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -902,11 +891,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -927,11 +916,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -944,11 +933,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -958,6 +947,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       app_role: ["admin", "learner"],
