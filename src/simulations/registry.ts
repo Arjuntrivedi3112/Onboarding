@@ -318,8 +318,9 @@ export const SIMULATIONS: SimulationDefinition[] = [
     ],
     challenge: {
       title: "Make display matter",
-      description: "Find a journey and model where Display earns at least 40% of the credit, without Display being the only touchpoint.",
-      hint: "Position-based and first-touch models favour where a journey starts.",
+      description:
+        "Using the Linear or Time decay model, build a journey where Display earns at least 40% of the credit without being the only channel.",
+      hint: "Both models share credit across every touch, so it's about how many Display touches there are — and, for time decay, how recent they are.",
     },
     load: () => import("@/simulations/attribution-lab/Simulation"),
   },
@@ -380,8 +381,9 @@ export const SIMULATIONS: SimulationDefinition[] = [
     ],
     challenge: {
       title: "Beat the rules",
-      description: "Get model bidding to a cost per conversion at least 25% lower than flat bidding.",
-      hint: "Reallocation plus a sensible target CPA usually gets there.",
+      description:
+        "Get model bidding to a cost per conversion at least 25% lower than flat bidding over a full day, while spending at least half the daily budget.",
+      hint: "Reallocation plus a sensible target CPA usually gets there. Set the target too low and the model wins on price but barely buys.",
     },
     load: () => import("@/simulations/ai-optimizer/Simulation"),
   },

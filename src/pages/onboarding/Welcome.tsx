@@ -125,7 +125,7 @@ export default function Welcome() {
   return (
     <div className="min-h-screen bg-background">
       <ThemeToggle />
-      <main id="main" className="mx-auto flex min-h-screen max-w-2xl flex-col px-4 py-10 sm:px-6">
+      <main id="main" className="mx-auto flex min-h-screen max-w-2xl flex-col px-4 pb-10 pt-20 sm:px-6 sm:pt-10">
         <div className="flex items-center justify-between">
           <span className="font-display text-lg text-foreground">AdTech Journey</span>
           {rerun && (
