@@ -4,6 +4,8 @@ import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables, TablesUpdate } from "@/integrations/supabase/types";
 import { setProgressScope } from "@/lib/progress";
+import { syncAccount } from "@/lib/sync/progressSync";
+import { flushTelemetry, setTelemetryUser, trackSessionStart } from "@/lib/telemetry";
 import type { AuthStatus } from "@/lib/auth/gate";
 
 export type Profile = Tables<"profiles">;
@@ -73,6 +75,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         loadedFor.current = null;
         setProfile(null);
         setRole("learner");
+        await syncAccount(null);
+        setTelemetryUser(null);
         setProgressScope(null);
         setStatus("signed_out");
         return;
@@ -83,6 +87,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setProgressScope(next.user.id);
       const loaded = await loadAccount(next.user);
       if (!active) return;
+      if (loaded) {
+        setTelemetryUser(loaded.id);
+        trackSessionStart(loaded.id);
+        void syncAccount(loaded.id);
+      }
       setStatus(loaded ? "signed_in" : "signed_out");
     };
 
@@ -138,6 +147,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const signOut = useCallback(async () => {
+    // Send queued progress and events while the session can still write them.
+    await Promise.all([syncAccount(null), flushTelemetry()]);
     await supabase.auth.signOut();
   }, []);
 

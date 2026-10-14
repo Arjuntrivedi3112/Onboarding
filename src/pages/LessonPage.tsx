@@ -7,6 +7,8 @@ import { ReadingProgress } from "@/components/journey/ReadingProgress";
 import { lessonBySlug, lessonPath, sectionPath } from "@/curriculum";
 import type { LessonRef } from "@/curriculum/types";
 import { useAdjacentLessons, useProgress } from "@/hooks/useProgress";
+import { useReadingHeartbeat } from "@/hooks/useReadingHeartbeat";
+import { track } from "@/lib/telemetry";
 import { scrollToRenderedText } from "@/lib/scrollToText";
 
 /**
@@ -108,6 +110,12 @@ export default function LessonPage() {
   useEffect(() => {
     if (lessonId && sectionKey && path) recordVisit(lessonId, sectionKey, path);
   }, [lessonId, sectionKey, path, recordVisit]);
+
+  useEffect(() => {
+    if (lessonId) track("lesson_view", { lessonId });
+  }, [lessonId]);
+
+  useReadingHeartbeat(lessonId);
 
   if (!refInfo) return <Navigate to="/dashboard" replace />;
 

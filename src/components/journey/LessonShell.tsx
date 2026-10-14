@@ -3,12 +3,14 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Check, ChevronDown, Star } from "lucide-react";
 
 import { ChainRail } from "@/components/journey/ChainRail";
+import { LessonFeedback, LessonNotes, SelfCheckRating } from "@/components/journey/LessonEngagement";
 import type { LessonContent } from "@/components/journey/lesson-content";
 import { chainFocusFor } from "@/curriculum/chain";
 import { lessonPath, sectionPath } from "@/curriculum";
 import type { LessonRef } from "@/curriculum/types";
 import { cn } from "@/lib/utils";
 import { highlightGlossaryTerms } from "@/lib/glossaryHighlight";
+import { useSelfChecks, type SelfRating } from "@/hooks/useLessonEngagement";
 
 interface LessonShellProps {
   refInfo: LessonRef;
@@ -47,6 +49,7 @@ export function LessonShell({
   // exactly once per lesson — wherever it's first encountered — not once
   // per list it happens to appear in.
   const seenTerms = useMemo(() => new Set<string>(), [lesson.id]);
+  const { ratings, rate } = useSelfChecks(lesson.id);
 
   return (
     <article className="pb-32">
@@ -130,20 +133,31 @@ export function LessonShell({
         </ol>
       </section>
 
-      {/* 8. Check yourself — self-scored, never stored. */}
+      {/* 8. Check yourself — self-scored; the rating feeds your profile and the team's view of what's hard. */}
       {content.checkYourself.length > 0 && (
         <section className="mb-12">
           <h2 className="mb-1 text-xl text-foreground">Check yourself</h2>
           <p className="mb-4 text-sm text-muted-foreground">
-            Answer these in your head first. Nothing here is scored or recorded.
+            Answer in your head first, then reveal and rate yourself honestly. Ratings help you spot
+            what to revisit and show the team which lessons need work.
           </p>
           <div className="space-y-3">
-            {content.checkYourself.map((item) => (
-              <SelfCheck key={item.question} question={item.question} answer={item.answer} />
+            {content.checkYourself.map((item, index) => (
+              <SelfCheck
+                key={item.question}
+                question={item.question}
+                answer={item.answer}
+                rating={ratings[index]}
+                onRate={(rating) => rate({ index, rating })}
+              />
             ))}
           </div>
         </section>
       )}
+
+      {/* Private notes and a quick helpfulness check. */}
+      <LessonNotes lessonId={lesson.id} />
+      <LessonFeedback lessonId={lesson.id} />
 
       {/* An inline next-up card where reading naturally stops. */}
       {next && (
@@ -173,7 +187,17 @@ export function LessonShell({
   );
 }
 
-function SelfCheck({ question, answer }: { question: string; answer: React.ReactNode }) {
+function SelfCheck({
+  question,
+  answer,
+  rating,
+  onRate,
+}: {
+  question: string;
+  answer: React.ReactNode;
+  rating: SelfRating | undefined;
+  onRate: (rating: SelfRating) => void;
+}) {
   const [shown, setShown] = useState(false);
 
   return (
@@ -192,6 +216,7 @@ function SelfCheck({ question, answer }: { question: string; answer: React.React
         />
       </button>
       {shown && <div className="measure border-t border-border px-4 py-3 text-muted-foreground">{answer}</div>}
+      {(shown || rating) && <SelfCheckRating value={rating} onRate={onRate} />}
     </div>
   );
 }

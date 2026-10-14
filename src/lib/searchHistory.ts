@@ -4,6 +4,7 @@
  * Deliberately separate from progress.ts: this is ephemeral UI convenience,
  * not something that should ever gate or influence learning progress.
  */
+import { track } from "@/lib/telemetry";
 
 const STORAGE_KEY = "adtech-journey-search-history";
 const MAX_ENTRIES = 6;
@@ -40,6 +41,7 @@ export function recordSearchQuery(query: string) {
 
   const existing = read().filter((entry) => entry.toLowerCase() !== trimmed.toLowerCase());
   write([trimmed, ...existing].slice(0, MAX_ENTRIES));
+  track("search", { meta: { q: trimmed.slice(0, 200) } });
 }
 
 export function clearSearchHistory() {
