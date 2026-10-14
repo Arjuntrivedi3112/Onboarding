@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-// @ts-expect-error — plain .mjs build script, no type declarations.
 import { hashKnowledge } from "../../scripts/knowledge-manifest.mjs";
 import manifest from "./knowledge-manifest.json";
 

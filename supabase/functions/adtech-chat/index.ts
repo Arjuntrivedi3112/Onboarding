@@ -1,9 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { callerClient, corsHeaders, getCaller } from "../_shared/http.ts";
 
 /**
  * Hard, deterministic scope enforcement — checked before this function ever
@@ -103,7 +100,17 @@ serve(async (req) => {
   }
 
   try {
-    const { messages = [], context, bookContext = "" } = await req.json();
+    // Only signed-in learners may use the assistant. The anon key alone is
+    // public, so it is not enough to reach Groq.
+    const caller = await getCaller(req);
+    if (!caller) {
+      return new Response(JSON.stringify({ error: "Sign in required" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const { messages = [], context, bookContext = "", lessonId = null } = await req.json();
     const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
     
     if (!GROQ_API_KEY) {
@@ -130,7 +137,25 @@ serve(async (req) => {
     const latestUserMessage = [...messages].reverse().find(
       (m: { role?: string }) => m?.role === "user"
     );
-    if (latestUserMessage?.content && isGuardedRequest(String(latestUserMessage.content), Boolean(bookContext))) {
+    const question = latestUserMessage?.content ? String(latestUserMessage.content) : "";
+    const blocked = Boolean(question) && isGuardedRequest(question, Boolean(bookContext));
+
+    // Log the question (as the caller, so row-level security applies) for the
+    // admin "what are people asking" view. Logging must never break chat.
+    if (question) {
+      callerClient(req)
+        .from("chat_questions")
+        .insert({
+          user_id: caller.id,
+          lesson_id: typeof lessonId === "string" ? lessonId.slice(0, 120) : null,
+          context: typeof context === "string" ? context.slice(0, 200) : null,
+          question: question.slice(0, 4000),
+          blocked,
+        })
+        .then(({ error }) => error && console.error("chat_questions insert failed:", error.message));
+    }
+
+    if (blocked) {
       return sseMessage(REFUSAL_MESSAGE);
     }
 
@@ -143,7 +168,7 @@ serve(async (req) => {
       ? `\n\n${bookContext}`
       : `\n\nNo matching excerpts were found for this question — the book may not cover this specific topic.`;
     if (context) {
-      systemPrompt += `\n\nCurrent context: The user is viewing the "${context}" module in the AdTech Visual Explorer.`;
+      systemPrompt += `\n\nCurrent context: The user is viewing "${context}" in the AdTech Journey.`;
     }
 
     // Use Groq (fast, free, OpenAI-compatible)
