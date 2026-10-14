@@ -21,6 +21,7 @@ const ROOT = join(__dirname, "..", "..");
 const SCOPES = [
   "src/components/lessons/**/*.tsx",
   "src/components/journey/**/*.tsx",
+  "src/components/auth/**/*.tsx",
   "src/pages/**/*.tsx",
   "src/hooks/**/*.ts",
   "src/curriculum/**/*.ts",

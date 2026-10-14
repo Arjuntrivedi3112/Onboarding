@@ -3,7 +3,8 @@ import { motion } from "framer-motion";
 import { Plus, Calendar, Clock, Tag, AlertCircle, CheckCircle2, X, Trash2, Image as ImageIcon, RefreshCw } from "lucide-react";
 import sessionsData from "../../../data/sessions/sessions.json";
 import doubtsData from "../../../data/sessions/doubts.json";
-import { saveSessionsToGitHub, saveDoubtsToGitHub, isGitHubConfigured, uploadSessionImageToGitHub, loadSessionsFromGitHub, loadDoubtsFromGitHub } from "@/lib/githubStorage";
+import { saveSessions, saveDoubts, uploadSessionImage, loadSessions, loadDoubts } from "@/lib/notesStorage";
+import { useAuth } from "@/lib/auth/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
 
 // Session type definition - extensible structure for future features
@@ -30,33 +31,12 @@ interface Doubt {
 }
 
 /**
- * DATA STORAGE APPROACH: GitHub Repository
- * 
- * Sessions and doubts are stored as JSON files in /data/sessions/ directory.
- * 
- * WORKFLOWS:
- * 
- * 1. MANUAL (Current):
- *    - Create/edit sessions in the app
- *    - Click "Export" button to download JSON files
- *    - Replace files in data/sessions/ directory
- *    - Commit and push to GitHub
- *    - Refresh app to load updated data
- * 
- * 2. AUTOMATED (Optional - requires GitHub API setup):
- *    - Add VITE_GITHUB_TOKEN to environment
- *    - App commits changes directly via GitHub API
- *    - See mcp_github_create_or_update_file tool for implementation
- * 
- * BENEFITS:
- * - Version control and full history
- * - Collaboration via pull requests
- * - No database costs
- * - Data lives with code
- * - Easy backup and export
+ * Storage: Supabase (src/lib/notesStorage.ts). Admins create and edit
+ * sessions; every signed-in learner reads them and can raise doubts. The
+ * committed JSON in data/sessions/ is only the initial seed.
  */
 
-// Load sessions from GitHub repo JSON files
+// Seed data shown until the server copy loads.
 const INITIAL_SESSIONS: Session[] = sessionsData as Session[];
 const INITIAL_DOUBTS: Doubt[] = doubtsData as Doubt[];
 
@@ -86,8 +66,9 @@ export function SessionNotesModule({ onSelectSession, sessions, doubts, onSessio
   const [pendingImages, setPendingImages] = useState<File[]>([]);
   const { toast } = useToast();
 
-  // Check if GitHub auto-commit is configured
-  const githubConfigured = isGitHubConfigured();
+  // Sessions are edited by admins; everyone else reads them.
+  const { isAdmin } = useAuth();
+  const githubConfigured = isAdmin;
 
   const handleDeleteSession = async (sessionId: string) => {
     const filteredSessions = sessions.filter((session) => session.id !== sessionId);
@@ -99,26 +80,26 @@ export function SessionNotesModule({ onSelectSession, sessions, doubts, onSessio
     if (!githubConfigured) {
       toast({
         title: "Session deleted",
-        description: "GitHub auto-commit is disabled; export to persist.",
+        description: "Only admins can change sessions.",
       });
       return;
     }
 
     setIsSaving(true);
     // Save sequentially to avoid any cross-file race conditions
-    const sessionsSaved = await saveSessionsToGitHub(filteredSessions);
-    const doubtsSaved = sessionsSaved ? await saveDoubtsToGitHub(filteredDoubts) : false;
+    const sessionsSaved = await saveSessions(filteredSessions);
+    const doubtsSaved = sessionsSaved ? await saveDoubts(filteredDoubts) : false;
     setIsSaving(false);
 
     if (sessionsSaved && doubtsSaved) {
       toast({
         title: "Session deleted",
-        description: "Changes committed to GitHub.",
+        description: "Changes saved for the team.",
       });
     } else {
       toast({
         title: "Delete failed",
-        description: "Could not commit changes to GitHub.",
+        description: "Could not save the change. Try again.",
         variant: "destructive",
       });
     }
@@ -148,26 +129,26 @@ export function SessionNotesModule({ onSelectSession, sessions, doubts, onSessio
       outcomes: newSession.outcomes || "",
     };
 
-    // Upload any selected images to GitHub and attach URLs
+    // Upload any selected images and attach their URLs
     if (pendingImages.length > 0 && githubConfigured) {
       setIsSaving(true);
       const uploadResults = await Promise.all(
-        pendingImages.map((file) => uploadSessionImageToGitHub(session.id, file))
+        pendingImages.map((file) => uploadSessionImage(session.id, file))
       );
       const urls = uploadResults.filter((u): u is string => !!u);
       session = { ...session, media: urls };
       setIsSaving(false);
     } else if (pendingImages.length > 0 && !githubConfigured) {
       toast({
-        title: "GitHub not configured",
-        description: "Images won't be uploaded. Configure GitHub or add later.",
+        title: "Images not uploaded",
+        description: "Only admins can upload images.",
         variant: "destructive",
       });
     }
 
     const updatedSessions = [session, ...sessions];
     onSessionsChange(updatedSessions);
-    await saveToGitHub(updatedSessions);
+    await persistSessions(updatedSessions);
     
     // Reset form
     setNewSession({
@@ -210,34 +191,34 @@ export function SessionNotesModule({ onSelectSession, sessions, doubts, onSessio
     }));
   };
 
-  // Auto-save to GitHub when sessions change
-  const saveToGitHub = async (updatedSessions: Session[]) => {
+  // Save sessions whenever they change
+  const persistSessions = async (updatedSessions: Session[]) => {
     if (!githubConfigured) return;
     
     setIsSaving(true);
-    const success = await saveSessionsToGitHub(updatedSessions);
+    const success = await saveSessions(updatedSessions);
     setIsSaving(false);
 
     if (success) {
       toast({
-        title: "Saved to GitHub",
+        title: "Saved",
         description: "Sessions automatically committed to repository.",
       });
     } else {
       toast({
         title: "Save failed",
-        description: "Could not commit to GitHub. Check console for errors.",
+        description: "Could not save. Try again.",
         variant: "destructive",
       });
     }
   };
 
-  // Refresh sessions from GitHub
-  const refreshFromGitHub = async () => {
+  // Reload sessions from the server
+  const refreshSessions = async () => {
     if (!githubConfigured) {
       toast({
-        title: "GitHub not configured",
-        description: "Please set up GitHub environment variables.",
+        title: "Nothing to refresh",
+        description: "Only admins can refresh from here.",
         variant: "destructive",
       });
       return;
@@ -246,13 +227,13 @@ export function SessionNotesModule({ onSelectSession, sessions, doubts, onSessio
     setIsSaving(true);
     toast({
       title: "Refreshing...",
-      description: "Loading latest data from GitHub.",
+      description: "Loading the latest sessions.",
     });
 
     try {
       const [loadedSessions, loadedDoubts] = await Promise.all([
-        loadSessionsFromGitHub(),
-        loadDoubtsFromGitHub(),
+        loadSessions(),
+        loadDoubts(),
       ]);
 
       if (loadedSessions) {
@@ -265,12 +246,12 @@ export function SessionNotesModule({ onSelectSession, sessions, doubts, onSessio
       if (loadedSessions || loadedDoubts) {
         toast({
           title: "Refreshed!",
-          description: `Loaded ${loadedSessions?.length || 0} sessions from GitHub.`,
+          description: `Loaded ${loadedSessions?.length || 0} sessions.`,
         });
       } else {
         toast({
           title: "Refresh failed",
-          description: "Could not load data from GitHub. Check console.",
+          description: "Could not load sessions. Try again.",
           variant: "destructive",
         });
       }
@@ -298,15 +279,10 @@ export function SessionNotesModule({ onSelectSession, sessions, doubts, onSessio
         <div>
           <div className="flex items-center gap-3 mb-2">
             <h2 className="text-2xl font-bold">Session Notes</h2>
-            {githubConfigured ? (
+            {githubConfigured && (
               <div className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
                 <CheckCircle2 className="w-3 h-3" />
-                Auto-commit enabled
-              </div>
-            ) : (
-              <div className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-[hsl(var(--floor)/0.12)] text-[hsl(var(--floor))] border border-[hsl(var(--floor)/0.25)]">
-                <AlertCircle className="w-3 h-3" />
-                Manual export only
+                You can edit
               </div>
             )}
           </div>
@@ -315,22 +291,22 @@ export function SessionNotesModule({ onSelectSession, sessions, doubts, onSessio
         <div className="flex items-center gap-2">
           {githubConfigured && (
             <button 
-              onClick={refreshFromGitHub}
+              onClick={refreshSessions}
               disabled={isSaving}
               className="px-4 py-2 rounded-lg bg-muted text-foreground flex items-center gap-2 hover:bg-muted/80 transition-colors disabled:opacity-50"
-              title="Refresh from GitHub"
+              title="Reload sessions"
             >
               <RefreshCw className={`w-4 h-4 ${isSaving ? 'animate-spin' : ''}`} />
               Refresh
             </button>
           )}
-          <button 
+          {githubConfigured && <button 
             onClick={() => setShowCreateModal(true)}
             className="px-4 py-2 rounded-lg bg-primary text-primary-foreground flex items-center gap-2 hover:bg-primary/90 transition-colors"
           >
             <Plus className="w-4 h-4" />
             New Session
-          </button>
+          </button>}
         </div>
       </div>
 
@@ -357,6 +333,7 @@ export function SessionNotesModule({ onSelectSession, sessions, doubts, onSessio
                   {session.time}
                 </div>
                 {/* Upload image for this session */}
+                {githubConfigured && <>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -381,21 +358,21 @@ export function SessionNotesModule({ onSelectSession, sessions, doubts, onSessio
                     if (!file) return;
                     if (!githubConfigured) {
                       toast({
-                        title: "GitHub not configured",
-                        description: "Set up GitHub env vars to upload.",
+                        title: "Admins only",
+                        description: "Only admins can upload images.",
                         variant: "destructive",
                       });
                       e.currentTarget.value = "";
                       return;
                     }
                     setIsSaving(true);
-                    const url = await uploadSessionImageToGitHub(session.id, file);
+                    const url = await uploadSessionImage(session.id, file);
                     setIsSaving(false);
                     e.currentTarget.value = "";
                     if (!url) {
                       toast({
                         title: "Upload failed",
-                        description: "Could not upload image to GitHub.",
+                        description: "Could not upload the image.",
                         variant: "destructive",
                       });
                       return;
@@ -403,10 +380,10 @@ export function SessionNotesModule({ onSelectSession, sessions, doubts, onSessio
 
                     const updatedSessions = sessions.map((s) => s.id === session.id ? { ...s, media: [...s.media, url] } : s);
                     onSessionsChange(updatedSessions);
-                    const ok = await saveSessionsToGitHub(updatedSessions);
+                    const ok = await saveSessions(updatedSessions);
                     toast({
                       title: ok ? "Image uploaded" : "Saved locally",
-                      description: ok ? "Added to session and committed to GitHub." : "Failed to commit sessions.json.",
+                      description: ok ? "Added to the session." : "Could not save the session.",
                       variant: ok ? undefined : "destructive",
                     });
                   }}
@@ -422,6 +399,7 @@ export function SessionNotesModule({ onSelectSession, sessions, doubts, onSessio
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
+                </>}
               </div>
             </div>
 

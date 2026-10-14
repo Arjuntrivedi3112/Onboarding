@@ -18,7 +18,7 @@ export default function NotesPage() {
       {failed && (
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-4">
           <p className="text-sm text-foreground">
-            Couldn't reach GitHub, so anything added elsewhere isn't here yet.
+            Couldn't reach the server, so the latest notes may be missing.
           </p>
           <button
             type="button"

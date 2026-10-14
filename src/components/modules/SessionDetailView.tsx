@@ -18,7 +18,8 @@ import {
 import type { Session, Doubt } from "./SessionNotesModule";
 import { MOCK_SESSIONS, MOCK_DOUBTS } from "./SessionNotesModule";
 import doubtsData from "../../../data/sessions/doubts.json";
-import { saveDoubtsToGitHub, saveSessionsToGitHub, isGitHubConfigured, uploadSessionImageToGitHub, deleteSessionImageFromGitHub } from "@/lib/githubStorage";
+import { saveDoubts, saveSessions, uploadSessionImage, deleteSessionImage } from "@/lib/notesStorage";
+import { useAuth } from "@/lib/auth/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
 
 interface SessionDetailViewProps {
@@ -55,28 +56,28 @@ export function SessionDetailView({ sessionId, onBack, sessions, doubts: allDoub
   const [editTime, setEditTime] = useState<string>(session?.time || "");
   const { toast } = useToast();
 
-  // Check if GitHub auto-commit is configured
-  const githubConfigured = isGitHubConfigured();
+  // Admins edit the session itself; anyone can raise or resolve a doubt.
+  const { isAdmin } = useAuth();
+  const githubConfigured = isAdmin;
 
-  // Auto-save doubts to GitHub
-  const saveDoubtsToGitHubAuto = async (updatedSessionDoubts: Doubt[]) => {
-    if (!githubConfigured) return;
+  // Save doubts as they change
+  const persistDoubts = async (updatedSessionDoubts: Doubt[]) => {
 
     // Merge with all doubts (not just this session)
     const otherDoubts = allDoubts.filter((d) => d.sessionId !== sessionId);
     const mergedDoubts = [...otherDoubts, ...updatedSessionDoubts];
 
-    const success = await saveDoubtsToGitHub(mergedDoubts);
+    const success = await saveDoubts(mergedDoubts);
 
     if (success) {
       toast({
-        title: "Saved to GitHub",
+        title: "Saved",
         description: "Doubts automatically committed.",
       });
     } else {
       toast({
         title: "Save failed",
-        description: "Could not commit doubts to GitHub.",
+        description: "Could not save your doubt. Try again.",
         variant: "destructive",
       });
     }
@@ -130,7 +131,7 @@ export function SessionDetailView({ sessionId, onBack, sessions, doubts: allDoub
     const mergedDoubts = [...otherDoubts, ...updatedSessionDoubts];
     onDoubtsChange(mergedDoubts);
     
-    saveDoubtsToGitHubAuto(updatedSessionDoubts);
+    persistDoubts(updatedSessionDoubts);
   };
 
   // Add a new doubt
@@ -153,7 +154,7 @@ export function SessionDetailView({ sessionId, onBack, sessions, doubts: allDoub
     onDoubtsChange(mergedDoubts);
     
     setNewDoubtText("");
-    saveDoubtsToGitHubAuto(updatedSessionDoubts);
+    persistDoubts(updatedSessionDoubts);
   };
 
   // Sort doubts: open first, then by newest
@@ -230,10 +231,10 @@ export function SessionDetailView({ sessionId, onBack, sessions, doubts: allDoub
                       s.id === sessionId ? { ...s, date: editDate, time: editTime } : s
                     );
                     onSessionsChange(updatedSessions);
-                    const ok = await saveSessionsToGitHub(updatedSessions);
+                    const ok = await saveSessions(updatedSessions);
                     setIsEditingMeta(false);
                     if (ok) {
-                      toast({ title: "Updated", description: "Date/time saved to GitHub." });
+                      toast({ title: "Updated", description: "Date and time saved." });
                     } else {
                       toast({ title: "Saved locally", description: "Failed to commit sessions.json.", variant: "destructive" });
                     }
@@ -309,18 +310,18 @@ export function SessionDetailView({ sessionId, onBack, sessions, doubts: allDoub
                     onClick={async (e) => {
                       e.stopPropagation();
                       if (!githubConfigured) {
-                        toast({ title: "GitHub not configured", description: "Cannot delete image file.", variant: "destructive" });
+                        toast({ title: "Admins only", description: "Only admins can remove images.", variant: "destructive" });
                         return;
                       }
-                      const ok = await deleteSessionImageFromGitHub(url);
+                      const ok = await deleteSessionImage(url);
                       const updatedSessions = sessions.map((s) =>
                         s.id === sessionId ? { ...s, media: s.media.filter((m) => m !== url) } : s
                       );
                       onSessionsChange(updatedSessions);
-                      const committed = await saveSessionsToGitHub(updatedSessions);
+                      const committed = await saveSessions(updatedSessions);
                       toast({
                         title: ok && committed ? "Image deleted" : "Deleted locally",
-                        description: ok && committed ? "Removed from GitHub and session." : "Failed to commit to GitHub.",
+                        description: ok && committed ? "Removed from the session." : "Could not save the change.",
                         variant: ok && committed ? undefined : "destructive",
                       });
                     }}
@@ -346,21 +347,21 @@ export function SessionDetailView({ sessionId, onBack, sessions, doubts: allDoub
               if (!file) return;
               if (!githubConfigured) {
                 toast({
-                  title: "GitHub not configured",
-                  description: "Set up GitHub env vars to upload.",
+                  title: "Admins only",
+                  description: "Only admins can upload images.",
                   variant: "destructive",
                 });
                 e.target.value = "";
                 return;
               }
               setIsUploading(true);
-              const url = await uploadSessionImageToGitHub(sessionId, file);
+              const url = await uploadSessionImage(sessionId, file);
               setIsUploading(false);
               e.target.value = "";
               if (!url) {
                 toast({
                   title: "Upload failed",
-                  description: "Could not upload image to GitHub.",
+                  description: "Could not upload the image.",
                   variant: "destructive",
                 });
                 return;
@@ -370,11 +371,11 @@ export function SessionDetailView({ sessionId, onBack, sessions, doubts: allDoub
                 s.id === sessionId ? { ...s, media: [...s.media, url] } : s
               );
               onSessionsChange(updatedSessions);
-              const ok = await saveSessionsToGitHub(updatedSessions);
+              const ok = await saveSessions(updatedSessions);
               if (ok) {
-                toast({ title: "Image uploaded", description: "Saved to GitHub and added to session." });
+                toast({ title: "Image uploaded", description: "Added to the session." });
               } else {
-                toast({ title: "Saved locally", description: "Failed to commit sessions.json to GitHub.", variant: "destructive" });
+                toast({ title: "Saved locally", description: "Could not save the session.", variant: "destructive" });
               }
             }}
           />

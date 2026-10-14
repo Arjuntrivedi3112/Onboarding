@@ -5,6 +5,7 @@ import { BookMarked, Check, FileText, Library, Map, Search, Star } from "lucide-
 import { curriculum, lessonPath, sectionPath } from "@/curriculum";
 import type { Part, Section } from "@/curriculum/types";
 import { openCommandPalette } from "@/components/journey/CommandPalette";
+import { UserMenu } from "@/components/journey/UserMenu";
 import { useProgress } from "@/hooks/useProgress";
 import { cn } from "@/lib/utils";
 
@@ -133,6 +134,10 @@ export function JourneySidebar({ onNavigate }: { onNavigate?: () => void }) {
           </li>
         </ul>
       </nav>
+
+      <div className="border-t border-sidebar-border p-2">
+        <UserMenu onNavigate={onNavigate} />
+      </div>
     </div>
   );
 }

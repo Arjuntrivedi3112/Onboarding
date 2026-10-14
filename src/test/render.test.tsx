@@ -32,8 +32,8 @@ afterEach(() => {
 /**
  * Noise that is not a render failure:
  * - React Router's future-flag notices.
- * - The GitHub storage layer, which has no token or network in tests and logs
- *   asynchronously, so its errors can land during an unrelated test.
+ * - Legacy storage logging, which can land asynchronously during an
+ *   unrelated test.
  */
 function renderErrorsOnly(): string[] {
   return errorSpy.mock.calls

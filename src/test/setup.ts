@@ -1,6 +1,19 @@
 import "@testing-library/jest-dom/vitest";
-import { afterEach, vi } from "vitest";
+import { afterEach, beforeEach, vi } from "vitest";
 import { cleanup } from "@testing-library/react";
+
+import { fakeDb } from "./mocks/supabase";
+
+// No test talks to a real Supabase project: the app's client is replaced by
+// an in-memory fake that starts as a signed-in, onboarded learner.
+vi.mock("@/integrations/supabase/client", async () => {
+  const { fakeSupabase } = await import("./mocks/supabase");
+  return { supabase: fakeSupabase };
+});
+
+beforeEach(() => {
+  fakeDb.reset();
+});
 
 // Database suites opt into the node environment; everything below is DOM-only.
 const hasDom = typeof window !== "undefined";

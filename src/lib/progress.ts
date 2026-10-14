@@ -17,8 +17,15 @@
  *   setItem, and the key can hold anything a previous version wrote.
  */
 
-const STORAGE_KEY = "adtech-journey-progress";
+const LEGACY_STORAGE_KEY = "adtech-journey-progress";
 const SCHEMA_VERSION = 1;
+
+/**
+ * The key in use. Signed-in learners get a per-account key so two people
+ * sharing a laptop never see each other's progress; with no account scope it
+ * falls back to the original key (also what pre-accounts learners have).
+ */
+let storageKey = LEGACY_STORAGE_KEY;
 
 export interface ResumePointer {
   lessonId: string;
@@ -124,7 +131,7 @@ function read(): ProgressState {
   if (cache) return cache;
   let raw: string | null = null;
   try {
-    raw = localStorage.getItem(STORAGE_KEY);
+    raw = localStorage.getItem(storageKey);
   } catch {
     // Storage unavailable (private mode, blocked cookies) — run in memory.
   }
@@ -135,11 +142,50 @@ function read(): ProgressState {
 function write(next: ProgressState) {
   cache = next;
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    localStorage.setItem(storageKey, JSON.stringify(next));
   } catch {
     // Persisting failed; the in-memory cache still drives this session.
   }
   listeners.forEach((fn) => fn());
+}
+
+/**
+ * Point the store at one account's progress (or back to the legacy key with
+ * `null`). Listeners are notified so every view re-reads.
+ */
+export function setProgressScope(userId: string | null) {
+  const next = userId ? `${LEGACY_STORAGE_KEY}:${userId}` : LEGACY_STORAGE_KEY;
+  if (next === storageKey) return;
+  storageKey = next;
+  cache = null;
+  listeners.forEach((fn) => fn());
+}
+
+/**
+ * The progress a learner built up before accounts existed, if any. Read once
+ * at first sign-in so it can be merged into their account.
+ */
+export function readLegacyProgress(): ProgressState | null {
+  try {
+    const raw = localStorage.getItem(LEGACY_STORAGE_KEY);
+    return raw ? parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Forget pre-accounts progress once it has been imported. */
+export function clearLegacyProgress() {
+  try {
+    localStorage.removeItem(LEGACY_STORAGE_KEY);
+  } catch {
+    // Nothing to clear.
+  }
+}
+
+/** Replace the whole state, e.g. after merging with the server copy. */
+export function replaceProgress(next: ProgressState) {
+  write({ ...next, version: SCHEMA_VERSION });
 }
 
 /** Subscribe to progress changes, including changes made in other tabs. */
@@ -162,7 +208,7 @@ export function getServerSnapshot(): ProgressState {
 
 if (typeof window !== "undefined") {
   window.addEventListener("storage", (event) => {
-    if (event.key !== STORAGE_KEY) return;
+    if (event.key !== storageKey) return;
     cache = parse(event.newValue);
     listeners.forEach((fn) => fn());
   });
