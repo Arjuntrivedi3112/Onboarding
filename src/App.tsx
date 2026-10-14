@@ -40,6 +40,18 @@ const SimulationPage = lazy(() => import("./pages/lab/SimulationPage"));
 const ProfilePage = lazy(() => import("./pages/account/ProfilePage"));
 const CertificatePage = lazy(() => import("./pages/account/CertificatePage"));
 
+// The admin console.
+const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
+const AdminOverview = lazy(() => import("./pages/admin/OverviewPage"));
+const AdminPeople = lazy(() => import("./pages/admin/PeoplePage"));
+const AdminPerson = lazy(() => import("./pages/admin/PersonPage"));
+const AdminAddPeople = lazy(() => import("./pages/admin/AddPeoplePage"));
+const AdminCohorts = lazy(() => import("./pages/admin/CohortsPage"));
+const AdminContent = lazy(() => import("./pages/admin/ContentPage"));
+const AdminQuestions = lazy(() => import("./pages/admin/QuestionsPage"));
+const AdminPasswordHelp = lazy(() => import("./pages/admin/PasswordHelpPage"));
+const AdminAnnouncements = lazy(() => import("./pages/admin/AnnouncementsPage"));
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -64,6 +76,19 @@ const App = () => (
                   <Route path="/auth/set-password" element={<SetPassword />} />
                   <Route path="/auth/recovery-code" element={<RecoveryCode />} />
                   <Route path="/welcome" element={<Welcome />} />
+
+                  {/* Admins only — the account gate redirects everyone else. */}
+                  <Route path="/admin" element={<AdminLayout />}>
+                    <Route index element={<AdminOverview />} />
+                    <Route path="people" element={<AdminPeople />} />
+                    <Route path="people/:userId" element={<AdminPerson />} />
+                    <Route path="add" element={<AdminAddPeople />} />
+                    <Route path="cohorts" element={<AdminCohorts />} />
+                    <Route path="content" element={<AdminContent />} />
+                    <Route path="questions" element={<AdminQuestions />} />
+                    <Route path="password-help" element={<AdminPasswordHelp />} />
+                    <Route path="announcements" element={<AdminAnnouncements />} />
+                  </Route>
 
                   <Route element={<JourneyLayout />}>
                     <Route path="/" element={<Navigate to="/dashboard" replace />} />
