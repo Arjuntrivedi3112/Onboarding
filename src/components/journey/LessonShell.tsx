@@ -3,7 +3,10 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Check, ChevronDown, Star } from "lucide-react";
 
 import { ChainRail } from "@/components/journey/ChainRail";
+import { LabCallout } from "@/components/journey/LabCallout";
 import { LessonFeedback, LessonNotes, SelfCheckRating } from "@/components/journey/LessonEngagement";
+import { useSimProgress } from "@/hooks/useSimProgress";
+import { simulationForLesson } from "@/simulations/registry";
 import type { LessonContent } from "@/components/journey/lesson-content";
 import { chainFocusFor } from "@/curriculum/chain";
 import { lessonPath, sectionPath } from "@/curriculum";
@@ -50,6 +53,8 @@ export function LessonShell({
   // per list it happens to appear in.
   const seenTerms = useMemo(() => new Set<string>(), [lesson.id]);
   const { ratings, rate } = useSelfChecks(lesson.id);
+  const { progress: simProgress } = useSimProgress();
+  const sim = simulationForLesson(lesson.id);
 
   return (
     <article className="pb-32">
@@ -119,6 +124,9 @@ export function LessonShell({
       <section className="mb-12">
         <Body />
       </section>
+
+      {/* 6b. The matching Lab simulator, where one exists. */}
+      {sim && <LabCallout sim={sim} passed={Boolean(simProgress[sim.id]?.challenge_passed_at)} compact />}
 
       {/* 7. Key takeaways. */}
       <section className="mb-10 rounded-lg border border-border bg-card p-6">

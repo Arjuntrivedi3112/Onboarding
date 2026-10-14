@@ -32,6 +32,14 @@ const SetPassword = lazy(() => import("./pages/auth/SetPassword"));
 const RecoveryCode = lazy(() => import("./pages/auth/RecoveryCode"));
 const Welcome = lazy(() => import("./pages/onboarding/Welcome"));
 
+// The Simulation Lab.
+const LabPage = lazy(() => import("./pages/lab/LabPage"));
+const SimulationPage = lazy(() => import("./pages/lab/SimulationPage"));
+
+// The learner's own account.
+const ProfilePage = lazy(() => import("./pages/account/ProfilePage"));
+const CertificatePage = lazy(() => import("./pages/account/CertificatePage"));
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -68,6 +76,14 @@ const App = () => (
                     {/* The appendix shares the lesson chrome but not the progress denominator. */}
                     <Route path="/appendix/:sectionId" element={<SectionPage />} />
                     <Route path="/appendix/:sectionId/:lessonSlug" element={<LessonPage />} />
+
+                    {/* Hands-on simulators, one per section. */}
+                    <Route path="/lab" element={<LabPage />} />
+                    <Route path="/lab/:simId" element={<SimulationPage />} />
+
+                    {/* Account. */}
+                    <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/certificate" element={<CertificatePage />} />
 
                     {/* Reference tools. */}
                     <Route path="/map" element={<MapPage />} />

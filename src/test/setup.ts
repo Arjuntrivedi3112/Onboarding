@@ -2,12 +2,12 @@ import "@testing-library/jest-dom/vitest";
 import { afterEach, beforeEach, vi } from "vitest";
 import { cleanup } from "@testing-library/react";
 
-import { fakeDb } from "./mocks/supabase";
+import { fakeDb } from "@/demo/fakeSupabase";
 
 // No test talks to a real Supabase project: the app's client is replaced by
 // an in-memory fake that starts as a signed-in, onboarded learner.
 vi.mock("@/integrations/supabase/client", async () => {
-  const { fakeSupabase } = await import("./mocks/supabase");
+  const { fakeSupabase } = await import("@/demo/fakeSupabase");
   return { supabase: fakeSupabase };
 });
 

@@ -2,9 +2,12 @@ import { Link, Navigate, useParams } from "react-router-dom";
 import { ArrowRight, Check } from "lucide-react";
 
 import { ChainRail } from "@/components/journey/ChainRail";
+import { LabCallout } from "@/components/journey/LabCallout";
 import { chainFocusFor } from "@/curriculum/chain";
 import { curriculum, findSection, lessonPath } from "@/curriculum";
 import { useProgress } from "@/hooks/useProgress";
+import { useSimProgress } from "@/hooks/useSimProgress";
+import { simulationForSection } from "@/simulations/registry";
 import { cn } from "@/lib/utils";
 
 /** A section overview: what it covers, and every lesson inside it. */
@@ -12,6 +15,7 @@ export default function SectionPage() {
   const { sectionId } = useParams<{ sectionId: string }>();
   const section = sectionId ? findSection(curriculum, sectionId) : null;
   const { isComplete, isVisited, forSection } = useProgress();
+  const { progress: simProgress } = useSimProgress();
 
   if (!section) return <Navigate to="/dashboard" replace />;
 
@@ -52,6 +56,11 @@ export default function SectionPage() {
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </Link>
       )}
+
+      {(() => {
+        const sim = simulationForSection(section.id);
+        return sim ? <LabCallout sim={sim} passed={Boolean(simProgress[sim.id]?.challenge_passed_at)} /> : null;
+      })()}
 
       <ol className="space-y-2">
         {section.lessons.map((lesson, i) => {

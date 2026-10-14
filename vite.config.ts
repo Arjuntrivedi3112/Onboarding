@@ -11,13 +11,20 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [react()],
   resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
-  },
-  define: {
-    // Ensure environment variables are properly injected during build
-    __VITE_ENV__: JSON.stringify(process.env),
+    alias: [
+      // `npm run dev:demo` swaps Supabase for an in-memory backend seeded with
+      // demo learners, so the whole app (admin console included) can be
+      // explored without an account or network. Never used in builds.
+      ...(mode === "demo"
+        ? [
+            {
+              find: /^@\/integrations\/supabase\/client$/,
+              replacement: path.resolve(__dirname, "./src/demo/client.ts"),
+            },
+          ]
+        : []),
+      { find: "@", replacement: path.resolve(__dirname, "./src") },
+    ],
   },
   test: {
     environment: "jsdom",

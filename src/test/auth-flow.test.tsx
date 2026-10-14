@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import App from "@/App";
-import { fakeDb } from "./mocks/supabase";
+import { fakeDb } from "@/demo/fakeSupabase";
 
 function renderAt(path: string) {
   window.history.pushState({}, "", path);

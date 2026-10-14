@@ -4,6 +4,7 @@ import {
   BookMarked,
   Check,
   FileText,
+  FlaskConical,
   HelpCircle,
   History,
   Layers,
@@ -27,6 +28,7 @@ import { lessonBySlug, lessonList, lessonPath, sectionList, sectionPath } from "
 import { useProgress } from "@/hooks/useProgress";
 import type { ContentSnippet } from "@/lib/bookContext";
 import { getSearchHistory, recordSearchQuery } from "@/lib/searchHistory";
+import { SIMULATIONS } from "@/simulations/registry";
 
 /** Fired by any visible trigger (e.g. the sidebar search button) to open the palette. */
 export const OPEN_COMMAND_PALETTE_EVENT = "adtech-journey:open-command-palette";
@@ -246,6 +248,17 @@ export function CommandPalette() {
                 {section.bookChapter > 0 ? `Section ${section.number} · ` : "Appendix · "}
                 {section.title}
               </span>
+            </CommandItem>
+          ))}
+        </CommandGroup>
+
+        <CommandSeparator />
+
+        <CommandGroup heading="Simulation Lab">
+          {SIMULATIONS.map((sim) => (
+            <CommandItem key={sim.id} value={`simulator lab ${sim.title} ${sim.tagline}`} onSelect={() => go(`/lab/${sim.id}`)}>
+              <FlaskConical className="mr-2 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+              <span className="min-w-0 flex-1 truncate">{sim.title}</span>
             </CommandItem>
           ))}
         </CommandGroup>

@@ -15,7 +15,8 @@
     "pretest": "npm run search-index",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit -p tsconfig.app.json"
+    "typecheck": "tsc --noEmit -p tsconfig.app.json",
+    "dev:demo": "npm run search-index && vite --mode demo"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.3.0",

@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { BookMarked, Check, FileText, Library, Map, Search, Star } from "lucide-react";
+import { BookMarked, Check, FileText, FlaskConical, Library, Map, Search, Star } from "lucide-react";
 
 import { curriculum, lessonPath, sectionPath } from "@/curriculum";
 import type { Part, Section } from "@/curriculum/types";
 import { openCommandPalette } from "@/components/journey/CommandPalette";
+import { NotificationBell } from "@/components/journey/NotificationBell";
 import { UserMenu } from "@/components/journey/UserMenu";
 import { useProgress } from "@/hooks/useProgress";
 import { cn } from "@/lib/utils";
 
 const REFERENCE_LINKS = [
+  { to: "/lab", label: "Simulation Lab", icon: FlaskConical, tour: "lab-link" },
   { to: "/map", label: "Ecosystem map", icon: Map },
   { to: "/glossary", label: "Glossary", icon: BookMarked },
   { to: "/bookmarks", label: "Bookmarks", icon: Star },
@@ -40,9 +42,12 @@ export function JourneySidebar({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <div className="flex h-full flex-col bg-sidebar" data-tour="sidebar">
       <div className="border-b border-sidebar-border p-4">
-        <Link to="/dashboard" onClick={onNavigate} className="block">
-          <span className="font-display text-lg text-foreground">AdTech Journey</span>
-        </Link>
+        <div className="flex items-center justify-between gap-2">
+          <Link to="/dashboard" onClick={onNavigate} className="block">
+            <span className="font-display text-lg text-foreground">AdTech Journey</span>
+          </Link>
+          <NotificationBell />
+        </div>
 
         {hasStarted ? (
           <div className="mt-3">
@@ -94,12 +99,13 @@ export function JourneySidebar({ onNavigate }: { onNavigate?: () => void }) {
           />
         ))}
 
-        <p className="px-3 pb-2 pt-5 text-xs uppercase text-muted-foreground">Reference</p>
+        <p className="px-3 pb-2 pt-5 text-xs uppercase text-muted-foreground">Practice and reference</p>
         <ul>
-          {REFERENCE_LINKS.map(({ to, label, icon: Icon }) => (
+          {REFERENCE_LINKS.map(({ to, label, icon: Icon, tour }) => (
             <li key={to}>
               <NavLink
                 to={to}
+                data-tour={tour}
                 onClick={onNavigate}
                 className={({ isActive }) =>
                   cn(

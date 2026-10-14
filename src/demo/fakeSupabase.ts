@@ -1,8 +1,9 @@
 /**
- * In-memory stand-in for the Supabase client, installed for every test in
- * src/test/setup.ts. Tables are plain arrays; the query builder applies the
- * equality-style filters the app uses, so components behave as they would
- * against a real project — without network, keys or a database.
+ * In-memory stand-in for the Supabase client. Installed for every test in
+ * src/test/setup.ts, and behind `npm run dev:demo` (src/demo/client.ts).
+ * Tables are plain arrays; the query builder applies the equality-style
+ * filters the app uses, so components behave as they would against a real
+ * project — without network, keys or a database.
  *
  * Default state: a signed-in, fully onboarded learner with no progress.
  * Use `fakeDb.signInAs(...)`, `fakeDb.signOut()` and `fakeDb.tables` to set

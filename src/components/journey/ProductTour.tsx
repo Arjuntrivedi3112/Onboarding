@@ -2,6 +2,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Compass, X } from "lucide-react";
 
+import { useAuth } from "@/lib/auth/AuthProvider";
+import { track } from "@/lib/telemetry";
+
 interface TourStep {
   /** Matches a `data-tour="…"` attribute on the element being highlighted. */
   target: string;
@@ -31,16 +34,34 @@ const STEPS: TourStep[] = [
     placement: "right",
   },
   {
+    target: "lab-link",
+    title: "The Simulation Lab",
+    body: "Every section has a hands-on simulator: run an auction, build an identity graph, pace a budget. Each one ends with a challenge.",
+    placement: "right",
+  },
+  {
     target: "next-action",
-    title: "Pick up where you left off",
-    body: "This card always points at your next unfinished lesson. It's in the same place on day one and day forty.",
+    title: "Your next lesson, always here",
+    body: "This card follows your personal path and points at your next unfinished lesson. Same place on day one and day forty.",
     placement: "bottom",
   },
   {
     target: "sections",
-    title: "Your progress, section by section",
-    body: "Each card shows how far you've gotten. The whole book is here — this is the entire journey at a glance.",
+    title: "Your path, section by section",
+    body: "Sections are ordered for your team. \"Key\" sections matter most for your role; \"Skim\" ones cover what you said you know.",
     placement: "top",
+  },
+  {
+    target: "notifications",
+    title: "Assignments and nudges",
+    body: "Your onboarding lead can assign lessons and simulators or send a note. They show up here and on your dashboard.",
+    placement: "right",
+  },
+  {
+    target: "user-menu",
+    title: "Your profile",
+    body: "Badges, streaks, reading time, your weekly goal, password and recovery code — all in your profile.",
+    placement: "right",
   },
   {
     target: "ask-question",
@@ -93,13 +114,14 @@ function useElementRect(selector: string | null): DOMRect | null {
 }
 
 /**
- * A manually-triggered walkthrough of the main navigational affordances —
- * not an automatic first-visit tour, since there's no per-user account yet
- * to remember who has seen it. Deliberately anchored to real elements
+ * A walkthrough of the main navigational affordances. It runs once,
+ * automatically, after onboarding (remembered on the profile as
+ * tour_completed_at) and can be replayed from the "Take the tour" button. Deliberately anchored to real elements
  * (`data-tour="…"`) rather than a fixed script, so it can't drift out of
  * sync with a UI change the way a purely narrated tour could.
  */
 export function ProductTour() {
+  const { profile, updateProfile } = useAuth();
   const [active, setActive] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const navigate = useNavigate();
@@ -116,7 +138,26 @@ export function ProductTour() {
     if (location.pathname !== "/dashboard") navigate("/dashboard");
   }, [location.pathname, navigate]);
 
+  // First visit after onboarding: run the tour once, automatically.
+  const autoStarted = useRef(false);
+  useEffect(() => {
+    if (autoStarted.current || active) return;
+    if (!profile?.onboarding_completed_at || profile.tour_completed_at) return;
+    if (location.pathname !== "/dashboard") return;
+    autoStarted.current = true;
+    const timer = window.setTimeout(() => {
+      startedFromRef.current = "/dashboard";
+      setStepIndex(0);
+      setActive(true);
+    }, 900);
+    return () => window.clearTimeout(timer);
+  }, [profile?.onboarding_completed_at, profile?.tour_completed_at, location.pathname, active]);
+
   const stop = useCallback(() => {
+    if (profile && !profile.tour_completed_at) {
+      void updateProfile({ tour_completed_at: new Date().toISOString() }).catch(() => undefined);
+      track("tour_complete");
+    }
     setActive(false);
     // If the tour itself navigated to the dashboard, return to wherever the
     // learner actually was — starting a tour shouldn't relocate them.
@@ -124,7 +165,7 @@ export function ProductTour() {
       navigate(startedFromRef.current);
     }
     startedFromRef.current = null;
-  }, [navigate]);
+  }, [navigate, profile, updateProfile]);
 
   useEffect(() => {
     if (!active) return;

@@ -3,11 +3,14 @@ import { Outlet, useLocation } from "react-router-dom";
 import { Menu, MessageSquare, X } from "lucide-react";
 
 import { AIChatPanel } from "@/components/ai/AIChatPanel";
+import { onOpenAskPanel } from "@/components/ai/askBus";
+import { BadgeWatcher } from "@/components/journey/BadgeWatcher";
 import { CommandPalette } from "@/components/journey/CommandPalette";
 import { JourneySidebar } from "@/components/journey/JourneySidebar";
 import { PageTransition } from "@/components/journey/PageTransition";
 import { ProductTour } from "@/components/journey/ProductTour";
 import { ThemeToggle } from "@/components/journey/ThemeToggle";
+import { cn } from "@/lib/utils";
 
 /**
  * The app shell: a persistent rail plus the routed content column.
@@ -21,6 +24,18 @@ export function JourneyLayout() {
   const location = useLocation();
   const [railOpen, setRailOpen] = useState(false);
   const [askOpen, setAskOpen] = useState(false);
+  const [askPrefill, setAskPrefill] = useState<string | undefined>(undefined);
+  // Simulators need room for a stage plus a side panel.
+  const wide = location.pathname.startsWith("/lab/");
+
+  useEffect(
+    () =>
+      onOpenAskPanel((prefill) => {
+        setAskPrefill(prefill);
+        setAskOpen(true);
+      }),
+    []
+  );
 
   // Close the mobile sheet whenever navigation happens.
   useEffect(() => {
@@ -85,7 +100,7 @@ export function JourneyLayout() {
       </header>
 
       <main id="main" className="lg:ml-[280px]">
-        <div className="mx-auto max-w-4xl px-4 py-8 md:px-8">
+        <div className={cn("mx-auto px-4 py-8 md:px-8", wide ? "max-w-6xl" : "max-w-4xl")}>
           <PageTransition>
             <Outlet />
           </PageTransition>
@@ -94,7 +109,10 @@ export function JourneyLayout() {
 
       <button
         type="button"
-        onClick={() => setAskOpen(true)}
+        onClick={() => {
+          setAskPrefill(undefined);
+          setAskOpen(true);
+        }}
         data-tour="ask-question"
         className="interactive fixed bottom-5 right-5 z-30 inline-flex min-h-[2.75rem] items-center gap-2 rounded-full border border-border bg-card px-4 text-sm text-foreground shadow-lg hover:border-primary/40"
       >
@@ -104,8 +122,9 @@ export function JourneyLayout() {
 
       <ThemeToggle />
       <ProductTour />
-      <AIChatPanel isOpen={askOpen} onClose={() => setAskOpen(false)} />
+      <AIChatPanel isOpen={askOpen} onClose={() => setAskOpen(false)} prefill={askPrefill} />
       <CommandPalette />
+      <BadgeWatcher />
     </div>
   );
 }

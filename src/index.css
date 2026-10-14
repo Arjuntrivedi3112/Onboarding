@@ -302,6 +302,49 @@
 }
 
 /*
+ * Simulation Lab range sliders: a filled track up to the thumb, in theme
+ * tokens. The fill percentage comes from --sim-range-pct set inline.
+ */
+@layer components {
+  .sim-range {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: linear-gradient(
+      90deg,
+      hsl(var(--primary)) 0%,
+      hsl(var(--primary)) var(--sim-range-pct, 0%),
+      hsl(var(--secondary)) var(--sim-range-pct, 0%),
+      hsl(var(--secondary)) 100%
+    );
+    cursor: pointer;
+  }
+  .sim-range:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 4px;
+  }
+  .sim-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 9999px;
+    background: hsl(var(--card));
+    border: 3px solid hsl(var(--primary));
+    box-shadow: 0 0 12px hsl(var(--primary) / 0.5);
+  }
+  .sim-range::-moz-range-thumb {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 9999px;
+    background: hsl(var(--card));
+    border: 3px solid hsl(var(--primary));
+    box-shadow: 0 0 12px hsl(var(--primary) / 0.5);
+  }
+}
+
+/*
  * Reduced motion. Deliberately OUTSIDE @layer so it beats layered rules on
  * specificity, and paired with <MotionConfig reducedMotion="user"> in App.tsx
  * which covers the framer-motion elements this cannot reach.

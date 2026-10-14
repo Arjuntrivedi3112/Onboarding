@@ -158,6 +158,54 @@ describe("writing", () => {
   });
 });
 
+/**
+ * The Simulation Lab trades some restraint for vividness: glows, gradients,
+ * chain hues and looping motion are allowed there (motion still stops under
+ * reduced-motion, via framer-motion's useReducedMotion and MotionConfig).
+ * What stays mandatory is what keeps it usable: theme colours only (so dark
+ * mode works), visible focus, readable text sizes, real buttons.
+ */
+describe("simulation lab", () => {
+  const simFiles = () =>
+    globSync(["src/simulations/**/*.{ts,tsx}"], { cwd: ROOT, absolute: false }).map((rel) => ({
+      path: rel,
+      text: readFileSync(join(ROOT, rel), "utf8"),
+    }));
+
+  function simOffenders(pattern: RegExp, skip?: (line: string) => boolean): string[] {
+    return simFiles().flatMap((f) =>
+      f.text
+        .split("\n")
+        .map((line, i) => ({ line, i }))
+        .filter(({ line }) => !skip?.(line) && pattern.test(line))
+        .map(({ line, i }) => `${f.path}:${i + 1}  ${line.trim().slice(0, 110)}`)
+    );
+  }
+
+  it("uses theme colours only", () => {
+    expect(simOffenders(/#[0-9a-fA-F]{3,8}\b|\brgba?\(|(?<!var\()\bhsl\(\s*\d/)).toEqual([]);
+    expect(
+      simOffenders(
+        /\b(?:text|bg|border|ring|fill|stroke|from|to|via)-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d{2,3}\b/
+      )
+    ).toEqual([]);
+    expect(simOffenders(/\btext-white\b|\btext-black\b/)).toEqual([]);
+  });
+
+  it("keeps text at or above the 12px floor", () => {
+    expect(simOffenders(/text-\[\d+px\]/)).toEqual([]);
+  });
+
+  it("keeps focus visible and clicks on real controls", () => {
+    expect(simOffenders(/focus:outline-none/, (line) => /focus-visible:/.test(line))).toEqual([]);
+    expect(simOffenders(/<(?:div|span|li|section|article)\b[^>]*\bonClick=/)).toEqual([]);
+  });
+
+  it("covers every simulator", () => {
+    expect(simFiles().length).toBeGreaterThanOrEqual(14);
+  });
+});
+
 describe("rule coverage", () => {
   it("actually scanned the journey source", () => {
     const files = sourceFiles();

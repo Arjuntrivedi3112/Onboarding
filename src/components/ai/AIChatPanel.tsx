@@ -32,6 +32,8 @@ interface AIChatPanelProps {
   isOpen: boolean;
   onClose: () => void;
   context?: string;
+  /** A question to place in the input when the panel opens. */
+  prefill?: string;
 }
 
 const quickPrompts = [
@@ -41,7 +43,7 @@ const quickPrompts = [
   "How does cookie-less targeting work?",
 ];
 
-export function AIChatPanel({ isOpen, onClose, context }: AIChatPanelProps) {
+export function AIChatPanel({ isOpen, onClose, context, prefill }: AIChatPanelProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
@@ -57,12 +59,12 @@ export function AIChatPanel({ isOpen, onClose, context }: AIChatPanelProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Prefill input when context is provided and panel opens
+  // Prefill input when a question or context is provided and the panel opens
   useEffect(() => {
-    if (isOpen && context) {
-      setInput(context);
+    if (isOpen && (prefill || context)) {
+      setInput(prefill ?? context ?? "");
     }
-  }, [isOpen, context]);
+  }, [isOpen, context, prefill]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;

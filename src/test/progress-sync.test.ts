@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { getSnapshot, markComplete, recordVisit, setProgressScope, toggleBookmark } from "@/lib/progress";
 import { diffProgress, EMPTY_PROGRESS, mergeProgress, type RemoteProgress } from "@/lib/sync/merge";
 import { syncAccount } from "@/lib/sync/progressSync";
-import { fakeDb } from "./mocks/supabase";
+import { fakeDb } from "@/demo/fakeSupabase";
 
 const USER = "00000000-0000-4000-8000-000000000001";
 const noRemote: RemoteProgress = { lessons: [], bookmarks: [], resume: null, started_at: null };
