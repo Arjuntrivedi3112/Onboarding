@@ -180,6 +180,10 @@ export default function ProfilePage() {
                 className="flex h-11 w-full rounded-lg border border-input bg-background px-3 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <option value="">Not set</option>
+                {/* A team from before the list changed stays visible until re-picked. */}
+                {team && !(TEAMS as readonly string[]).includes(team) && (
+                  <option value={team}>{team} (old team name)</option>
+                )}
                 {TEAMS.map((t) => (
                   <option key={t} value={t}>
                     {t}
