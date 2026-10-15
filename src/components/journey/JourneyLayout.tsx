@@ -100,7 +100,7 @@ export function JourneyLayout() {
       </header>
 
       <main id="main" className="lg:ml-[280px]">
-        <div className={cn("mx-auto px-4 py-8 md:px-8", wide ? "max-w-6xl" : "max-w-4xl")}>
+        <div className={cn("mx-auto px-4 pb-28 pt-8 md:px-8", wide ? "max-w-6xl" : "max-w-4xl")}>
           <PageTransition>
             <Outlet />
           </PageTransition>

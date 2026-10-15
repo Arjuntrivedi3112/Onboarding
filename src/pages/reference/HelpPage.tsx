@@ -1,4 +1,7 @@
 import { Link } from "react-router-dom";
+import { Compass } from "lucide-react";
+
+import { startProductTour } from "@/components/journey/ProductTour";
 
 import { bookTotalLessons, bookTotalMinutes } from "@/curriculum";
 import { useProgress } from "@/hooks/useProgress";
@@ -19,6 +22,18 @@ export default function HelpPage() {
       <h1 className="font-display text-3xl text-foreground">How this works</h1>
 
       <div className="measure mt-6 space-y-6 text-muted-foreground">
+        <section>
+          <h2 className="mb-2 text-xl text-foreground">Product tour</h2>
+          <button
+            type="button"
+            onClick={startProductTour}
+            className="inline-flex min-h-[2.75rem] items-center gap-2 rounded-lg border border-border-strong px-4 text-sm text-foreground hover:bg-secondary"
+          >
+            <Compass className="h-4 w-4" aria-hidden="true" />
+            Take the tour
+          </button>
+        </section>
+
         <section>
           <h2 className="mb-2 text-xl text-foreground">What this is</h2>
           <p>

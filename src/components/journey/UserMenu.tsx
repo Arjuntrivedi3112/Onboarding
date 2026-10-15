@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ChevronsUpDown, HelpCircle, LogOut, ShieldCheck, UserRound } from "lucide-react";
+import { ChevronsUpDown, Compass, HelpCircle, LogOut, ShieldCheck, UserRound } from "lucide-react";
 
 import {
   DropdownMenu,
@@ -9,6 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { startProductTour } from "@/components/journey/ProductTour";
 import { initialsFor, useAuth } from "@/lib/auth/AuthProvider";
 
 /** The signed-in learner's avatar and account actions, pinned to the rail's foot. */
@@ -51,6 +52,15 @@ export function UserMenu({ onNavigate }: { onNavigate?: () => void }) {
             </Link>
           </DropdownMenuItem>
         )}
+        <DropdownMenuItem
+          onSelect={() => {
+            onNavigate?.();
+            startProductTour();
+          }}
+        >
+          <Compass className="mr-2 h-4 w-4" aria-hidden="true" />
+          Take the tour
+        </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link to="/help" onClick={onNavigate}>
             <HelpCircle className="mr-2 h-4 w-4" aria-hidden="true" />

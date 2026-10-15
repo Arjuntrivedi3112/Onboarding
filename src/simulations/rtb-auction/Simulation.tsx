@@ -151,7 +151,7 @@ export default function Simulation({ onChallengePassed, challengePassed, onDescr
         />
 
         {/* The chain */}
-        <div className="relative mt-6 grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-6">
+        <div className="relative mt-6 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1.2fr)] items-center gap-2 sm:gap-6">
           <Wires phase={playback.t > 0 && !playback.done ? phase : playback.done ? "done" : "idle"} winnerIndex={DSPS.findIndex((d) => d.id === outcome.winner)} />
           <div className="flex flex-col items-center gap-3">
             <FlowNode label="User" sublabel="browser" role="user" icon={<User className="h-5 w-5" />} active={active(["load", "serve"])} />
@@ -166,7 +166,7 @@ export default function Simulation({ onChallengePassed, challengePassed, onDescr
               role="exchange"
               icon={<Gavel className="h-5 w-5" />}
               active={active(["fanout", "auction", "win"])}
-              className="min-w-[8rem]"
+              className="min-w-0 sm:min-w-[8rem]"
             />
             <AnimatePresence>
               {phase === "fanout" && !reduce && (
@@ -192,10 +192,10 @@ export default function Simulation({ onChallengePassed, challengePassed, onDescr
                   <FlowNode
                     label={dsp.name}
                     role="dsp"
-                    icon={<Server className="h-5 w-5" />}
+                    icon={<Server className="hidden h-5 w-5 sm:block" />}
                     active={active(["fanout", "bid"]) || (isWinner && active(["win", "serve"]))}
                     dimmed={resolved && !isWinner}
-                    className={cn("flex-1", isWinner && "ring-2 ring-primary ring-offset-2 ring-offset-card")}
+                    className={cn("min-w-0 flex-1", isWinner && "ring-2 ring-primary ring-offset-2 ring-offset-card")}
                   />
                   <AnimatePresence>
                     {showBids && (
@@ -204,7 +204,7 @@ export default function Simulation({ onChallengePassed, challengePassed, onDescr
                         animate={{ opacity: 1, scale: 1, x: 0 }}
                         exit={{ opacity: 0 }}
                         className={cn(
-                          "figure w-16 rounded-md border px-1.5 py-1 text-center text-sm",
+                          "figure w-12 shrink-0 rounded-md border px-1 py-1 text-center text-xs sm:w-16 sm:px-1.5 sm:text-sm",
                           below
                             ? "border-nobid/40 text-nobid line-through"
                             : isWinner

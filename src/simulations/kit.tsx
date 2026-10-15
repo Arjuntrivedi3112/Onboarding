@@ -436,7 +436,7 @@ export function FlowNode({
   return (
     <motion.div
       className={cn(
-        "relative flex min-w-[6.5rem] flex-col items-center gap-1 rounded-xl border-2 bg-card px-3 py-2 text-center transition-opacity",
+        "relative flex min-w-[4.5rem] flex-col items-center gap-1 rounded-xl border-2 bg-card px-2 py-2 text-center transition-opacity sm:min-w-[6.5rem] sm:px-3",
         dimmed && "opacity-35",
         className
       )}

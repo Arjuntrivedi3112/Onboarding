@@ -275,12 +275,12 @@ export function SessionNotesModule({ onSelectSession, sessions, doubts, onSessio
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
+      <div className="flex flex-wrap items-start justify-between gap-3 mb-6">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-2">
             <h2 className="text-2xl font-bold">Session Notes</h2>
             {githubConfigured && (
-              <div className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
+              <div className="flex shrink-0 items-center gap-1 whitespace-nowrap text-xs px-2 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
                 <CheckCircle2 className="w-3 h-3" />
                 You can edit
               </div>

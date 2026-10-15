@@ -264,11 +264,11 @@ function LessonFooter({
           )}
         </button>
 
-        <div className="flex gap-3 sm:order-1 sm:flex-1">
+        <div className="flex min-w-0 gap-3 sm:order-1 sm:flex-1">
           {prev && (
             <Link
               to={lessonPath(prev)}
-              className="interactive inline-flex min-h-[2.75rem] flex-1 items-center gap-2 rounded-lg border border-border px-4 text-sm text-muted-foreground hover:border-border-strong hover:text-foreground sm:flex-none"
+              className="interactive inline-flex min-h-[2.75rem] min-w-0 flex-1 items-center gap-2 rounded-lg border border-border px-4 text-sm text-muted-foreground hover:border-border-strong hover:text-foreground sm:flex-initial"
             >
               <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden="true" />
               <span className="truncate">{prev.lesson.title}</span>
@@ -279,11 +279,11 @@ function LessonFooter({
           )}
         </div>
 
-        <div className="flex gap-3 sm:order-3 sm:flex-1 sm:justify-end">
+        <div className="flex min-w-0 gap-3 sm:order-3 sm:flex-1 sm:justify-end">
           {next && (
             <Link
               to={lessonPath(next)}
-              className="interactive inline-flex min-h-[2.75rem] flex-1 items-center justify-end gap-2 rounded-lg border border-border px-4 text-sm text-muted-foreground hover:border-border-strong hover:text-foreground sm:flex-none"
+              className="interactive inline-flex min-h-[2.75rem] min-w-0 flex-1 items-center justify-end gap-2 rounded-lg border border-border px-4 text-sm text-muted-foreground hover:border-border-strong hover:text-foreground sm:flex-initial"
             >
               <kbd className="figure hidden shrink-0 rounded border border-border px-1 text-xs leading-none text-muted-foreground sm:inline-block">
                 ]

@@ -79,6 +79,18 @@ const STEPS: TourStep[] = [
 
 const MARGIN = 10;
 
+const START_EVENT = "adtech:start-tour";
+
+/** Ask the tour to start from anywhere (user menu, Help page). */
+export function startProductTour() {
+  window.dispatchEvent(new Event(START_EVENT));
+}
+
+function onStartProductTour(handler: () => void): () => void {
+  window.addEventListener(START_EVENT, handler);
+  return () => window.removeEventListener(START_EVENT, handler);
+}
+
 function useElementRect(selector: string | null): DOMRect | null {
   const [rect, setRect] = useState<DOMRect | null>(null);
 
@@ -138,6 +150,18 @@ export function ProductTour() {
     if (location.pathname !== "/dashboard") navigate("/dashboard");
   }, [location.pathname, navigate]);
 
+  // Started on demand from anywhere via startProductTour().
+  useEffect(
+    () =>
+      onStartProductTour(() => {
+        startedFromRef.current = location.pathname;
+        setStepIndex(0);
+        setActive(true);
+        if (location.pathname !== "/dashboard") navigate("/dashboard");
+      }),
+    [location.pathname, navigate]
+  );
+
   // First visit after onboarding: run the tour once, automatically.
   const autoStarted = useRef(false);
   useEffect(() => {
@@ -188,23 +212,9 @@ export function ProductTour() {
     setStepIndex((i) => Math.max(0, i - 1));
   }
 
-  if (!active) {
-    // Stacked above "Ask a question" in the same corner rather than the
-    // opposite one: the desktop sidebar is `fixed left-0 top-0 h-screen`
-    // with a higher z-index and an opaque background, so anything placed
-    // bottom-left sits fully behind it above the `lg` breakpoint — not
-    // hidden on some screens, invisible on every real desktop window.
-    return (
-      <button
-        type="button"
-        onClick={start}
-        className="interactive fixed bottom-[4.75rem] right-5 z-30 inline-flex min-h-[2.75rem] items-center gap-2 rounded-full border border-border bg-card px-4 text-sm text-foreground shadow-lg hover:border-primary/40"
-      >
-        <Compass className="h-4 w-4" aria-hidden="true" />
-        Take the tour
-      </button>
-    );
-  }
+  // The tour has no floating button of its own any more (it covered content,
+  // especially on phones). It starts from the user menu or the Help page.
+  if (!active) return null;
 
   return (
     <div className="fixed inset-0 z-[60]" role="dialog" aria-modal="true" aria-label="Product tour">
