@@ -34,11 +34,18 @@ export function useReadingHeartbeat(lessonId: string | undefined, enabled = true
 
     const send = (seconds: number) => {
       if (seconds < 5) return;
-      void supabase.rpc("add_lesson_time", {
-        p_lesson_id: lessonId,
-        p_seconds: Math.round(seconds),
-        p_scroll_pct: Math.min(100, maxScroll),
-      });
+      // Supabase query builders are lazy: the request is only sent once
+      // something awaits or chains the builder, so `void builder` sends nothing.
+      supabase
+        .rpc("add_lesson_time", {
+          p_lesson_id: lessonId,
+          p_seconds: Math.round(seconds),
+          p_scroll_pct: Math.min(100, maxScroll),
+        })
+        .then(
+          () => undefined,
+          () => undefined
+        );
     };
 
     const elapsedActive = () => {

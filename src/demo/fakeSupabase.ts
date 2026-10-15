@@ -277,13 +277,26 @@ const userFrom = () => (fakeDb.session ? { id: fakeDb.session.user.id, email: fa
 
 export const fakeSupabase = {
   from: (name: string) => new Query(name),
-  rpc: async (name: string, args: Record<string, unknown> = {}) => {
-    const handler = fakeDb.rpcHandlers[name];
-    try {
-      return { data: handler ? await handler(args) : null, error: null };
-    } catch (err) {
-      return { data: null, error: { message: err instanceof Error ? err.message : String(err) } };
-    }
+  // Like the real PostgrestBuilder, an rpc call is lazy: the handler only runs
+  // once the result is awaited or chained with .then(). That makes
+  // "created the call but never sent it" bugs visible in tests.
+  rpc: (name: string, args: Record<string, unknown> = {}) => {
+    let started: Promise<{ data: unknown; error: { message: string } | null }> | null = null;
+    const run = () =>
+      (started ??= (async () => {
+        const handler = fakeDb.rpcHandlers[name];
+        try {
+          return { data: handler ? await handler(args) : null, error: null };
+        } catch (err) {
+          return { data: null, error: { message: err instanceof Error ? err.message : String(err) } };
+        }
+      })());
+    return {
+      then: <A, B>(
+        onfulfilled?: ((v: { data: unknown; error: { message: string } | null }) => A | PromiseLike<A>) | null,
+        onrejected?: ((r: unknown) => B | PromiseLike<B>) | null
+      ) => run().then(onfulfilled, onrejected),
+    };
   },
   functions: {
     invoke: async (name: string, opts?: { body?: unknown }) => {
