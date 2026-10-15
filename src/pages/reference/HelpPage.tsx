@@ -81,7 +81,7 @@ export default function HelpPage() {
             the recovery code you saved when you first signed in. Lost that too? Choose{" "}
             <em>I lost my code</em> and an admin will give you a temporary password. You can make a new
             recovery code any time from your{" "}
-            <Link to="/profile" className="text-primary hover:underline">
+            <Link to="/profile" className="text-primary underline underline-offset-4">
               profile
             </Link>
             .

@@ -43,7 +43,7 @@ export default function SearchPage() {
       <h1 className="font-display text-3xl text-foreground">Search</h1>
       <p className="measure mt-2 text-muted-foreground">
         Find a lesson by title or topic. For a definition, try the{" "}
-        <Link to="/glossary" className="text-primary hover:underline">
+        <Link to="/glossary" className="text-primary underline underline-offset-4">
           glossary
         </Link>
         .

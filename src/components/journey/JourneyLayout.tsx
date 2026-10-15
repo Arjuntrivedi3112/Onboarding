@@ -114,10 +114,11 @@ export function JourneyLayout() {
           setAskOpen(true);
         }}
         data-tour="ask-question"
-        className="interactive fixed bottom-5 right-5 z-30 inline-flex min-h-[2.75rem] items-center gap-2 rounded-full border border-border bg-card px-4 text-sm text-foreground shadow-lg hover:border-primary/40"
+        aria-label="Ask a question"
+        className="interactive fixed bottom-5 right-4 z-30 inline-flex min-h-[2.75rem] min-w-[2.75rem] items-center justify-center gap-2 rounded-full border border-border bg-card px-3 text-sm text-foreground shadow-lg hover:border-primary/40 sm:right-5 sm:px-4"
       >
         <MessageSquare className="h-4 w-4" aria-hidden="true" />
-        Ask a question
+        <span className="hidden sm:inline">Ask a question</span>
       </button>
 
       <ThemeToggle />

@@ -62,6 +62,12 @@ export default function AddPeoplePage() {
           />
           <p className="mt-2 text-sm text-muted-foreground" aria-live="polite">
             {people.length} {people.length === 1 ? "person" : "people"} ready
+            {people.some((p) => !p.full_name) && (
+              <span className="block">
+                {people.filter((p) => !p.full_name).length} without a name — they'll be asked for it at first sign-in. Write{" "}
+                <span className="figure">Ada Lovelace &lt;ada@iqm.com&gt;</span> to fill it in now.
+              </span>
+            )}
             {invalid.length > 0 && <span className="text-floor"> · couldn't read: {invalid.slice(0, 3).join(", ")}</span>}
           </p>
 

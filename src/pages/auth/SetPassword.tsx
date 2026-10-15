@@ -41,7 +41,7 @@ export default function SetPassword() {
       title={name ? `Welcome, ${name}` : "Welcome"}
       subtitle="First, replace the temporary password you were given with one only you know."
       footer={
-        <button type="button" onClick={signOut} className="text-primary underline-offset-4 hover:underline">
+        <button type="button" onClick={signOut} className="text-primary underline underline-offset-4">
           Sign out
         </button>
       }

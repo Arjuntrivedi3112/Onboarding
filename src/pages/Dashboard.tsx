@@ -16,7 +16,7 @@ import { useAnnouncements, useLearnerStats, useMyAssignments } from "@/hooks/use
 import { useProgress } from "@/hooks/useProgress";
 import { useSimProgress } from "@/hooks/useSimProgress";
 import { firstNameFor, useAuth } from "@/lib/auth/AuthProvider";
-import { buildLearningPath, nextOnPath, parseLearningPath, type Focus } from "@/lib/learningPath";
+import { buildLearningPath, nextOnPath, parseLearningPath, TEAMS, type Focus } from "@/lib/learningPath";
 import { cn } from "@/lib/utils";
 import { SIMULATIONS, simulationForSection } from "@/simulations/registry";
 
@@ -76,6 +76,7 @@ export default function Dashboard() {
           <div className="mt-4 max-w-md">
             <div
               role="progressbar"
+              aria-label="Book progress"
               aria-valuenow={book.pct}
               aria-valuemin={0}
               aria-valuemax={100}
@@ -96,6 +97,17 @@ export default function Dashboard() {
           </p>
         )}
       </header>
+
+      {profile?.team && !(TEAMS as readonly string[]).includes(profile.team) && (
+        <div className="mb-6 flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 text-sm">
+          <span className="min-w-0 flex-1 text-muted-foreground">
+            Your team is saved as “{profile.team}”, which is no longer on the team list. Pick your team to refresh your path.
+          </span>
+          <Link to="/welcome" className="interactive inline-flex min-h-[2.5rem] items-center rounded-lg border border-border px-3 text-foreground hover:border-primary/40">
+            Update my team
+          </Link>
+        </div>
+      )}
 
       <Announcements items={announcements} />
 

@@ -53,6 +53,7 @@ export function JourneySidebar({ onNavigate }: { onNavigate?: () => void }) {
           <div className="mt-3">
             <div
               role="progressbar"
+              aria-label="Book progress"
               aria-valuenow={book.pct}
               aria-valuemin={0}
               aria-valuemax={100}

@@ -41,7 +41,7 @@ export default function SignIn() {
       footer={
         <>
           New to IQM&apos;s AdTech Journey?{" "}
-          <Link to="/auth/sign-up" className="text-primary underline-offset-4 hover:underline">
+          <Link to="/auth/sign-up" className="text-primary underline underline-offset-4">
             Create an account
           </Link>{" "}
           with your @iqm.com email.
@@ -76,7 +76,7 @@ export default function SignIn() {
           <Link
             to="/auth/forgot-password"
             state={{ email }}
-            className="mt-2 inline-block text-sm text-primary underline-offset-4 hover:underline"
+            className="mt-2 inline-block text-sm text-primary underline underline-offset-4"
           >
             Forgot password?
           </Link>

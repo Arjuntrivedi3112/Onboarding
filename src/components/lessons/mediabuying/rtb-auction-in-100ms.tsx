@@ -248,8 +248,8 @@ function Body() {
                     i === currentIndex && !done
                       ? "border-primary bg-primary/10"
                       : i < currentIndex || done
-                        ? "border-border opacity-70"
-                        : "border-border opacity-50"
+                        ? "border-border"
+                        : "border-dashed border-border opacity-90"
                   )}
                 >
                   <div className="flex items-center justify-between gap-3">
@@ -284,7 +284,7 @@ function Body() {
                           ? "border-clearing bg-clearing/10"
                           : responded
                             ? "border-border bg-secondary"
-                            : "border-border opacity-50"
+                            : "border-dashed border-border opacity-90"
                       )}
                     >
                       <div>

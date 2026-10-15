@@ -18,8 +18,8 @@ function Stepper({
   min?: number;
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-3">
-      <span className="text-sm text-muted-foreground">{label}</span>
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-3">
+      <span className="min-w-0 text-sm text-muted-foreground">{label}</span>
       <div className="flex items-center gap-2">
         <button
           type="button"
@@ -196,7 +196,7 @@ function Body() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid gap-2 sm:grid-cols-2">
             <Stepper label="Hard floor" value={hardFloor} onChange={setHardFloor} />
             <Stepper label="Soft floor" value={softFloor} onChange={setSoftFloor} />
           </div>

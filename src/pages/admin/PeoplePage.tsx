@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { ArrowUpDown, ClipboardList, Download, Search, Send } from "lucide-react";
 import { toast } from "sonner";
 
-import { AssignDialog, EmptyState, NudgeDialog, PageHeader, PctBar, RiskChips, buttonClass, inputClass, relativeTime } from "@/components/admin/ui";
+import { AssignDialog, EmptyState, NudgeDialog, PageHeader, PctBar, RiskChips, ScrollTable, buttonClass, inputClass, relativeTime } from "@/components/admin/ui";
 import { useAdminActions, useLearners } from "@/lib/admin/api";
 import { downloadCsv, toCsv, type LearnerMetrics } from "@/lib/admin/metrics";
 import { useAuth } from "@/lib/auth/AuthProvider";
@@ -227,7 +227,7 @@ export default function PeoplePage() {
       ) : rows.length === 0 ? (
         <EmptyState>No one matches these filters.</EmptyState>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-border">
+        <ScrollTable className="rounded-lg border border-border">
           <table className="w-full min-w-[56rem] text-sm">
             <thead className="bg-secondary/60 text-left text-xs uppercase text-muted-foreground">
               <tr>
@@ -287,7 +287,7 @@ export default function PeoplePage() {
               ))}
             </tbody>
           </table>
-        </div>
+        </ScrollTable>
       )}
 
       <AssignDialog

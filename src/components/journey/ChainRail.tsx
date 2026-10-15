@@ -56,7 +56,7 @@ export function ChainRail({ focus = [], className }: ChainRailProps) {
               <span
                 className={cn(
                   "figure truncate text-[0.6875rem] uppercase tracking-wider",
-                  active ? "text-foreground" : "text-muted-foreground opacity-60"
+                  active ? "text-foreground" : "text-muted-foreground"
                 )}
               >
                 {actor.label}

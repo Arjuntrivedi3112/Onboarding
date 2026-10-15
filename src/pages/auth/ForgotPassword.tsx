@@ -69,7 +69,7 @@ export default function ForgotPassword() {
       title="Reset your password"
       subtitle="No email needed."
       footer={
-        <Link to="/auth/sign-in" className="text-primary underline-offset-4 hover:underline">
+        <Link to="/auth/sign-in" className="text-primary underline underline-offset-4">
           Back to sign in
         </Link>
       }

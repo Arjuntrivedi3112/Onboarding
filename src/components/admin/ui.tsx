@@ -83,6 +83,19 @@ export function RiskChips({ risks }: { risks: RiskReason[] }) {
   );
 }
 
+/**
+ * A table that scrolls sideways inside its own box on narrow screens, with a
+ * visible hint so nobody has to guess that more columns are off to the right.
+ */
+export function ScrollTable({ children, className }: { children: ReactNode; className?: string }) {
+  return (
+    <div>
+      <p className="mb-2 text-xs text-muted-foreground lg:hidden">Swipe sideways to see every column →</p>
+      <div className={cn("overflow-x-auto", className)}>{children}</div>
+    </div>
+  );
+}
+
 export function EmptyState({ children }: { children: ReactNode }) {
   return <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">{children}</p>;
 }

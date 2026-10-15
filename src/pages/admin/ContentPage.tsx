@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowUpDown } from "lucide-react";
 
-import { Card, EmptyState, PageHeader, relativeTime } from "@/components/admin/ui";
+import { Card, EmptyState, PageHeader, ScrollTable, relativeTime } from "@/components/admin/ui";
 import { curriculum, findLesson, lessonList, lessonPath } from "@/curriculum";
 import { useFeedbackComments, useLearners, useLessonStats, useSimStats } from "@/lib/admin/api";
 import { lessonInsights, type LessonInsight } from "@/lib/admin/metrics";
@@ -95,7 +95,7 @@ export default function ContentPage() {
       />
 
       <Card title="Simulators" className="mb-6">
-        <div className="overflow-x-auto">
+        <ScrollTable>
           <table className="w-full min-w-[36rem] text-sm">
             <thead className="text-left text-xs uppercase text-muted-foreground">
               <tr>
@@ -128,7 +128,7 @@ export default function ContentPage() {
               })}
             </tbody>
           </table>
-        </div>
+        </ScrollTable>
       </Card>
 
       <Card
@@ -152,7 +152,7 @@ export default function ContentPage() {
         {isLoading ? (
           <p className="text-muted-foreground">Loading…</p>
         ) : (
-          <div className="overflow-x-auto">
+          <ScrollTable>
             <table className="w-full min-w-[60rem] text-sm">
               <thead className="text-left text-xs uppercase text-muted-foreground">
                 <tr>
@@ -201,7 +201,7 @@ export default function ContentPage() {
                 })}
               </tbody>
             </table>
-          </div>
+          </ScrollTable>
         )}
         <p className="mt-4 flex flex-wrap gap-4 text-xs text-muted-foreground">
           <span>Confidence:</span>

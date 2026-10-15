@@ -71,3 +71,20 @@ describe("admin console", () => {
     await waitFor(() => expect(fakeDb.table("password_reset_requests")[0].status).toBe("resolved"));
   });
 });
+
+describe("admin usability", () => {
+  beforeEach(() => seedDemo(fakeDb));
+
+  it("hints that wide tables scroll sideways", async () => {
+    renderAt("/admin/people");
+    await screen.findByRole("heading", { level: 1, name: "People" });
+    expect(screen.getByText(/Swipe sideways to see every column/)).toBeInTheDocument();
+  });
+
+  it("asks admins to include names when they paste only emails", async () => {
+    renderAt("/admin/add");
+    await screen.findByRole("heading", { level: 1, name: "Add people" });
+    fireEvent.change(screen.getByLabelText("People"), { target: { value: "a@iqm.com\nB Person <b@iqm.com>" } });
+    expect(screen.getByText(/1 without a name/)).toBeInTheDocument();
+  });
+});

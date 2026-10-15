@@ -101,3 +101,19 @@ describe("simulation lab", () => {
     await waitFor(() => expect(window.location.pathname).toBe("/lab"));
   });
 });
+
+describe("legacy team names", () => {
+  it("tells someone whose saved team is no longer offered, and keeps showing it on the profile", async () => {
+    fakeDb.signInAs({ profile: { team: "Engineering" } });
+    renderAt("/dashboard");
+    expect(await screen.findByText(/saved as “Engineering”/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Update my team" })).toHaveAttribute("href", "/welcome");
+  });
+
+  it("does not nag people on a current team", async () => {
+    fakeDb.signInAs({ profile: { team: "QA" } });
+    renderAt("/dashboard");
+    await screen.findByRole("heading", { level: 1, name: /Welcome/ });
+    expect(screen.queryByText(/no longer on the team list/)).not.toBeInTheDocument();
+  });
+});
